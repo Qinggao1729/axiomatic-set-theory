@@ -71,5 +71,5 @@
    "inputRev": "a719ba5c3115d47b68bf0497a9dd1bcbb21ea663",
    "inherited": false,
    "configFile": "lakefile.lean"}],
- "name": "LoVe",
+ "name": "AxiomaticSetTheory",
  "lakeDir": ".lake"}

@@ -1,6 +1,7 @@
 # Axiomatic Set Theory
 
-Project link: <https://github.com/claby2/axiomatic-set-theory>
+**License / third-party notes:** If you have them locally, see [LICENSE](LICENSE) and [NOTICE](NOTICE) (these files are gitignored for some fork/outreach workflows—add your own when publishing).  
+**Acknowledgments:** [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
 
 This project seeks to formalize an axiomatic approach to set theory within Lean.
 Drawing inspiration from Enderton's *Elements of Set Theory*, it begins with the fundamental axioms and proceeds to formalize selected theorems and exercises presented in the book. While this document provides a brief overview, the project's full details and implementations (including proofs to theorems and exercises) can be found in its source code.
@@ -8,7 +9,7 @@ Drawing inspiration from Enderton's *Elements of Set Theory*, it begins with the
 ## Overview
 
 The core of the project involves introducing a primitive notion of a set and a membership relation, and then building up the standard axioms of ZFC-like set theory.
-The development proceeds through the formalization of sets, elementary constructions, and fundamental operations, eventually leading to the formalization of relations, functions, and the beginnings of natural number construction.
+The development proceeds through sets, elementary constructions, relations, functions, equivalence/ordering relations, and a substantial Chapter 4 formalization of natural numbers on `ω` (including recursion, arithmetic, and ordering results).
 
 ### Basic Definitions
 
@@ -114,11 +115,11 @@ notation:90 F "⟦" A "⟧" => Image F A
 
 As noted in Enderton, this is formalized in a way that applies to all sets, not just sets that are functions.
 
-### Natural Numbers
+### Natural Numbers on ω
 
-The final part of the current work involves the beginnings of natural number construction.
-Following the standard set-theoretic approach, the successor operation is introduced, and inductive sets are defined.
-Natural numbers are then those sets contained in every inductive set.
+The project formalizes the set-theoretic natural numbers on `ω`.
+Following Enderton, the successor operation is introduced, inductive sets are defined, and natural numbers are characterized as sets that belong to every inductive set.
+On top of this base, the development includes recursion on `ω`, arithmetic operations (addition/multiplication/exponentiation), and key ordering theorems.
 
 ```lean
 noncomputable def Successor (a : Set) : Set := a ∪ Singleton a
@@ -129,7 +130,7 @@ def Natural (n : Set) : Prop := ∀ (A : Set), Inductive A → n ∈ A
 
 ## Next Steps
 
-So far, the project has developed the foundational machinery through the first few chapters of Enderton's *Elements of Set Theory*.
-Many theorems and exercises still remain to be formalized.
-A natural next step is to complete the formalization of the natural numbers, which will require invoking the recursion theorem.
-Once natural numbers are fully treated, the path is open to formalizing arithmetic, real numbers, cardinal numbers, and ordinals.
+The codebase now covers the core flow through Chapters 2–4 in a section-oriented module layout.
+Natural next steps are to (1) expand exercise coverage, (2) add the six equivalent forms of AC and their equivalence proofs, and (3) continue onward to later chapters (cardinality, ordinals, and related constructions).
+
+Planning and book-to-Lean traceability live in **`Enderton_Textbook_Todos.md`** (with **`docs/textbook-transcriptions/`** and **`ARCHITECTURE_SECTION_MODULES.md`** for structure).

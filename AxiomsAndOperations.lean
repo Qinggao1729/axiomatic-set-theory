@@ -1,5 +1,17 @@
 import Set.Theorems
 
+namespace Set
+
+-- Distinguish sets by a witness element.
+theorem not_eq (A B : Set) (x : Set) :
+    (x ∈ A ∧ x ∉ B) ∨ (x ∈ B ∧ x ∉ A) → A ≠ B := by
+  intro hDiff hEq
+  rcases hDiff with hAB | hBA
+  · exact hAB.2 (hEq ▸ hAB.1)
+  · exact hBA.2 (hEq.symm ▸ hBA.1)
+
+end Set
+
 -- BigUnion of the empty set is the empty set
 lemma union_of_empty_set : ⋃ Set.Empty = Set.Empty := by
   apply Set.extensionality
@@ -38,8 +50,6 @@ lemma exercise_2_2 : ∃ (A B : Set), ⋃A = ⋃B ∧ A ≠ B := by
       rw [Set.BigUnion.Spec] at *
       obtain ⟨x', ⟨hx', _⟩⟩ := hxa
       simp [A] at hx'
-      exfalso
-      exact Set.Empty.Spec x' hx'
     }
     { intro hxb
       rw [Set.BigUnion.Spec] at *

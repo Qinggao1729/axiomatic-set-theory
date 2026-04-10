@@ -1,5 +1,5 @@
-name = "LoVe"
-defaultTargets = ["LoVe"]
+name = "AxiomaticSetTheory"
+defaultTargets = ["Set"]
 
 [leanOptions]
 autoImplicit = false
