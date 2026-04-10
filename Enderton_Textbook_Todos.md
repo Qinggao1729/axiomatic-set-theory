@@ -377,6 +377,8 @@ Primary file: `Set/Ch3/S3_NAryRelations.lean`
   - **Set theory:** $R$ is an $n$-ary relation on $A$ iff every element of $R$ is in the carrier of $n$-tuples over $A$
   - **Lean:** `def IsNAryRelationOn (n : Nat) (R A : Set) : Prop := R ⊆ NTupleCarrier n A`
 
+_Checklist audit policy (manual): items through **`Set/Ch3/S3_NAryRelations.lean`** (this section) are treated as reviewed against Lean. Everything from **Functions (`S4`) onward** remains **unchecked** until explicitly re-verified._
+
 ## Functions (pp. 42–54)
 
 Primary files:
@@ -384,61 +386,61 @@ Primary files:
 - `Set/Ch3/S5_InfiniteCartesianProducts.lean` (for Theorem 3J)
 - `Set/Choice.lean` (choice-first-form statement)
 
-- [x] **Definition (Function):**
+- [ ] **Definition (Function):**
   - **Set theory:** $F$ is a relation and for each $x \in \operatorname{dom}(F)$ there exists a unique $y$ with $\langle x, y \rangle \in F$
   - **Lean:** `def IsFunction (F : Set) : Prop := IsRelation F ∧ ∀ x, x ∈ (dom F) → ∃! y, ⟨x, y⟩ ∈ F`
-- [x] **Definition (Maps into):**
+- [ ] **Definition (Maps into):**
   - **Set theory:** $F : A \to B$ iff `IsFunction F`, `dom F = A`, and `ran F ⊆ B`
   - **Lean:** `def MapsInto (F A B : Set) : Prop := IsFunction F ∧ (dom F) = A ∧ SubsetOf (ran F) B`
-- [x] **Definition (Maps onto):**
+- [ ] **Definition (Maps onto):**
   - **Set theory:** $F$ maps $A$ onto $B$ iff $F : A \to B$ and `ran F = B`
   - **Lean:** `def MapsOnto (F A B : Set) : Prop := MapsInto F A B ∧ (ran F) = B`
-- [x] **Definition (Single-rooted / one-to-one wrapper):**
+- [ ] **Definition (Single-rooted / one-to-one wrapper):**
   - **Set theory:** single-rooted means uniqueness of preimage for each element of the range
   - **Lean:** `def IsSingleRooted (R : Set) : Prop := ∀ y, y ∈ (ran R) → ∃! x, ⟨x, y⟩ ∈ R`; `def IsOneToOne (F : Set) : Prop := IsFunction F ∧ IsSingleRooted F`
-- [x] **Definition (Identity on $A$):**
+- [ ] **Definition (Identity on $A$):**
   - **Set theory:** $I_A = \{\langle x, x \rangle \mid x \in A\}$
   - **Lean:** `noncomputable def Identity (A : Set) : Set`; `lemma Identity.Spec ...`; `lemma Identity.Pair.Spec ...`
-- [x] **Definition (Inverse relation):**
+- [ ] **Definition (Inverse relation):**
   - **Set theory:** $F^{-1} = \{\langle v, u \rangle \mid \langle u, v \rangle \in F\}$
   - **Lean:** `noncomputable def Inverse (F : Set)`; `lemma Inverse.Spec ...`; `lemma Inverse.Pair.Spec ...`
-- [x] **Definition (Composition):**
+- [ ] **Definition (Composition):**
   - **Set theory:** $F \circ G = \{\langle u, v \rangle \mid \exists t(\langle u, t \rangle \in G \land \langle t, v \rangle \in F)\}$
   - **Lean:** `noncomputable def Composition (F G : Set)`; `lemma Composition.Spec ...`; `lemma Composition.Pair.Spec ...`
-- [x] **Definition (Restriction):**
+- [ ] **Definition (Restriction):**
   - **Set theory:** $F \upharpoonright C = \{\langle u, v \rangle \in F \mid u \in C\}$
   - **Lean:** `noncomputable def Restriction (F C : Set)`; `lemma Restriction.Spec ...`; `lemma Restriction.Pair.Spec ...`
-- [x] **Definition (Image):**
+- [ ] **Definition (Image):**
   - **Set theory:** $F[A] = \operatorname{ran}(F \upharpoonright A)$
   - **Lean:** `noncomputable def Image (F C : Set) := ran (Restriction F C)`; `lemma Image.Spec ...`
-- [x] **Basic helper lemmas for ordered pairs/functions:**
+- [ ] **Basic helper lemmas for ordered pairs/functions:**
   - **Set theory:** direct elimination/introduction facts for `dom`, `ran`, and products
   - **Lean:** `lemma Pair.mem_dom ...`; `lemma Pair.mem_ran ...`; `lemma Pair.mem_product ...`; `lemma Pair.mem_product_elim ...`; `lemma function_value_unique ...`
-- [x] **Theorem 3E (inverse swaps domain/range, double inverse):**
+- [ ] **Theorem 3E (inverse swaps domain/range, double inverse):**
   - **Set theory:** `dom(F⁻¹)=ran(F)`, `ran(F⁻¹)=dom(F)`, and for relations `(F⁻¹)⁻¹=F`
   - **Lean:** `theorem domain_inverse ...`; `theorem range_inverse ...`; `theorem relation_inverse_inverse ...`
-- [x] **Theorem 3F (function vs single-rooted under inverse):**
+- [ ] **Theorem 3F (function vs single-rooted under inverse):**
   - **Set theory:** `IsFunction (F⁻¹) ↔ IsSingleRooted F`, and for relations `IsFunction F ↔ IsSingleRooted (F⁻¹)`
   - **Lean:** `theorem inverse_single_rooted ...`; `theorem relation_function_single_rooted ...`
-- [x] **Theorem 3G (inverse evaluation laws for one-to-one functions):**
+- [ ] **Theorem 3G (inverse evaluation laws for one-to-one functions):**
   - **Set theory:** if `F` is one-to-one, inverse evaluation composes back to the original element
   - **Lean:** `theorem one_to_one_inverse ...`; `theorem one_to_one_inverse' ...`
-- [x] **Theorem 3H (composition of functions and domain spec):**
+- [ ] **Theorem 3H (composition of functions and domain spec):**
   - **Set theory:** composition of functions is a function; domain characterized by middle witness in `dom F`
   - **Lean:** `theorem composition_is_function ...`; `noncomputable def CompositionDomain ...`; `lemma CompositionDomain.Spec ...`; `theorem composition_domain ...`
-- [x] **Theorem 3I (inverse of composition):**
+- [ ] **Theorem 3I (inverse of composition):**
   - **Set theory:** `(F ∘ G)⁻¹ = G⁻¹ ∘ F⁻¹`
   - **Lean:** `theorem inverse_composition (F G : Set) : (Composition F G)⁻¹ = Composition (Inverse G) (Inverse F)`
-- [x] **Theorem 3K + Corollary 3L (image and inverse-image set laws):**
+- [ ] **Theorem 3K + Corollary 3L (image and inverse-image set laws):**
   - **Set theory:** image preserves unions and is monotone over intersections/differences; inverse-image gives equalities under function assumptions
   - **Lean:** `theorem image_union ...`; `theorem image_inter_subset ...`; `theorem image_diff_subset ...`; `theorem inverse_image_union ...`; `theorem inverse_image_inter ...`; `theorem inverse_image_diff ...`
-- [x] **Graph of a Lean-level map over a carrier:**
+- [ ] **Graph of a Lean-level map over a carrier:**
   - **Set theory:** graph construction restricted to `A` behaves as a map `A → A` under closure
   - **Lean:** `noncomputable def GraphOn ...`; `lemma GraphOn.Spec ...`; `lemma GraphOn.Pair.Spec ...`; `theorem GraphOn.mapsInto ...`
-- [x] **Indexed family operators and function space ${}^A B$:**
+- [ ] **Indexed family operators and function space ${}^A B$:**
   - **Set theory:** indexed union/intersection via range of restricted family; function space as maps from `A` into `B`
   - **Lean:** `noncomputable def IndexedUnion ...`; `noncomputable def IndexedIntersection ...`; `noncomputable def FunctionSpace ...`; `lemma FunctionSpace.Spec ...`
-- [x] **Theorem 3J and choice-first-form cross-file linkage:**
+- [ ] **Theorem 3J and choice-first-form cross-file linkage:**
   - **Set theory:** left/right inverse characterizations (with choice for right inverse)
   - **Lean:** `theorem left_inverse_iff_one_to_one ...` and `theorem right_inverse_iff_onto ...` in `Set/Ch3/S5_InfiniteCartesianProducts.lean`; `def ChoiceFirstForm` and `axiom choice_first_form` in `Set/Choice.lean`
 
@@ -448,16 +450,16 @@ Primary files:
 - `Set/Ch3/S5_InfiniteCartesianProducts.lean`
 - `Set/Choice.lean`
 
-- [x] **Definition (Infinite Cartesian product):**
+- [ ] **Definition (Infinite Cartesian product):**
   - **Set theory:** $\prod_{i \in I} H(i)=\{f \in {}^I(\bigcup \operatorname{ran}(H)) \mid \forall i \in I,\ f(i)\in H(i)\}$.
   - **Lean:** `noncomputable def InfiniteProduct (I H : Set) : Set := ...`
-- [x] **Specification (InfiniteProduct.Spec):**
+- [ ] **Specification (InfiniteProduct.Spec):**
   - **Set theory:** $f \in \prod_{i \in I}H(i)$ iff $f$ is a function with domain $I$, codomain inside $\bigcup\operatorname{ran}(H)$, and each selected value belongs to the corresponding fiber.
   - **Lean:** `lemma InfiniteProduct.Spec {I H f : Set} : f ∈ InfiniteProduct I H ↔ ...`
-- [x] **Axiom of Choice (second form):**
+- [ ] **Axiom of Choice (second form):**
   - **Set theory:** For any set $I$ and function $H$ with $\operatorname{dom}(H)=I$, if every $H(i)$ is nonempty, then $\prod_{i \in I}H(i)\neq\varnothing$.
   - **Lean:** `def ChoiceSecondForm : Prop := ...` (in `Set/Choice.lean`)
-- [x] **Derived theorem (ChoiceSecondForm gives nonempty product):**
+- [ ] **Derived theorem (ChoiceSecondForm gives nonempty product):**
   - **Set theory:** $\text{ChoiceSecondForm} \Rightarrow \forall I,H,\big((\forall i\in I,\ H(i)\neq\varnothing)\Rightarrow \prod_{i\in I}H(i)\neq\varnothing\big)$.
   - **Lean:** `theorem infiniteProduct_nonempty_of_choice_second_form (hChoice₂ : ChoiceSecondForm) : ...`
 
@@ -465,58 +467,58 @@ Primary files:
 
 Primary file: `Set/Ch3/S6_Equivalence.lean`
 
-- [x] **Definition (Reflexive on a carrier):**
+- [ ] **Definition (Reflexive on a carrier):**
   - **Set theory:** $R$ is reflexive on $A$ iff $\forall x \in A,\ xRx$.
   - **Lean:** `def IsReflexiveOn (R A : Set) : Prop := ∀ x, x ∈ A → ⟨x, x⟩ ∈ R`
-- [x] **Definition (Symmetric):**
+- [ ] **Definition (Symmetric):**
   - **Set theory:** $\forall x\forall y,\ xRy \Rightarrow yRx$.
   - **Lean:** `def IsSymmetric (R : Set) : Prop := ∀ x y, ⟨x, y⟩ ∈ R → ⟨y, x⟩ ∈ R`
-- [x] **Definition (Transitive relation):**
+- [ ] **Definition (Transitive relation):**
   - **Set theory:** $\forall x\forall y\forall z,\ (xRy \land yRz) \Rightarrow xRz$.
   - **Lean:** `def IsTransitiveRel (R : Set) : Prop := ∀ x y z, ⟨x, y⟩ ∈ R → ⟨y, z⟩ ∈ R → ⟨x, z⟩ ∈ R`
-- [x] **Definition (Binary relation on a carrier):**
+- [ ] **Definition (Binary relation on a carrier):**
   - **Set theory:** $R$ is a relation and $R \subseteq A \times A$.
   - **Lean:** `def IsBinaryRelationOn (R A : Set) : Prop := IsRelation R ∧ R ⊆ (A ⨯ A)`
-- [x] **Definition (Equivalence relation):**
+- [ ] **Definition (Equivalence relation):**
   - **Set theory:** binary on $A$, reflexive on $A$, symmetric, transitive.
   - **Lean:** `def IsEquivalenceRelation (R A : Set) : Prop := IsBinaryRelationOn R A ∧ IsReflexiveOn R A ∧ IsSymmetric R ∧ IsTransitiveRel R`
-- [x] **Theorem 3M (field-level equivalence):**
+- [ ] **Theorem 3M (field-level equivalence):**
   - **Set theory:** if $R$ is a relation that is symmetric and transitive, then $R$ is an equivalence relation on $\operatorname{fld}(R)$.
   - **Lean:** `theorem symm_trans_is_equiv (R : Set) : IsRelation R → IsSymmetric R → IsTransitiveRel R → IsEquivalenceRelation R (fld R)`
-- [x] **Definition (Equivalence class):**
+- [ ] **Definition (Equivalence class):**
   - **Set theory:** $[x]_R = \{t \in \operatorname{ran}(R) \mid xRt\}$.
   - **Lean:** `noncomputable def EquivalenceClass (x R : Set) : Set := ...`
-- [x] **Specification (EquivalenceClass.Spec):**
+- [ ] **Specification (EquivalenceClass.Spec):**
   - **Set theory:** $t \in [x]_R \Leftrightarrow t \in \operatorname{ran}(R) \land xRt$.
   - **Lean:** `lemma EquivalenceClass.Spec {x R t : Set} : t ∈ [x]₍R₎ ↔ t ∈ (ran R) ∧ ⟨x, t⟩ ∈ R`
-- [x] **Lemma 3N (class equality criterion):**
+- [ ] **Lemma 3N (class equality criterion):**
   - **Set theory:** for $x,y \in A$, $[x]_R = [y]_R \Leftrightarrow xRy$.
   - **Lean:** `theorem equiv_class_eq_iff (R A x y : Set) : IsEquivalenceRelation R A → x ∈ A → y ∈ A → ([x]₍R₎ = [y]₍R₎ ↔ ⟨x, y⟩ ∈ R)`
-- [x] **Definition (Quotient set):**
+- [ ] **Definition (Quotient set):**
   - **Set theory:** $A/R = \{[x]_R \mid x \in A\}$.
   - **Lean:** `noncomputable def QuotientSet (A R : Set) : Set := ...`
-- [x] **Specification (QuotientSet.Spec):**
+- [ ] **Specification (QuotientSet.Spec):**
   - **Set theory:** $Q \in A/R \Leftrightarrow Q \in \mathcal P(\operatorname{ran}(R)) \land \exists x \in A,\ Q=[x]_R$.
   - **Lean:** `lemma QuotientSet.Spec {A R Q : Set} : Q ∈ A / R ↔ Q ∈ 𝒫 (ran R) ∧ ∃ x, x ∈ A ∧ Q = [x]₍R₎`
-- [x] **Definition (Compatibility):**
+- [ ] **Definition (Compatibility):**
   - **Set theory:** if $xRy$ then $F(x)RF(y)$ (under map hypotheses on $A$).
   - **Lean:** `def IsCompatible (F R A : Set) : Prop := ...`
-- [x] **Definition (Quotient lift graph):**
+- [ ] **Definition (Quotient lift graph):**
   - **Set theory:** relation induced by $x \mapsto y$ on classes $[x]_R \mapsto [y]_R$.
   - **Lean:** `noncomputable def QuotientLift (R A F : Set) : Set := ...`
-- [x] **Specifications for quotient lift:**
+- [ ] **Specifications for quotient lift:**
   - **Set theory:** membership and pair-wise membership characterizations for the induced relation on $A/R$.
   - **Lean:** `lemma QuotientLift.Spec ...`; `lemma QuotientLift.Pair.Spec ...`
-- [x] **Theorem 3Q (existence/uniqueness of quotient map):**
+- [ ] **Theorem 3Q (existence/uniqueness of quotient map):**
   - **Set theory:** if $F : A \to A$ is compatible with $R$, there is a unique induced map $\hat F : A/R \to A/R$.
   - **Lean:** `theorem quotient_function_exists (R A F : Set) : IsEquivalenceRelation R A → IsCompatible F R A → ∃! Fq, MapsInto Fq (A / R) (A / R) ∧ (∀ x y, x ∈ A → ⟨x, y⟩ ∈ F → ⟨[x]₍R₎, [y]₍R₎⟩ ∈ Fq)`
-- [x] **Theorem 3Q (non-compatibility obstruction):**
+- [ ] **Theorem 3Q (non-compatibility obstruction):**
   - **Set theory:** if $F$ is not compatible with $R$, no such induced quotient map exists.
   - **Lean:** `theorem quotient_function_not_exists (R A F : Set) : IsEquivalenceRelation R A → MapsInto F A A → ¬ IsCompatible F R A → ¬ ∃ Fq, MapsInto Fq (A / R) (A / R) ∧ (∀ x y, x ∈ A → ⟨x, y⟩ ∈ F → ⟨[x]₍R₎, [y]₍R₎⟩ ∈ Fq)`
-- [x] **Definition (Partition):**
+- [ ] **Definition (Partition):**
   - **Set theory:** nonempty blocks, pairwise disjoint unless equal, and exhaustive over $A$.
   - **Lean:** `def IsPartition (Part A : Set) : Prop := ...`
-- [x] **Theorem 3P (equivalence classes form a partition):**
+- [ ] **Theorem 3P (equivalence classes form a partition):**
   - **Set theory:** if $R$ is an equivalence relation on $A$, then $A/R$ is a partition of $A$.
   - **Lean:** `theorem equiv_classes_partition (R A : Set) : IsEquivalenceRelation R A → IsPartition (A / R) A`
 
@@ -524,16 +526,16 @@ Primary file: `Set/Ch3/S6_Equivalence.lean`
 
 Primary file: `Set/Ch3/S7_OrderingRelations.lean`
 
-- [x] **Definition (Trichotomy on a carrier):**
+- [ ] **Definition (Trichotomy on a carrier):**
   - **Set theory:** for any $x,y \in A$, exactly one of $xRy$, $x=y$, $yRx$ holds (encoded with exclusivity clauses).
   - **Lean:** `def TrichotomyOn (R A : Set) : Prop := ...`
-- [x] **Definition (Linear ordering / total ordering):**
+- [ ] **Definition (Linear ordering / total ordering):**
   - **Set theory:** a binary relation on $A$ that is transitive and satisfies trichotomy on $A$.
   - **Lean:** `def IsLinearOrder (R A : Set) : Prop := IsBinaryRelationOn R A ∧ IsTransitiveRel R ∧ TrichotomyOn R A`
-- [x] **Theorem 3R(i) (irreflexivity):**
+- [ ] **Theorem 3R(i) (irreflexivity):**
   - **Set theory:** if $R$ linearly orders $A$, then no $x \in A$ satisfies $xRx$.
   - **Lean:** `theorem linear_order_irreflexive (R A : Set) : IsLinearOrder R A → ∀ x, x ∈ A → ⟨x, x⟩ ∉ R`
-- [x] **Theorem 3R(ii) (connectedness for distinct points):**
+- [ ] **Theorem 3R(ii) (connectedness for distinct points):**
   - **Set theory:** if $R$ linearly orders $A$ and $x,y \in A$ with $x \ne y$, then $xRy \lor yRx$.
   - **Lean:** `theorem linear_order_connected (R A : Set) : IsLinearOrder R A → ∀ x y, x ∈ A → y ∈ A → x ≠ y → (⟨x, y⟩ ∈ R ∨ ⟨y, x⟩ ∈ R)`
 
@@ -544,59 +546,59 @@ Primary file: `Set/Ch3/S7_OrderingRelations.lean`
 ## Inductive Sets (pp. 67–70)
 
 - Primary file: `Set/Ch4/S1_InductiveSets.lean`
-- [x] **Definition (Successor):**
+- [ ] **Definition (Successor):**
   - **Set theory:** $a^+ = a \cup \{a\}$
   - **Lean:** `noncomputable def Successor (a : Set) : Set := a ∪ Singleton a`
-- [x] **Definition (Inductive set):**
+- [ ] **Definition (Inductive set):**
   - **Set theory:** $\text{Inductive}(A) \Leftrightarrow 0 \in A \land (\forall a \in A)\, a^+ \in A$
   - **Lean:** `def Inductive (A : Set) : Prop := ∅ ∈ A ∧ ∀ a, a ∈ A → a⁺ ∈ A`
-- [x] **Derived Infinity statement (from primitive infinity axiom):**
+- [ ] **Derived Infinity statement (from primitive infinity axiom):**
   - **Set theory:** $\exists A\, \text{Inductive}(A)$
   - **Lean:** `theorem infinity_inductive : ∃ (A : Set), Inductive A`
-- [x] **Definition (Natural number):**
+- [ ] **Definition (Natural number):**
   - **Set theory:** $\text{Natural}(n) \Leftrightarrow (\forall A)\,(\text{Inductive}(A) \Rightarrow n \in A)$
   - **Lean:** `def Natural (n : Set) : Prop := ∀ (A : Set), Inductive A → n ∈ A`
-- [x] **Theorem 4A (existence of $\omega$):**
+- [ ] **Theorem 4A (existence of $\omega$):**
   - **Set theory:** $\exists \omega\, \forall n\,(n \in \omega \Leftrightarrow \text{Natural}(n))$
   - **Lean:** `theorem natural_numbers_exist : ∃ (ω : Set), ∀ (n : Set), n ∈ ω ↔ Natural n`
-- [x] **Definition/Spec ($\omega$):**
+- [ ] **Definition/Spec ($\omega$):**
   - **Set theory:** $n \in \omega \Leftrightarrow \text{Natural}(n)$
   - **Lean:** `noncomputable def ω := Classical.choose natural_numbers_exist`; `lemma ω.Spec {n : Set} : n ∈ ω ↔ Natural n`
-- [x] **Membership conversion helpers:**
+- [ ] **Membership conversion helpers:**
   - **Set theory:** conversion between $n \in \omega$ and $\text{Natural}(n)$
   - **Lean:** `lemma natural_of_mem_omega (n : Set) : n ∈ ω → Natural n`; `lemma mem_omega_of_natural (n : Set) : Natural n → n ∈ ω`
-- [x] **Theorem 4B (minimal inductive set):**
+- [ ] **Theorem 4B (minimal inductive set):**
   - **Set theory:** $\text{Inductive}(\omega)$ and $(\forall A)(\text{Inductive}(A) \Rightarrow \omega \subseteq A)$
   - **Lean:** `theorem ω.inductive : Inductive ω`; `theorem ω.subset_of_inductive : ∀ (A : Set), Inductive A → ω ⊆ A`
-- [x] **Induction principle for $\omega$ (predicate form):**
+- [ ] **Induction principle for $\omega$ (predicate form):**
   - **Set theory:** $\big(P(0)\land (\forall k\in\omega, P(k)\Rightarrow P(k^+))\big)\Rightarrow (\forall n\in\omega, P(n))$
   - **Lean:** `lemma ω_induction (P : Set → Prop) (hBase : P Set.Empty) (hStep : ∀ k, k ∈ ω → P k → P (k⁺)) : ∀ n, n ∈ ω → P n`
-- [x] **Theorem 4C (nonzero naturals are successors):**
+- [ ] **Theorem 4C (nonzero naturals are successors):**
   - **Set theory:** $n \neq 0 \land \text{Natural}(n) \Rightarrow \exists m \in \omega\, (n = m^+)$
   - **Lean:** `theorem ω.exists_successor (n : Set) : n ≠ ∅ → Natural n → ∃ (m : Set), m ∈ ω ∧ n = m⁺`
 
 ## Peano's Postulates (pp. 70–73)
 
 - Primary file: `Set/Ch4/S2_PeanosPostulates.lean` (proof order in file: 4E, 4F, 4G, then 4D; items below follow textbook order)
-- [x] **Definition (Peano system, Lean packaging):**
+- [ ] **Definition (Peano system, Lean packaging):**
   - **Set theory:** triple $\langle N, S, e \rangle$ with $e \in N$, $S$ maps $N$ into $N$, $e \notin \operatorname{ran}(S)$ (no successor equals $e$), $S$ injective on $N$, and Peano induction on subsets of $N$
   - **Lean:** `def IsPeanoSystem (N : Set) (S : Set → Set) (e : Set) : Prop := e ∈ N ∧ (∀ n, n ∈ N → S n ∈ N) ∧ (∀ n, n ∈ N → S n ≠ e) ∧ (∀ m n, m ∈ N → n ∈ N → S m = S n → m = n) ∧ (∀ A : Set, A ⊆ N → e ∈ A → (∀ x, x ∈ A → S x ∈ A) → A = N)`
-- [x] **Lemma (successor is nonempty):**
+- [ ] **Lemma (successor is nonempty):**
   - **Set theory:** $a^+ \neq \varnothing$
   - **Lean:** `lemma successor_ne_empty (a : Set) : a⁺ ≠ ∅`
-- [x] **Definition (Transitive set):**
+- [ ] **Definition (Transitive set):**
   - **Set theory:** $x \in a \land a \in A \Rightarrow x \in A$
   - **Lean:** `def IsTransitiveSet (A : Set) : Prop := ∀ (x a : Set), x ∈ a → a ∈ A → x ∈ A`
-- [x] **Theorem 4E ($\bigcup(a^+)$ for transitive $a$):**
+- [ ] **Theorem 4E ($\bigcup(a^+)$ for transitive $a$):**
   - **Set theory:** $a$ transitive $\Rightarrow \bigcup(a^+) = a$
   - **Lean:** `theorem bigunion_successor_of_transitive (a : Set) : IsTransitiveSet a → ⋃(a⁺) = a`
-- [x] **Theorem 4F (naturals are transitive sets):**
+- [ ] **Theorem 4F (naturals are transitive sets):**
   - **Set theory:** $\text{Natural}(n) \Rightarrow n$ is a transitive set
   - **Lean:** `theorem natural_transitive_set (n : Set) : Natural n → IsTransitiveSet n`
-- [x] **Theorem 4G ($\omega$ transitive):**
+- [ ] **Theorem 4G ($\omega$ transitive):**
   - **Set theory:** $\omega$ is a transitive set
   - **Lean:** `theorem ω_transitive_set : IsTransitiveSet ω`
-- [x] **Theorem 4D ($\omega$ is a Peano system):**
+- [ ] **Theorem 4D ($\omega$ is a Peano system):**
   - **Set theory:** $\langle \omega, \sigma, 0 \rangle$ is a Peano system (with successor on $\omega$)
   - **Lean:** `theorem omega_peano_system : IsPeanoSystem ω (fun n => n⁺) ∅`
 
@@ -665,28 +667,28 @@ Enderton’s labels (5ZA, 5QA, 5RA, …) correspond to Lean names with Unicode s
 
 ## Integers (pp. 90–101)
 
-- [x] **Definition (difference-equivalence on $\omega \times \omega$):**
+- [ ] **Definition (difference-equivalence on $\omega \times \omega$):**
   - **Set theory:** $\langle m,n\rangle \sim \langle p,q\rangle \Leftrightarrow m+q=p+n$
   - **Lean:** `noncomputable def IntEqRel` with `IntEqRel.Spec`
-- [x] **Theorem 5ZA:** $\sim$ is an equivalence relation on $\omega \times \omega$.
+- [ ] **Theorem 5ZA:** $\sim$ is an equivalence relation on $\omega \times \omega$.
   - **Lean:** `theorem theorem_5ℤA : IntEqRel.IsEquivalenceRelation IntegerCarrier`
-- [x] **Definition (integers):** $\mathbb{Z} = (\omega \times \omega)/\sim$.
+- [ ] **Definition (integers):** $\mathbb{Z} = (\omega \times \omega)/\sim$.
   - **Lean:** `noncomputable def IntegerCarrier : Set := ω ⨯ ω`; `noncomputable def IntegerSet : Set := IntegerCarrier / IntEqRel`; `notation "ℤ" => IntegerSet`
-- [x] **Lemma 5ZB (addition compatibility):** representative-level addition respects $\sim$.
+- [ ] **Lemma 5ZB (addition compatibility):** representative-level addition respects $\sim$.
   - **Lean:** `int_add_candidate_*`, `IntEqRel.pair_mem`, … (no separate `theorem_5ZB`; used in `theorem_5ℤF`)
-- [x] **Theorem 5ZC:** integer addition is commutative and associative.
+- [ ] **Theorem 5ZC:** integer addition is commutative and associative.
   - **Lean:** `theorem theorem_5ℤC : ∃ addZ, IntAddAxioms addZ` (derived from `theorem_5ℤF`)
-- [x] **Theorem 5ZD:** $0_{\mathbb Z}$ is additive identity and additive inverses exist.
+- [ ] **Theorem 5ZD:** $0_{\mathbb Z}$ is additive identity and additive inverses exist.
   - **Lean:** `theorem theorem_5ℤD …`
-- [x] **Lemma 5ZE (multiplication compatibility):** representative-level multiplication respects $\sim$.
+- [ ] **Lemma 5ZE (multiplication compatibility):** representative-level multiplication respects $\sim$.
   - **Lean:** `int_mul_candidate_*`, … (bundled toward `theorem_5ℤF`)
-- [x] **Theorem 5ZF:** integer addition/multiplication layer + distributivity packaging.
+- [ ] **Theorem 5ZF:** integer addition/multiplication layer + distributivity packaging.
   - **Lean:** `theorem theorem_5ℤF : …` (**still contains `sorry`** in `Set/Ch5/S1_Integers.lean` as of last tidy pass)
-- [x] **Theorem 5ZG:** multiplicative identity, $0_{\mathbb{Z}} \neq 1_{\mathbb{Z}}$, and no zero divisors.
+- [ ] **Theorem 5ZG:** multiplicative identity, $0_{\mathbb{Z}} \neq 1_{\mathbb{Z}}$, and no zero divisors.
   - **Lean:** `theorem theorem_5ℤG …`
-- [x] **Lemma 5ZH (order compatibility):** representative-level order formula is well-defined under $\sim$.
+- [ ] **Lemma 5ZH (order compatibility):** representative-level order formula is well-defined under $\sim$.
   - **Lean:** subsumed in `IntOrderAxioms` / `lt_ℤ` infrastructure
-- [x] **Theorem 5ZI:** integer order is a linear ordering.
+- [ ] **Theorem 5ZI:** integer order is a linear ordering.
   - **Lean:** `theorem theorem_5ℤI : ∃ ltZ, IntOrderAxioms ltZ`
 - [ ] **Theorem 5ZJ:** integer order is preserved by addition and by multiplication with positive factor.
   - **Lean:** *not yet a standalone Enderton-titled theorem*
@@ -697,52 +699,52 @@ Enderton’s labels (5ZA, 5QA, 5RA, …) correspond to Lean names with Unicode s
 
 ## Rational Numbers (pp. 101–111)
 
-- [x] **Definition (fraction-equivalence on $\mathbb{Z} \times \mathbb{Z}'$):**
+- [ ] **Definition (fraction-equivalence on $\mathbb{Z} \times \mathbb{Z}'$):**
   - **Set theory:** $\langle a,b\rangle \approx \langle c,d\rangle \Leftrightarrow ad=cb$
   - **Lean:** `noncomputable def RatEqRel` (`Set/Ch5/S2_RationalNumbers.lean`)
-- [x] **Theorem 5QA:** $\approx$ is an equivalence relation on $\mathbb{Z} \times \mathbb{Z}'$.
+- [ ] **Theorem 5QA:** $\approx$ is an equivalence relation on $\mathbb{Z} \times \mathbb{Z}'$.
   - **Lean:** `theorem theorem_5ℚA : IsEquivalenceRelation RatEqRel (ℤ ⨯ ℤ')`
-- [x] **Definition (rationals):** $\mathbb{Q} = (\mathbb{Z} \times \mathbb{Z}')/\approx$.
+- [ ] **Definition (rationals):** $\mathbb{Q} = (\mathbb{Z} \times \mathbb{Z}')/\approx$.
   - **Lean:** `noncomputable def RationalSet : Set := (ℤ ⨯ ℤ') / RatEqRel`; `notation "ℚ" => RationalSet`
-- [x] **Lemma 5QB (addition compatibility):** fraction-level addition respects $\approx$.
+- [ ] **Lemma 5QB (addition compatibility):** fraction-level addition respects $\approx$.
   - **Lean:** `theorem lemma_5ℚB : True` (scaffold)
-- [x] **Theorem 5QC:** rational addition gives an Abelian group.
+- [ ] **Theorem 5QC:** rational addition gives an Abelian group.
   - **Lean:** `theorem theorem_5ℚC : ∃ addQ, RatAddAxioms addQ`
-- [x] **Lemma 5QD (multiplication compatibility):** fraction-level multiplication respects $\approx$.
+- [ ] **Lemma 5QD (multiplication compatibility):** fraction-level multiplication respects $\approx$.
   - **Lean:** `theorem lemma_5ℚD : True` (scaffold)
-- [x] **Theorem 5QE:** rational multiplication is associative/commutative/distributive.
+- [ ] **Theorem 5QE:** rational multiplication is associative/commutative/distributive.
   - **Lean:** `theorem theorem_5ℚE : ∃ mulQ, RatMulAxioms mulQ`
-- [x] **Theorem 5QF:** every nonzero rational has a multiplicative inverse.
+- [ ] **Theorem 5QF:** every nonzero rational has a multiplicative inverse.
   - **Lean:** `theorem theorem_5ℚF : True` (scaffold)
-- [x] **Corollary 5QG:** nonzero rationals are closed under multiplication.
+- [ ] **Corollary 5QG:** nonzero rationals are closed under multiplication.
   - **Lean:** `theorem corollary_5ℚG : True` (scaffold)
-- [x] **Lemma 5QH (order compatibility):** order formula with positive denominators is well-defined.
+- [ ] **Lemma 5QH (order compatibility):** order formula with positive denominators is well-defined.
   - **Lean:** `theorem lemma_5ℚH : True` (scaffold)
-- [x] **Theorem 5QI:** rational order is a linear ordering.
+- [ ] **Theorem 5QI:** rational order is a linear ordering.
   - **Lean:** `theorem theorem_5ℚI : ∃ ltQ, RatLtAxioms ltQ`
-- [x] **Theorem 5QJ:** rational order is preserved by addition and by multiplication with positive factor.
+- [ ] **Theorem 5QJ:** rational order is preserved by addition and by multiplication with positive factor.
   - **Lean:** `theorem theorem_5ℚJ : True` (scaffold)
-- [x] **Theorem 5QK:** cancellation laws on $\mathbb Q$.
+- [ ] **Theorem 5QK:** cancellation laws on $\mathbb Q$.
   - **Lean:** `theorem theorem_5ℚK : True` (scaffold)
-- [x] **Theorem 5QL:** embedding $E:\mathbb{Z} \to \mathbb{Q}$ preserves operations and order.
+- [ ] **Theorem 5QL:** embedding $E:\mathbb{Z} \to \mathbb{Q}$ preserves operations and order.
   - **Lean:** `theorem theorem_5ℚL : True` (scaffold)
 
 ## Real Numbers (pp. 111–121)
 
-- [x] **Definition (Dedekind cut):**
+- [ ] **Definition (Dedekind cut):**
   - **Set theory:** $x\subseteq\mathbb{Q}$, $x\neq\varnothing$, $x\neq\mathbb{Q}$, downward closed, no largest member.
   - **Lean:** `def IsDedekindCut (x : Set) : Prop := …`
-- [x] **Definition (reals as cuts):**
+- [ ] **Definition (reals as cuts):**
   - **Set theory:** $\mathbb{R}=\{x\subseteq\mathbb{Q}\mid x\text{ is a Dedekind cut}\}$
   - **Lean:** `noncomputable def RealSet : Set := …`
-- [x] **Definition (real order):**
+- [ ] **Definition (real order):**
   - **Set theory:** $x <_{\mathbb R} y \Leftrightarrow x \subset y$
   - **Lean:** `def RealLt (x y : Set) : Prop := x ⊆ y ∧ x ≠ y`
 - [ ] **Theorem 5RA:** $<_{\mathbb R}$ is a linear ordering on $\mathbb R$.
   - **Lean:** `theorem theorem_5ℝA : Set.IsLinearOrder RealOrderRel RealSet` (**`sorry`** in `Set/Ch5/S3_RealNumbers.lean`)
 - [ ] **Theorem 5RB:** every nonempty bounded subset of $\mathbb R$ has a least upper bound.
   - **Lean:** `theorem theorem_5ℝB : True` (scaffold)
-- [x] **Definition (real addition):** $x+_{\mathbb R}y=q+r\mid q\in x,\ r\in y$.
+- [ ] **Definition (real addition):** $x+_{\mathbb R}y=q+r\mid q\in x,\ r\in y$.
   - **Lean:** `noncomputable def RealAdd : Set := …`; `noncomputable def add_ℝ : Set → Set → Set := …`
 - [ ] **Lemma 5RC:** if $x,y\in\mathbb R$, then $x+_{\mathbb R}y\in\mathbb R$.
   - **Lean:** `theorem lemma_5ℝC : True` (scaffold)
@@ -756,7 +758,7 @@ Enderton’s labels (5ZA, 5QA, 5RA, …) correspond to Lean names with Unicode s
   - **Lean:** `theorem corollary_5ℝG : True` (scaffold)
 - [ ] **Theorem 5RH:** real order preserved by addition.
   - **Lean:** `theorem theorem_5ℝH : True` (scaffold)
-- [x] **Definition (real multiplication, sign-split Dedekind-cut form):**
+- [ ] **Definition (real multiplication, sign-split Dedekind-cut form):**
   - **Lean:** `noncomputable def RealMul : Set := …`; `noncomputable def mul_ℝ : Set → Set → Set := …`
 - [ ] **Theorem 5RI:** multiplication well-defined on reals; ordered-field laws; inverse for nonzero; positivity-preserving order.
   - **Lean:** `theorem theorem_5ℝI : True` (scaffold)
@@ -765,19 +767,19 @@ Enderton’s labels (5ZA, 5QA, 5RA, …) correspond to Lean names with Unicode s
 
 ## Summaries (pp. 121–123)
 
-- [x] **Definition (Abelian group / commutative ring with identity / integral domain / field / ordered field / complete ordered field):** chapter-level algebraic concept bundle.
+- [ ] **Definition (Abelian group / commutative ring with identity / integral domain / field / ordered field / complete ordered field):** chapter-level algebraic concept bundle.
   - **Lean:** `def IsAbelianGroupAdd …`, `IsCommutativeRingWithOne …`, `IsIntegralDomain …`, `IsFieldLike …`, `IsOrderedFieldLike …`, `IsCompleteOrderedFieldLike …` in `Set/Ch5/S4_Summaries.lean`
 
 ---
 
 ## Summary of Proven Items
 
-Rough checklist coverage (Ch. 5 mixes finished proofs, `sorry`, and `True` scaffolds—treat this table as orientation, not a formal metric):
+Rough checklist coverage: **only Ch. 2 and Ch. 3 through n-ary relations (`S3`)** are marked checked from a Lean audit. From **Ch. 3 § Functions (`S4`)** through **Ch. 5**, boxes are **unchecked** until you re-sync with the `.lean` files.
 
-| Chapter   | Total items | Status (high level)                                      |
-| --------- | ----------- | -------------------------------------------------------- |
-| Ch. 2     | ~30         | ~30 checked in earlier sections                        |
-| Ch. 3     | ~41         | ~41 checked                                              |
-| Ch. 4     | ~32         | ~32 checked                                              |
-| Ch. 5     | ~42         | definitions + rationals scaffold + reals mostly open    |
-| **Total** | **~145**    | see checkboxes above; Chapter 5 still under active work  |
+| Chapter   | Total items (approx.) | Checked (audit scope)                         |
+| --------- | ---------------------- | --------------------------------------------- |
+| Ch. 2     | ~30                    | ~30 (through S3 algebra)                      |
+| Ch. 3     | ~41                    | ~24 (S1 pairs + S2 relations + S3 n-ary only)   |
+| Ch. 4     | ~32                    | 0 (pending audit)                             |
+| Ch. 5     | ~42                    | 0 (pending audit)                             |
+| **Total** | **~145**               | see checkboxes; re-check as you verify Lean   |
