@@ -24,17 +24,16 @@ The implementation is now physically split by textbook sections:
 
 - Chapter 4 implementation lives in:
   - `Set/Ch4/S1_InductiveSets.lean` (4A/4B/4C and core natural-number construction;
-    also the home of the **Infinity Axiom** in Enderton's literal form
-    `∃ A, Inductive A`, plus the chosen witness `Infinity := Classical.choose infinity`)
+    derives Enderton's shorthand Infinity statement
+    `infinity_inductive : ∃ A, Inductive A` from the primitive axiom, and
+    defines the chosen witness `Infinity := Classical.choose infinity_inductive`)
   - `Set/Ch4/S2_PeanosPostulates.lean` (Peano-system layer and 4D/4E/4F/4G line)
   - `Set/Ch4/S3_RecursionOnOmega.lean` (recursion theorem on `ω` and 4H)
   - `Set/Ch4/S4_Arithmetic.lean` (4I/4J/4K arithmetic layer)
   - `Set/Ch4/S5_OrderingOnOmega.lean` (4L/4M/4N/4P, well-ordering, and strong-induction layer)
-  - Note: the Infinity axiom is the **only** Enderton axiom that does not live in
-    `Set/Axioms.lean`, because its statement uses `∅`, `Successor`, and
-    `Inductive`, which are themselves defined in `Set/Ch4/S1_InductiveSets.lean`.
-    `Set/Axioms.lean` carries a comment pointing to the actual declaration site,
-    and `Set/AxiomIndex.md` lists the location alongside the Ch2 axioms.
+  - Note: the primitive Infinity axiom now lives in `Set/Axioms.lean` in
+    witness-expanded form; `Set/Ch4/S1_InductiveSets.lean` derives the
+    Enderton literal shorthand `∃ A, Inductive A` as a theorem.
 
 - Chapter 5 implementation now lives in:
   - `Set/Ch5/S1_Integers.lean` (integer construction scaffold, 5ZA–5ZL line)

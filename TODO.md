@@ -386,7 +386,7 @@ Primary file: `Set/Ch3/S3_NAryRelations.lean`
   - **Set theory:** $R$ is an $n$-ary relation on $A$ iff every element of $R$ is in the carrier of $n$-tuples over $A$
   - **Lean:** `def IsNAryRelationOn (n : Nat) (R A : Set) : Prop := R ⊆ NTupleCarrier n A`
 
-_Checklist audit policy (manual): items through **`Set/Ch3/S3_NAryRelations.lean`** (this section) are treated as reviewed against Lean. Everything from **Functions (`S4`) onward** remains **unchecked** until explicitly re-verified._
+_Checklist audit policy (manual): items through **`Set/Ch3/S4_Functions.lean`** and **`Set/Ch4/S1_InductiveSets.lean`** are treated as reviewed against Lean. Later sections remain unchecked until explicitly re-verified._
 
 ## Functions (pp. 42–54)
 
@@ -394,73 +394,73 @@ Primary files:
 - `Set/Ch3/S4_Functions.lean` — AC-free core (3E–3I, 3K, 3L, indexed families, function space) **plus** Theorem 3J(a)/(b) at the bottom inside a reopened `namespace Choice`
 - `Set/Choice.lean` — the single home for the (six) equivalent forms of AC (`Set.Choice.ChoiceFirstForm`, `Set.Choice.choice_first_form`, `Set.Choice.ChoiceSecondForm`; with predicates inlined to break the import cycle into `S4_Functions`)
 
-- [ ] **Definition (Function):**
+- [x] **Definition (Function):**
   - **Set theory:** $F$ is a relation and for each $x \in \operatorname{dom}(F)$ there exists a unique $y$ with $\langle x, y \rangle \in F$
   - **Lean:** `def IsFunction (F : Set) : Prop := IsRelation F ∧ ∀ x, x ∈ (dom F) → ∃! y, ⟨x, y⟩ ∈ F`
-- [ ] **Definition (Maps into):**
+- [x] **Definition (Maps into):**
   - **Set theory:** $F : A \to B$ iff `IsFunction F`, `dom F = A`, and `ran F ⊆ B`
   - **Lean:** `def MapsInto (F A B : Set) : Prop := IsFunction F ∧ (dom F) = A ∧ SubsetOf (ran F) B`
-- [ ] **Definition (Maps onto):**
+- [x] **Definition (Maps onto):**
   - **Set theory:** $F$ maps $A$ onto $B$ iff $F : A \to B$ and `ran F = B`
   - **Lean:** `def MapsOnto (F A B : Set) : Prop := MapsInto F A B ∧ (ran F) = B`
-- [ ] **Definition (Single-rooted / one-to-one wrapper):**
+- [x] **Definition (Single-rooted / one-to-one wrapper):**
   - **Set theory:** single-rooted means uniqueness of preimage for each element of the range
   - **Lean:** `def IsSingleRooted (R : Set) : Prop := ∀ y, y ∈ (ran R) → ∃! x, ⟨x, y⟩ ∈ R`; `def IsOneToOne (F : Set) : Prop := IsFunction F ∧ IsSingleRooted F`
-- [ ] **Definition (Identity on $A$):**
+- [x] **Definition (Identity on $A$):**
   - **Set theory:** $I_A = \{\langle x, x \rangle \mid x \in A\}$
   - **Lean:** `noncomputable def Identity (A : Set) : Set`; `lemma Identity.Spec ...`; `lemma Identity.Pair.Spec ...`
-- [ ] **Definition (Inverse relation):**
+- [x] **Definition (Inverse relation):**
   - **Set theory:** $F^{-1} = \{\langle v, u \rangle \mid \langle u, v \rangle \in F\}$
   - **Lean:** `noncomputable def Inverse (F : Set)`; `lemma Inverse.Spec ...`; `lemma Inverse.Pair.Spec ...`
-- [ ] **Definition (Composition):**
+- [x] **Definition (Composition):**
   - **Set theory:** $F \circ G = \{\langle u, v \rangle \mid \exists t(\langle u, t \rangle \in G \land \langle t, v \rangle \in F)\}$
   - **Lean:** `noncomputable def Composition (F G : Set)`; `lemma Composition.Spec ...`; `lemma Composition.Pair.Spec ...`
-- [ ] **Definition (Restriction):**
+- [x] **Definition (Restriction):**
   - **Set theory:** $F \upharpoonright C = \{\langle u, v \rangle \in F \mid u \in C\}$
   - **Lean:** `noncomputable def Restriction (F C : Set)`; `lemma Restriction.Spec ...`; `lemma Restriction.Pair.Spec ...`
-- [ ] **Definition (Image):**
+- [x] **Definition (Image):**
   - **Set theory:** $F[A] = \operatorname{ran}(F \upharpoonright A)$
   - **Lean:** `noncomputable def Image (F C : Set) := ran (Restriction F C)`; `lemma Image.Spec ...`
-- [ ] **Basic helper lemmas for ordered pairs/functions:**
+- [x] **Basic helper lemmas for ordered pairs/functions:**
   - **Set theory:** direct elimination/introduction facts for `dom`, `ran`, and products
   - **Lean:** `lemma Pair.mem_dom ...`; `lemma Pair.mem_ran ...`; `lemma Pair.mem_product ...`; `lemma Pair.mem_product_elim ...`; `lemma function_value_unique ...`
-- [ ] **Theorem 3E (inverse swaps domain/range, double inverse):**
+- [x] **Theorem 3E (inverse swaps domain/range, double inverse):**
   - **Set theory:** `dom(F⁻¹)=ran(F)`, `ran(F⁻¹)=dom(F)`, and for relations `(F⁻¹)⁻¹=F`
   - **Lean:** `theorem thm_3E_domain_inverse ...`; `theorem thm_3E_range_inverse ...`; `theorem thm_3E_relation_inverse_inverse ...`
-- [ ] **Theorem 3F (function vs single-rooted under inverse):**
+- [x] **Theorem 3F (function vs single-rooted under inverse):**
   - **Set theory:** `IsFunction (F⁻¹) ↔ IsSingleRooted F`, and for relations `IsFunction F ↔ IsSingleRooted (F⁻¹)`
   - **Lean:** `theorem thm_3F_inverse_single_rooted ...`; `theorem thm_3F_relation_function_single_rooted ...`
-- [ ] **Theorem 3G (inverse evaluation laws for one-to-one functions):**
+- [x] **Theorem 3G (inverse evaluation laws for one-to-one functions):**
   - **Set theory:** if `F` is one-to-one, inverse evaluation composes back to the original element
   - **Lean:** `theorem thm_3G_one_to_one_inverse ...`; `theorem thm_3G_one_to_one_inverse_ran ...`
-- [ ] **Theorem 3H (composition of functions and domain spec):**
+- [x] **Theorem 3H (composition of functions and domain spec):**
   - **Set theory:** composition of functions is a function; domain characterized by middle witness in `dom F`
-  - **Lean:** `theorem thm_3H_composition_is_function ...`; `noncomputable def CompositionDomain ...`; `lemma CompositionDomain.Spec ...`; `theorem composition_domain ...`
-- [ ] **Theorem 3I (inverse of composition):**
+  - **Lean:** `theorem thm_3H_composition_is_function ...`; `noncomputable def CompositionDomain ...`; `lemma CompositionDomain.Spec ...`; `theorem thm_3H_composition_domain ...`
+- [x] **Theorem 3I (inverse of composition):**
   - **Set theory:** `(F ∘ G)⁻¹ = G⁻¹ ∘ F⁻¹`
   - **Lean:** `theorem thm_3I_inverse_composition (F G : Set) : (Composition F G)⁻¹ = Composition (Inverse G) (Inverse F)`
-- [ ] **Image family (auxiliary set for arbitrary 3K/3L forms):**
+- [x] **Image family (auxiliary set for arbitrary 3K/3L forms):**
   - **Set theory:** the set `{F[A] | A ∈ 𝒜}` used in the second halves of Theorem 3K(a)(b) and in Corollary 3L
   - **Lean:** `noncomputable def ImageFamily (F 𝒜 : Set) : Set`; `lemma ImageFamily.Spec ...`; `lemma ImageFamily.Nonempty ...`
-- [ ] **Theorem 3K(a) (image of a union):**
+- [x] **Theorem 3K(a) (image of a union):**
   - **Set theory:** `F[A ∪ B] = F[A] ∪ F[B]` and `F[⋃𝒜] = ⋃{F[A] | A ∈ 𝒜}` (for any `F`)
   - **Lean:** `theorem thm_3Ka_image_union ...`; `theorem thm_3Ka_image_bigUnion ...`
-- [ ] **Theorem 3K(b) (image of an intersection):**
+- [x] **Theorem 3K(b) (image of an intersection):**
   - **Set theory:** `F[A ∩ B] ⊆ F[A] ∩ F[B]` and `F[⋂𝒜] ⊆ ⋂{F[A] | A ∈ 𝒜}` (for nonempty `𝒜`); equality if `F` is single-rooted
   - **Lean:** `theorem thm_3Kb_image_inter_subset ...`; `theorem thm_3Kb_image_bigInter_subset ...`; `theorem thm_3Kb_image_inter_eq_of_single_rooted ...`; `theorem thm_3Kb_image_bigInter_eq_of_single_rooted ...`
-- [ ] **Theorem 3K(c) (image of a difference):**
+- [x] **Theorem 3K(c) (image of a difference):**
   - **Set theory:** `F[A] - F[B] ⊆ F[A - B]`; equality if `F` is single-rooted
   - **Lean:** `theorem thm_3Kc_image_diff_subset ...`; `theorem thm_3Kc_image_diff_eq_of_single_rooted ...`
-- [ ] **Corollary 3L (inverse image is well-behaved):**
+- [x] **Corollary 3L (inverse image is well-behaved):**
   - **Set theory:** for any function `G`: `G⁻¹[⋃𝒜] = ⋃{G⁻¹[A] | A ∈ 𝒜}`, `G⁻¹[⋂𝒜] = ⋂{G⁻¹[A] | A ∈ 𝒜}` (for nonempty `𝒜`), and `G⁻¹[A - B] = G⁻¹[A] - G⁻¹[B]`
   - **Lean:** `theorem cor_3La_inverse_image_bigUnion ...`; `theorem cor_3Lb_inverse_image_bigInter ...`; `theorem cor_3Lc_inverse_image_diff ...`
-- [ ] **Binary inverse-image corollaries (not in 3L proper, kept as convenience):**
+- [x] **Binary inverse-image corollaries (not in 3L proper, kept as convenience):**
   - **Set theory:** binary forms `G⁻¹[A ∪ B] = G⁻¹[A] ∪ G⁻¹[B]` and `G⁻¹[A ∩ B] = G⁻¹[A] ∩ G⁻¹[B]` (the latter for `G` a function)
   - **Lean:** `theorem inverse_image_union ...`; `theorem inverse_image_inter ...`
-- [ ] **Graph of a Lean-level map over a carrier (not Enderton; Ch4 scaffolding):**
+- [x] **Graph of a Lean-level map over a carrier (not Enderton; Ch4 scaffolding):**
   - **Set theory:** graph construction restricted to `A` behaves as a map `A → A` under closure
   - **Lean:** `noncomputable def GraphOn ...`; `lemma GraphOn.Spec ...`; `lemma GraphOn.Pair.Spec ...`; `theorem GraphOn.mapsInto ...` — moved to the top of `Set/Ch4/S3_RecursionOnOmega.lean` since this construction only supports the recursion / Peano isomorphism / arithmetic recurrences in Chapter 4.
-- [ ] **Indexed family operators and function space ${}^A B$:**
+- [x] **Indexed family operators and function space ${}^A B$:**
   - **Set theory:** indexed union/intersection via range of restricted family; function space as maps from `A` into `B`
   - **Lean:** `noncomputable def IndexedUnion ...`; `noncomputable def IndexedIntersection ...`; `noncomputable def FunctionSpace ...`; `lemma FunctionSpace.Spec ...`
 - [x] **Theorem 3J(a) (left inverse iff one-to-one, AC-free):**
@@ -575,34 +575,34 @@ Primary file: `Set/Ch3/S7_OrderingRelations.lean`
 ## Inductive Sets (pp. 67–70)
 
 - Primary file: `Set/Ch4/S1_InductiveSets.lean`
-- [ ] **Definition (Successor):**
+- [x] **Definition (Successor):**
   - **Set theory:** $a^+ = a \cup \{a\}$
   - **Lean:** `noncomputable def Successor (a : Set) : Set := a ∪ Singleton a`
-- [ ] **Definition (Inductive set):**
+- [x] **Definition (Inductive set):**
   - **Set theory:** $\text{Inductive}(A) \Leftrightarrow 0 \in A \land (\forall a \in A)\, a^+ \in A$
   - **Lean:** `def Inductive (A : Set) : Prop := ∅ ∈ A ∧ ∀ a, a ∈ A → a⁺ ∈ A`
-- [ ] **Infinity axiom (Enderton's literal form, declared at site):**
-  - **Set theory:** $\exists A\, \text{Inductive}(A)$
-  - **Lean:** `axiom infinity : ∃ A : Set, Inductive A` (in `Set/Ch4/S1_InductiveSets.lean`, after `∅`/`Successor`/`Inductive` are in scope); chosen witness `noncomputable def Infinity := Classical.choose infinity`; spec `lemma Infinity.Inductive : Inductive Infinity`
-- [ ] **Definition (Natural number):**
+- [x] **Infinity axiom (primitive in Axioms; Enderton form derived in Ch4S1):**
+  - **Set theory:** primitive witness form in the core axiom layer, with derived shorthand $\exists A\, \text{Inductive}(A)$
+  - **Lean:** `axiom infinity : ∃ A, (∃ e, (∀ x, x ∉ e) ∧ e ∈ A) ∧ (∀ a, a ∈ A → ∃ s, (∀ x, x ∈ s ↔ x ∈ a ∨ x = a) ∧ s ∈ A)` in `Set/Axioms.lean`; derived theorem `theorem infinity_inductive : ∃ A, Inductive A` in `Set/Ch4/S1_InductiveSets.lean`; chosen witness `noncomputable def Infinity := Classical.choose infinity_inductive`; spec `lemma Infinity.Inductive : Inductive Infinity`
+- [x] **Definition (Natural number):**
   - **Set theory:** $\text{Natural}(n) \Leftrightarrow (\forall A)\,(\text{Inductive}(A) \Rightarrow n \in A)$
   - **Lean:** `def Natural (n : Set) : Prop := ∀ (A : Set), Inductive A → n ∈ A`
-- [ ] **Theorem 4A (existence of $\omega$):**
+- [x] **Theorem 4A (existence of $\omega$):**
   - **Set theory:** $\exists \omega\, \forall n\,(n \in \omega \Leftrightarrow \text{Natural}(n))$
   - **Lean:** `theorem thm_4A_natural_numbers_exist : ∃ (ω : Set), ∀ (n : Set), n ∈ ω ↔ Natural n`
-- [ ] **Definition/Spec ($\omega$):**
+- [x] **Definition/Spec ($\omega$):**
   - **Set theory:** $n \in \omega \Leftrightarrow \text{Natural}(n)$
   - **Lean:** `noncomputable def ω := Classical.choose thm_4A_natural_numbers_exist`; `lemma ω.Spec {n : Set} : n ∈ ω ↔ Natural n`
-- [ ] **Membership conversion helpers:**
+- [x] **Membership conversion for $\omega$:**
   - **Set theory:** conversion between $n \in \omega$ and $\text{Natural}(n)$
-  - **Lean:** `lemma natural_of_mem_omega (n : Set) : n ∈ ω → Natural n`; `lemma mem_omega_of_natural (n : Set) : Natural n → n ∈ ω`
-- [ ] **Theorem 4B (minimal inductive set):**
+  - **Lean:** `lemma ω.Spec {n : Set} : n ∈ ω ↔ Natural n` (used in both directions)
+- [x] **Theorem 4B (minimal inductive set):**
   - **Set theory:** $\text{Inductive}(\omega)$ and $(\forall A)(\text{Inductive}(A) \Rightarrow \omega \subseteq A)$
   - **Lean:** `theorem thm_4B_ω_inductive : Inductive ω`; `theorem thm_4B_ω_subset_of_inductive : ∀ (A : Set), Inductive A → ω ⊆ A`
-- [ ] **Induction principle for $\omega$ (predicate form):**
+- [x] **Induction principle for $\omega$ (predicate form):**
   - **Set theory:** $\big(P(0)\land (\forall k\in\omega, P(k)\Rightarrow P(k^+))\big)\Rightarrow (\forall n\in\omega, P(n))$
   - **Lean:** `lemma ω_induction (P : Set → Prop) (hBase : P Set.Empty) (hStep : ∀ k, k ∈ ω → P k → P (k⁺)) : ∀ n, n ∈ ω → P n`
-- [ ] **Theorem 4C (nonzero naturals are successors):**
+- [x] **Theorem 4C (nonzero naturals are successors):**
   - **Set theory:** $n \neq 0 \land \text{Natural}(n) \Rightarrow \exists m \in \omega\, (n = m^+)$
   - **Lean:** `theorem thm_4C_omega_exists_successor (n : Set) : n ≠ ∅ → Natural n → ∃ (m : Set), m ∈ ω ∧ n = m⁺`
 
@@ -636,76 +636,76 @@ Primary file: `Set/Ch3/S7_OrderingRelations.lean`
 Primary file: `Set/Ch4/S3_RecursionOnOmega.lean`  
 Textbook extraction: `docs/textbook-transcriptions/ch4/ch4s3.md`
 
-- [x] **Definition (recursion solution, as a function-graph on $\omega$):** $h \subseteq \omega \times A$ is a total function from $\omega$ to $A$, sends $0 \mapsto a$, and satisfies the successor clause against $F : A \to A$.
+- [ ] **Definition (recursion solution, as a function-graph on $\omega$):** $h \subseteq \omega \times A$ is a total function from $\omega$ to $A$, sends $0 \mapsto a$, and satisfies the successor clause against $F : A \to A$.
   - **Lean:** `def RecursionSolution (h A a F : Set) : Prop := …`
-- [x] **Recursion theorem — existence:** Given $a \in A$ and $F : A \to A$ a function (encoded as `MapsInto F A A`), some $h$ satisfies `RecursionSolution`.
+- [ ] **Recursion theorem — existence:** Given $a \in A$ and $F : A \to A$ a function (encoded as `MapsInto F A A`), some $h$ satisfies `RecursionSolution`.
   - **Lean:** `theorem recursion_exists_on_ω (A a F : Set) : a ∈ A → MapsInto F A A → ∃ h, RecursionSolution h A a F`
-- [x] **Recursion theorem — uniqueness:** Any two solutions are equal as sets (hence the same function).
+- [ ] **Recursion theorem — uniqueness:** Any two solutions are equal as sets (hence the same function).
   - **Lean:** `theorem recursion_solution_unique (A a F h₁ h₂ : Set) (hF : MapsInto F A A) … : h₁ = h₂`
-- [x] **Recursion theorem — combined:** $\exists! h,\ \text{RecursionSolution}\,h\,A\,a\,F$.
+- [ ] **Recursion theorem — combined:** $\exists! h,\ \text{RecursionSolution}\,h\,A\,a\,F$.
   - **Lean:** `theorem recursion_theorem_on_ω (A a F : Set) : a ∈ A → MapsInto F A A → ∃! h, RecursionSolution h A a F`
-- [x] **Theorem 4H:** Every Peano system is isomorphic to $\langle \omega, \sigma, 0 \rangle$.
+- [ ] **Theorem 4H:** Every Peano system is isomorphic to $\langle \omega, \sigma, 0 \rangle$.
   - **Lean:** `def IsPeanoIsomorphism (f N : Set) (S : Set → Set) (e : Set) : Prop := …`; `theorem thm_4H_peano_isomorphic (N : Set) (S : Set → Set) (e : Set) : IsPeanoSystem N S e → ∃ f, IsPeanoIsomorphism f N S e`
 ## Arithmetic (pp. 79–83)
 
 - Primary file: `Set/Ch4/S4_Arithmetic.lean`
 - Textbook extraction: `docs/textbook-transcriptions/ch4/ch4s4.md`
-- [x] **Definition (Binary operation):** A function from $A \times A$ into $A$.
+- [ ] **Definition (Binary operation):** A function from $A \times A$ into $A$.
   - **Set theory:** a binary operation on $A$ is a function $A \times A \to A$
   - **Lean:** `def IsBinaryOperationOn (A op : Set) : Prop := MapsInto op (A ⨯ A) A`
-- [x] **Definition (Addition on $\omega$):** via recursion in the second argument.
+- [ ] **Definition (Addition on $\omega$):** via recursion in the second argument.
   - **Set theory:** for fixed $m$, define $n \mapsto m+n$ by recursion with base $m+0=m$ and step $m+n^+=(m+n)^+$
   - **Lean:** `noncomputable def NatAdd (m n : Set) : Set`; `noncomputable instance : HAdd Set Set Set := ⟨NatAdd⟩`
-- [x] **Theorem 4I (A1/A2):**
+- [ ] **Theorem 4I (A1/A2):**
   - $m + 0 = m$,
   - $m + n^+ = (m+n)^+$.
   - **Lean:** `theorem thm_4I_A1_add_zero ...`; `theorem thm_4I_A2_add_succ ...`
-- [x] **Definition (Multiplication on $\omega$):** via recursion.
+- [ ] **Definition (Multiplication on $\omega$):** via recursion.
   - **Set theory:** for fixed $m$, define $n \mapsto m\cdot n$ by recursion with base $m\cdot 0=0$ and step $m\cdot n^+=m\cdot n+m$
   - **Lean:** `noncomputable def NatMul (m n : Set) : Set`; `noncomputable instance : HMul Set Set Set := ⟨NatMul⟩`
-- [x] **Theorem 4J (M1/M2):**
+- [ ] **Theorem 4J (M1/M2):**
   - $m \cdot 0 = 0$,
   - $m \cdot n^+ = m \cdot n + m$.
   - **Lean:** `theorem thm_4J_M1_mul_zero ...`; `theorem thm_4J_M2_mul_succ ...`
-- [x] **Definition/characterization (Exponentiation):**
+- [ ] **Definition/characterization (Exponentiation):**
   - $m^0 = 1$,
   - $m^{(n^+)} = m^n \cdot m$.
   - **Lean:** `noncomputable def NatPow (m n : Set) : Set`; `noncomputable instance : Pow Set Set := ⟨NatPow⟩`; `theorem nat_pow_zero …`; `theorem nat_pow_succ …`
-- [x] **Theorem 4K:** Basic arithmetic laws (assoc/comm/distrib) for $+$ and $\cdot$.
+- [ ] **Theorem 4K:** Basic arithmetic laws (assoc/comm/distrib) for $+$ and $\cdot$.
   - **Lean:** `theorem thm_4K_basic_arithmetic_laws ...`
 
 ## Ordering on $\omega$ (pp. 83–88)
 
 - Primary file: `Set/Ch4/S5_OrderingOnOmega.lean`
 - Textbook extraction: `docs/textbook-transcriptions/ch4/ch4s5.md`
-- [x] **Definition (order on $\omega$):** $m < n \Leftrightarrow m \in n$ and $m \le n \Leftrightarrow (m \in n \lor m=n)$.
+- [ ] **Definition (order on $\omega$):** $m < n \Leftrightarrow m \in n$ and $m \le n \Leftrightarrow (m \in n \lor m=n)$.
   - **Set theory:** ordering is membership-based for von Neumann naturals.
   - **Lean:** `def NatLt (m n : Set) : Prop := m ∈ n`; `def NatLe (m n : Set) : Prop := m ∈ n ∨ m = n`
-- [x] **Lemma 4L(a):** $m \in n \Leftrightarrow m^+ \in n^+$.
+- [ ] **Lemma 4L(a):** $m \in n \Leftrightarrow m^+ \in n^+$.
   - **Set theory:** successor preserves and reflects strict order on naturals.
   - **Lean:** `theorem thm_4L_a_natural_succ_mem_iff (m n : Set) : m ∈ ω → n ∈ ω → (m ∈ n ↔ m⁺ ∈ n⁺)`
-- [x] **Lemma 4L(b):** no natural number is a member of itself.
+- [ ] **Lemma 4L(b):** no natural number is a member of itself.
   - **Set theory:** irreflexivity of `<` on $\omega$.
   - **Lean:** `theorem thm_4L_b_natural_not_mem_self (n : Set) : n ∈ ω → n ∉ n` (in `Set/Ch4/S5_OrderingOnOmega.lean`, reusing foundational theorem from S2)
-- [x] **Trichotomy law for $\omega$:** exactly one of $m \in n$, $m=n$, $n \in m$.
+- [ ] **Trichotomy law for $\omega$:** exactly one of $m \in n$, $m=n$, $n \in m$.
   - **Set theory:** any two naturals are linearly comparable under membership.
   - **Lean:** `theorem natural_trichotomy (m n : Set) : m ∈ ω → n ∈ ω → (m ∈ n ∨ m = n ∨ n ∈ m) ∧ ¬(m ∈ n ∧ m = n) ∧ ¬(m ∈ n ∧ n ∈ m) ∧ ¬(m = n ∧ n ∈ m)`
-- [x] **Corollary 4M:** for naturals, $m \in n \Leftrightarrow m \subset n$, and $m \le n \Leftrightarrow m \subseteq n$.
+- [ ] **Corollary 4M:** for naturals, $m \in n \Leftrightarrow m \subset n$, and $m \le n \Leftrightarrow m \subseteq n$.
   - **Set theory:** strict/non-strict order corresponds to proper/non-proper inclusion.
   - **Lean:** `theorem cor_4M_mem_iff_proper_subset ...`; `theorem cor_4M_le_iff_subset ...`
-- [x] **Theorem 4N:** order preserved by addition, and by multiplication with nonzero factor.
+- [ ] **Theorem 4N:** order preserved by addition, and by multiplication with nonzero factor.
   - **Set theory:** monotonicity of $+$ and $\cdot$ on $\omega$ (for nonzero multiplier in the multiplicative case).
   - **Lean:** `theorem thm_4N_order_preservation ...`
-- [x] **Corollary 4P:** cancellation laws for addition/multiplication on $\omega$.
+- [ ] **Corollary 4P:** cancellation laws for addition/multiplication on $\omega$.
   - **Set theory:** if $a+k=b+k$ then $a=b$; if $k\neq 0$ and $a\cdot k=b\cdot k$ then $a=b$.
   - **Lean:** `theorem cor_4P_cancellation ...`
-- [x] **Well ordering of $\omega$:** every nonempty subset of $\omega$ has a least element.
+- [ ] **Well ordering of $\omega$:** every nonempty subset of $\omega$ has a least element.
   - **Set theory:** every nonempty $A \subseteq \omega$ has minimal element under `<`.
   - **Lean:** `theorem omega_well_ordering ...`
-- [x] **Corollary 4Q:** no function $f:\omega\to\omega$ satisfies $f(n^+) \in f(n)$ for all $n$.
+- [ ] **Corollary 4Q:** no function $f:\omega\to\omega$ satisfies $f(n^+) \in f(n)$ for all $n$.
   - **Set theory:** there is no infinite strictly descending $\omega$-sequence.
   - **Lean:** `theorem cor_4Q_no_descending_omega_sequence ...`
-- [x] **Strong induction principle for $\omega$.**
+- [ ] **Strong induction principle for $\omega$.**
   - **Set theory:** if every $n$ follows from truth on all smaller $m \in n$, then all naturals satisfy the predicate.
   - **Lean:** `theorem strong_induction_omega ...`
 
@@ -826,12 +826,12 @@ Enderton’s labels (5ZA, 5QA, 5RA, …) correspond to Lean names with Unicode s
 
 ## Summary of Proven Items
 
-Rough checklist coverage: **only Ch. 2 and Ch. 3 through n-ary relations (`S3`)** are marked checked from a Lean audit. From **Ch. 3 § Functions (`S4`)** through **Ch. 5**, boxes are **unchecked** until you re-sync with the `.lean` files.
+Current checklist coverage: **Ch. 2, Ch. 3 through Functions (`S4`), and Ch. 4 § Inductive Sets (`S1`)** are marked checked from your human verification. From **Ch. 3 § Infinite Cartesian Products (`S5`)** and **Ch. 4 § Peano (`S2`) onward**, boxes are unchecked until explicitly re-verified.
 
-| Chapter   | Total items (approx.) | Checked (audit scope)                         |
-| --------- | ---------------------- | --------------------------------------------- |
-| Ch. 2     | ~30                    | ~30 (through S3 algebra)                      |
-| Ch. 3     | ~41                    | ~24 (S1 pairs + S2 relations + S3 n-ary only)   |
-| Ch. 4     | ~32                    | 0 (pending audit)                             |
-| Ch. 5     | ~42                    | 0 (pending audit)                             |
-| **Total** | **~145**               | see checkboxes; re-check as you verify Lean   |
+| Chapter   | Total items | Checked |
+| --------- | ----------- | ------- |
+| Ch. 2     | 74          | 74      |
+| Ch. 3     | 75          | 49      |
+| Ch. 4     | 39          | 10      |
+| Ch. 5     | 44          | 0       |
+| **Total** | **232**     | **133** |

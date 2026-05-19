@@ -22,17 +22,20 @@ Declared in: `Set/Axioms.lean`
 - `union`
   - First appearance: Ch2 §Arbitrary Unions and Intersections, p.24
 
-## Infinity Axiom (Ch4 §1 site)
+## Infinity Axiom (Primitive + Derived Enderton Form)
 
-Declared in: `Set/Ch4/S1_InductiveSets.lean`
+Declared primitive axiom in: `Set/Axioms.lean`
 
-- `infinity` : `∃ A : Set, Inductive A`
-  - First appearance: Ch4 §Inductive Sets, p.68
-  - Stated in Enderton's literal form because its predicate names
-    `∅`, `Successor`, and `Inductive` — all only available once the Ch2
-    layer is imported. The declaration is followed by the chosen
-    witness `noncomputable def Infinity := Classical.choose infinity`
-    and the spec `lemma Infinity.Inductive`.
+- `infinity` :
+  `∃ A, (∃ e, (∀ x, x ∉ e) ∧ e ∈ A) ∧ (∀ a, a ∈ A → ∃ s, (∀ x, x ∈ s ↔ x ∈ a ∨ x = a) ∧ s ∈ A)`
+  - First appearance: Ch4 §Inductive Sets, p.68 (textbook statement in shorthand)
+
+Derived Enderton-style theorem in: `Set/Ch4/S1_InductiveSets.lean`
+
+- `infinity_inductive : ∃ A, Inductive A`
+  - Obtained from the primitive witness form, then used for
+    `noncomputable def Infinity := Classical.choose infinity_inductive`
+    and `lemma Infinity.Inductive`.
 
 ## Choice and AC-Dependent Assumptions
 
@@ -72,8 +75,7 @@ into 3J(a), or removes it from 3J(b), will be flagged in the build output.
 
 ## Quotient-Compatibility Assumptions
 
-Canonical declarations live in: `Set/Ch3/S6_Equivalence.lean`
-(with `Set/Equivalence.lean` kept as compatibility import layer).
+Canonical declarations live in: `Set/Ch3/S6_Equivalence.lean`.
 
 - `quotient_function_exists` (proved theorem)
   - Enderton: Theorem 3Q (existence/uniqueness direction), pp.60–61
@@ -82,8 +84,8 @@ Canonical declarations live in: `Set/Ch3/S6_Equivalence.lean`
 
 ---
 
-Note: AC, quotient-function, and infinity statements live outside
-`Set/Axioms.lean` because they depend on higher-level notions
-(`IsFunction`, quotient construction, compatibility, `Successor` /
-`Inductive`) introduced later in the chapter-structured development.
+Note: AC and quotient-function statements live outside `Set/Axioms.lean`
+because they depend on higher-level notions (`IsFunction`, quotient
+construction, compatibility) introduced later in the chapter-structured
+development.
 

@@ -144,8 +144,8 @@ must then satisfy the right disjunct.
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Successor `a⁺ = a ∪ {a}` | `noncomputable def Successor (a : Set) : Set := a ∪ Singleton a`                                                                                        |
 | Inductive set            | `def Inductive (A : Set) : Prop := ∅ ∈ A ∧ ∀ a, a ∈ A → a⁺ ∈ A`                                                                                         |
-| Infinity axiom           | `axiom infinity : ∃ A : Set, Inductive A` (declared in `Set/Ch4/S1_InductiveSets.lean` where `∅` and `⁺` are in scope; matches Enderton's literal form) |
-| Chosen inductive set     | `noncomputable def Infinity : Set := Classical.choose infinity`; `lemma Infinity.Inductive : Inductive Infinity`                                        |
+| Infinity axiom           | Primitive form in `Set/Axioms.lean`: `axiom infinity : ∃ A, (∃ e, (∀ x, x ∉ e) ∧ e ∈ A) ∧ (∀ a, a ∈ A → ∃ s, (∀ x, x ∈ s ↔ x ∈ a ∨ x = a) ∧ s ∈ A)`; Enderton-style form derived in `Set/Ch4/S1_InductiveSets.lean` as `theorem infinity_inductive : ∃ A, Inductive A` |
+| Chosen inductive set     | `noncomputable def Infinity : Set := Classical.choose infinity_inductive`; `lemma Infinity.Inductive : Inductive Infinity`                             |
 | Natural number           | `def Natural (n : Set) : Prop := ∀ A, Inductive A → n ∈ A`                                                                                              |
 | Theorem 4A               | `theorem thm_4A_natural_numbers_exist : ∃ ω, ∀ n, n ∈ ω ↔ Natural n`                                                                                      |
 | Definition of `ω`        | `noncomputable def ω := Classical.choose thm_4A_natural_numbers_exist`; `@[simp] lemma ω.Spec : n ∈ ω ↔ Natural n`                                      |
@@ -158,12 +158,11 @@ must then satisfy the right disjunct.
 ### Axiom-layer placement note
 
 Enderton states the Infinity Axiom on p.68 using the literal predicate
-`∅ ∈ A ∧ (∀a ∈ A) a⁺ ∈ A`. To preserve that exact form in Lean we
-declare the `axiom infinity` inside `Set/Ch4/S1_InductiveSets.lean`,
-after `Empty`, `Successor`, and `Inductive` are in scope. This is the
-only axiom of Enderton that names higher-level operators in its
-statement, so it is the only one that does not live in `Set/Axioms.lean`.
-`Set/AxiomIndex.md` records the exact declaration site.
+`∅ ∈ A ∧ (∀a ∈ A) a⁺ ∈ A`. In this repo, the primitive Infinity axiom
+lives in `Set/Axioms.lean` in witness-expanded form (empty witness `e`
+and successor witness `s`), and `Set/Ch4/S1_InductiveSets.lean` derives
+the Enderton-style statement as `infinity_inductive : ∃ A, Inductive A`
+after `Empty`, `Successor`, and `Inductive` are defined.
 
 ## 7. Proof-flow notes
 

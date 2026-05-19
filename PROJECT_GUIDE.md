@@ -38,7 +38,7 @@ Default library target is **`Set`** (see `lakefile.toml`). A full `lake build` t
 | Path | Role |
 |------|------|
 | `Set.lean` | **Root import:** pulls in `Set.Axioms`, `Set.Basic`, and aggregators `Set.Ch2` … `Set.Ch5`. |
-| `Set/Axioms.lean` | **Primitive layer:** `Set`, `∈`, `⊆`, and **Ch2 axioms** (extensionality, empty, pairing, union, power, comprehension). The Infinity axiom is declared in `Set/Ch4/S1_InductiveSets.lean` instead, because its statement names `∅` / `Successor` / `Inductive`. |
+| `Set/Axioms.lean` | **Primitive layer:** `Set`, `∈`, `⊆`, and **Ch2 axioms** (extensionality, empty, pairing, union, power, comprehension), plus the primitive witness-form Infinity axiom. |
 | `Set/Ch2/` | Chapter 2: axioms unpacked into definitions, `Comprehension`, unions/intersections, algebra of sets. |
 | `Set/Ch3/` | Chapter 3: ordered pairs, relations, n-ary relations, functions, choice-related products, equivalence, orderings. |
 | `Set/Ch4/` | Chapter 4: inductive sets, `ω`, Peano, recursion on `ω`, arithmetic, ordering on `ω`. |
@@ -128,7 +128,7 @@ Read **`proof_style.md`** before writing or refactoring proofs. In short:
 ## 9. Known limitations / honesty
 
 - **Chapter 5** and parts of later material may still use **`sorry`** or placeholders; `lake build` can succeed with warnings.
-- The **infinity axiom** is declared in `Set/Ch4/S1_InductiveSets.lean` (not in `Set/Axioms.lean`) in Enderton's literal form `∃ A, Inductive A`. The chosen witness is `noncomputable def Infinity := Classical.choose infinity`, with spec `lemma Infinity.Inductive`, mirroring the `Empty`/`Pair`/`Power`/… pattern from `Set/Ch2/S1_Axioms.lean`.
+- The primitive **infinity axiom** is declared in `Set/Axioms.lean`; `Set/Ch4/S1_InductiveSets.lean` derives Enderton's literal form as `theorem infinity_inductive : ∃ A, Inductive A`. The chosen witness is `noncomputable def Infinity := Classical.choose infinity_inductive`, with spec `lemma Infinity.Inductive`, mirroring the `Empty`/`Pair`/`Power`/… pattern from `Set/Ch2/S1_Axioms.lean`.
 
 ---
 
