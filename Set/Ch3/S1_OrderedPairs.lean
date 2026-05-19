@@ -1,4 +1,4 @@
-import Set.Basic
+import Set.Ch2.S2_ArbitraryUnionsIntersections
 import Set.SimpAttrs
 
 /-!
