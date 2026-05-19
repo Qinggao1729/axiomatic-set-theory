@@ -9,7 +9,9 @@ This document is for anyone who wants to **clone the repo, understand the layout
 - **Goal:** Formalize set theory along **Herbert B. Enderton**, *Elements of Set Theory*, in **Lean 4**.
 - **Style:** A primitive type `Set`, membership `∈`, and **axioms** close to Enderton’s development (extensionality, empty set, pairing, unions, power set, comprehension, infinity, etc.). On top of that, definitions and theorems are built chapter-by-chapter.
 - **Textbook:** *Elements of Set Theory* (Enderton). Keep a **local PDF** if you use one (the standard filename is gitignored as copyrighted material); `docs/textbook-transcriptions/` and the Lean files should still follow the book’s statements and order.
-- **Lineage:** Some early direction was informed by prior public Lean work (see [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md)); this repository’s layout, proofs, and workflow are maintained here independently.
+- **Lineage:** Some early direction was informed by prior public Lean work 
+(see [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md)); this repository’s layout, 
+proofs, and workflow are maintained here independently.
 
 ---
 
@@ -36,13 +38,13 @@ Default library target is **`Set`** (see `lakefile.toml`). A full `lake build` t
 | Path | Role |
 |------|------|
 | `Set.lean` | **Root import:** pulls in `Set.Axioms`, `Set.Basic`, and aggregators `Set.Ch2` … `Set.Ch5`. |
-| `Set/Axioms.lean` | **Primitive layer:** `Set`, `∈`, `⊆`, and **axioms** (extensionality, empty, pairing, union, power, comprehension, infinity, …). |
+| `Set/Axioms.lean` | **Primitive layer:** `Set`, `∈`, `⊆`, and **Ch2 axioms** (extensionality, empty, pairing, union, power, comprehension). The Infinity axiom is declared in `Set/Ch4/S1_InductiveSets.lean` instead, because its statement names `∅` / `Successor` / `Inductive`. |
 | `Set/Ch2/` | Chapter 2: axioms unpacked into definitions, `Comprehension`, unions/intersections, algebra of sets. |
 | `Set/Ch3/` | Chapter 3: ordered pairs, relations, n-ary relations, functions, choice-related products, equivalence, orderings. |
 | `Set/Ch4/` | Chapter 4: inductive sets, `ω`, Peano, recursion on `ω`, arithmetic, ordering on `ω`. |
 | `Set/Ch5/` | Chapter 5: integers, rationals, reals (scaffold; some `sorry` may remain). |
 | `Set/Ch2.lean`, `Ch3.lean`, … | **Chapter aggregators** — each re-exports that chapter’s section files in order. |
-| `Set/Choice.lean` | Choice axiom forms used where needed (e.g. infinite products). |
+| `Set/Choice.lean` | Single home for the (six) equivalent forms of AC under the `Set.Choice` sub-namespace. Imported from `Set/Ch3/S4_Functions.lean` (Theorem 3J) and `Set/Ch3/S5_InfiniteCartesianProducts.lean` (infinite products). AC predicates state "function" inline so this file only depends on `Set.Ch3.S2_Relations`, breaking what would otherwise be a circular dependency. |
 | `Set/SimpAttrs.lean` | Custom simp attribute `set_spec_simps` for membership specification lemmas. |
 
 **Legacy / shim**
@@ -85,8 +87,8 @@ Examples (exact names vary by file): `∅`, `𝒫`, `⋃`, `⋂`, ordered pairs 
 Read **`workflow.md`** end-to-end. Short summary:
 
 1. **Read the textbook** section (local PDF or `docs/textbook-transcriptions/`).
-2. **Draft a transcription** under `docs/textbook-transcriptions/` (e.g. `docs/textbook-transcriptions/ch4/ch4s2.md`): statements, proof sketches, mapping to Lean names.
-3. **Update `Enderton_Textbook_Todos.md`** *before* or in lockstep with proofs: checkbox items with **Set theory** and **Lean** lines, concrete declaration names, primary `.lean` path.
+2. **Draft a transcription** under `docs/textbook-transcriptions/` (e.g. `docs/textbook-transcriptions/ch4/ch4s2.md`, `ch4/ch4s3.md`): statements, proof sketches, mapping to Lean names.
+3. **Update `TODO.md`** *before* or in lockstep with proofs: checkbox items with **Set theory** and **Lean** lines, concrete declaration names, primary `.lean` path.
 4. **Implement** in the matching `Set/Ch#/S*.lean` file: definitions → `*.Spec` → theorems in book order when possible.
 5. **Verify** with `lake build` (and fix lints on touched files).
 
@@ -108,7 +110,7 @@ Read **`proof_style.md`** before writing or refactoring proofs. In short:
 ## 7. Editor and AI assistance
 
 - **Lean 4 extension** for VS Code / Cursor is strongly recommended.
-- Workspace rules may tell agents to consult the **textbook**, **`workflow.md`**, **`proof_style.md`**, and **`Enderton_Textbook_Todos.md`** when formalizing.
+- Workspace rules may tell agents to consult the **textbook**, **`workflow.md`**, **`proof_style.md`**, and **`TODO.md`** when formalizing.
 
 ---
 
@@ -126,7 +128,7 @@ Read **`proof_style.md`** before writing or refactoring proofs. In short:
 ## 9. Known limitations / honesty
 
 - **Chapter 5** and parts of later material may still use **`sorry`** or placeholders; `lake build` can succeed with warnings.
-- The **infinity axiom** in `Set/Axioms.lean` may be stated in a primitive form that is then shown equivalent to “there exists an inductive set” in `Set/Ch4/S1_InductiveSets.lean` — read that file for the exact bridge.
+- The **infinity axiom** is declared in `Set/Ch4/S1_InductiveSets.lean` (not in `Set/Axioms.lean`) in Enderton's literal form `∃ A, Inductive A`. The chosen witness is `noncomputable def Infinity := Classical.choose infinity`, with spec `lemma Infinity.Inductive`, mirroring the `Empty`/`Pair`/`Power`/… pattern from `Set/Ch2/S1_Axioms.lean`.
 
 ---
 
@@ -137,8 +139,8 @@ Read **`proof_style.md`** before writing or refactoring proofs. In short:
 | `README.md` | High-level mathematical overview (some code snippets may lag refactors; trust the `.lean` files). |
 | `workflow.md` | Per-section formalization procedure. |
 | `proof_style.md` | Proof conventions and tactics. |
-| `Enderton_Textbook_Todos.md` | Planning checklist (Chapters 2–5). |
+| `TODO.md` | Planning checklist (Chapters 2–5). |
 | `docs/textbook-transcriptions/` | Section-by-section extractions from the book. |
-| `ARCHITECTURE_SECTION_MODULES.md` | Chapter/section module layout (`Set/Ch*/S*.lean`). |
+| `ARCHITECTURE.md` | Chapter/section module layout (`Set/Ch*/S*.lean`). |
 
 Once you have run `lake build` successfully and located the chapter you care about under `Set/Ch#/`, you are ready to make a focused change: **one section at a time**, **textbook + TODO + transcription + Lean + build**.

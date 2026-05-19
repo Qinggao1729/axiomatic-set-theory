@@ -17,19 +17,24 @@ The implementation is now physically split by textbook sections:
   - `Set/Ch3/S1_OrderedPairs.lean` (ordered pairs, 3A/3B/3C, `Product`)
   - `Set/Ch3/S2_Relations.lean` (3D and relation/domain/range/field API)
   - `Set/Ch3/S3_NAryRelations.lean` (n-ary relation encodings)
-  - `Set/Ch3/S4_Functions.lean` (functions core, 3E/3F/3G/3H/3I, image/inverse-image theorems)
-  - `Set/Ch3/S5_InfiniteCartesianProducts.lean` (choice forms and 3J statements)
+  - `Set/Ch3/S4_Functions.lean` (functions core, 3E/3F/3G/3H/3I/3K/3L, plus 3J(a) AC-free in the plain `Set` namespace and 3J(b) inside a reopened `Choice` namespace — only declarations that genuinely use AC live in `Choice`; two `#print axioms` lines at the bottom of the file enforce the split)
+  - `Set/Ch3/S5_InfiniteCartesianProducts.lean` (infinite products and second-form AC)
   - `Set/Ch3/S6_Equivalence.lean` (3M/3N/3P + quotient/compatibility + 3Q statements)
   - `Set/Ch3/S7_OrderingRelations.lean` (linear order definitions and 3R consequences)
 
 - Chapter 4 implementation lives in:
-  - `Set/Ch4/S1_InductiveSets.lean` (4A/4B/4C and core natural-number construction)
+  - `Set/Ch4/S1_InductiveSets.lean` (4A/4B/4C and core natural-number construction;
+    also the home of the **Infinity Axiom** in Enderton's literal form
+    `∃ A, Inductive A`, plus the chosen witness `Infinity := Classical.choose infinity`)
   - `Set/Ch4/S2_PeanosPostulates.lean` (Peano-system layer and 4D/4E/4F/4G line)
   - `Set/Ch4/S3_RecursionOnOmega.lean` (recursion theorem on `ω` and 4H)
   - `Set/Ch4/S4_Arithmetic.lean` (4I/4J/4K arithmetic layer)
   - `Set/Ch4/S5_OrderingOnOmega.lean` (4L/4M/4N/4P, well-ordering, and strong-induction layer)
-  - Note: the Infinity axiom is now declared centrally in `Set/Axioms.lean` (primitive form),
-    and `Set/Ch4/S1_InductiveSets.lean` derives the textbook-style `∃ A, Inductive A`.
+  - Note: the Infinity axiom is the **only** Enderton axiom that does not live in
+    `Set/Axioms.lean`, because its statement uses `∅`, `Successor`, and
+    `Inductive`, which are themselves defined in `Set/Ch4/S1_InductiveSets.lean`.
+    `Set/Axioms.lean` carries a comment pointing to the actual declaration site,
+    and `Set/AxiomIndex.md` lists the location alongside the Ch2 axioms.
 
 - Chapter 5 implementation now lives in:
   - `Set/Ch5/S1_Integers.lean` (integer construction scaffold, 5ZA–5ZL line)
@@ -82,9 +87,31 @@ And top-level:
 To keep future “six equivalent forms of AC” development clean:
 
 - AC declarations are kept out of `Set/Axioms.lean` (which only contains core set axioms).
-- Canonical AC declarations live in `Set/Choice.lean`, with textbook source notes.
-- `Set/Ch3/S5_InfiniteCartesianProducts.lean` cross-references those declarations via `#check`
-  and uses them to prove the AC-dependent theorems.
+- Canonical AC declarations live in `Set/Choice.lean`, wrapped in a
+  `Choice` sub-namespace (`Set.Choice.ChoiceFirstForm`,
+  `Set.Choice.choice_first_form`, `Set.Choice.ChoiceSecondForm`).
+  Wrapping forces every downstream file to either qualify the name or
+  `open Choice`; either way the AC dependency is visible at the use site.
+- `Set/Choice.lean` only imports `Set.Ch3.S2_Relations`, so it can be
+  imported by `Set/Ch3/S4_Functions.lean` without a circular dependency.
+  To make that possible, the AC predicates state "function" inline as
+  `IsRelation H ∧ ∀ x ∈ dom H, ∃! y, ⟪x, y⟫ ∈ H` — definitionally equal
+  to `IsFunction H`, so consumers destructure it as an `IsFunction`
+  directly. This keeps `Set/Choice.lean` as the single home for all six
+  forms of AC even though the inductive presentation of AC in Enderton
+  spans Chapter 3 (§4 and §5) and Chapter 6.
+- AC consumers:
+  - `Set/Ch3/S4_Functions.lean` `#check`s the declarations near the top
+    (Enderton p.49) and reopens `namespace Choice` at the bottom of the
+    file **only** for Theorem 3J(b) — the one declaration whose proof
+    actually invokes `choice_first_form`. Theorem 3J(a) and its helpers
+    (`LeftInverseRelation`, `one_to_one_preimage_unique`) stay in the
+    plain `Set` namespace because they are AC-free. Two `#print axioms`
+    lines after the namespace block enforce this split as a build-time
+    invariant.
+  - `Set/Ch3/S5_InfiniteCartesianProducts.lean` `open`s `Choice` once at
+    the top and `#check`s the second-form declaration for the
+    infinite-product nonempty theorem.
 - Forms are named as separate logical objects (`ChoiceFirstForm`, `ChoiceSecondForm`) so additional forms can be appended naturally:
   - `ChoiceThirdForm`, `ChoiceFourthForm`, ...
 - Equivalence proofs can then be added as ordinary theorems between these forms, without changing existing theorem files.

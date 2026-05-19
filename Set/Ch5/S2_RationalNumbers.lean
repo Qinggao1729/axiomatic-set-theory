@@ -42,7 +42,7 @@ noncomputable def RatEqRel : Set :=
     (fun w =>
       ∃ a b c d,
         a ∈ ℤ ∧ b ∈ ℤ' ∧ c ∈ ℤ ∧ d ∈ ℤ' ∧
-        w = ⟨⟨a, b⟩, ⟨c, d⟩⟩ ∧
+        w = ⟪⟪a, b⟫, ⟪c, d⟫⟫ ∧
         (a ·_ℤ d) = (c ·_ℤ b))
     ((ℤ ⨯ ℤ') ⨯ (ℤ ⨯ ℤ'))
 
@@ -53,12 +53,12 @@ infix:50 " ~_ℚ " => fun x y : Set => ⟪x, y⟫ ∈ RatEqRel
       w ∈ ((ℤ ⨯ ℤ') ⨯ (ℤ ⨯ ℤ')) ∧
       ∃ a b c d,
         a ∈ ℤ ∧ b ∈ ℤ' ∧ c ∈ ℤ ∧ d ∈ ℤ' ∧
-        w = ⟨⟨a, b⟩, ⟨c, d⟩⟩ ∧
+        w = ⟪⟪a, b⟫, ⟪c, d⟫⟫ ∧
         (a ·_ℤ d) = (c ·_ℤ b) := by
   simp [RatEqRel, Comprehension.Spec]
 
 @[simp] lemma RatEqRel.infix_iff (x y : Set) :
-    (x ~_ℚ y) ↔ ⟨x, y⟩ ∈ RatEqRel := by
+    (x ~_ℚ y) ↔ ⟪x, y⟫ ∈ RatEqRel := by
   rfl
 
 lemma int_add_closed (a b : Set) (ha : a ∈ ℤ) (hb : b ∈ ℤ) :
@@ -132,8 +132,8 @@ lemma int_mul_zero_right (a : Set) (ha : a ∈ ℤ) :
     a ·_ℤ zero_ℤ = zero_ℤ := by
   have hDist := mul_ℤ_left_distrib a zero_ℤ zero_ℤ ha zero_ℤ_mem_ℤ zero_ℤ_mem_ℤ
   have h00 : zero_ℤ +_ℤ zero_ℤ = zero_ℤ := int_add_zero_right zero_ℤ zero_ℤ_mem_ℤ
-  have hRewrite : a ·_ℤ zero_ℤ = a ·_ℤ (zero_ℤ +_ℤ zero_ℤ) := by
-    exact congrArg (fun t => a ·_ℤ t) h00.symm
+  have hRewrite : a ·_ℤ zero_ℤ = a ·_ℤ (zero_ℤ +_ℤ zero_ℤ) :=
+    congrArg (fun t => a ·_ℤ t) h00.symm
   have hMain : a ·_ℤ zero_ℤ = (a ·_ℤ zero_ℤ) +_ℤ (a ·_ℤ zero_ℤ) := by
     calc
       a ·_ℤ zero_ℤ = a ·_ℤ (zero_ℤ +_ℤ zero_ℤ) := hRewrite
@@ -223,7 +223,7 @@ lemma rat_rep_spec (r : Set) (hr : r ∈ ((ℤ ⨯ ℤ') / RatEqRel)) :
     (Classical.choose_spec (Classical.choose_spec (rat_exists_rep r hr)))
 
 -- [Enderton, Theorem 5QA, p.102]
-theorem theorem_5ℚA : IsEquivalenceRelation RatEqRel (ℤ ⨯ ℤ') := by
+theorem thm_5ℚA : IsEquivalenceRelation RatEqRel (ℤ ⨯ ℤ') := by
   refine ⟨⟨?_, ?_⟩, ?_, ?_, ?_⟩
   · intro w hw
     rcases (RatEqRel.Spec).1 hw with
@@ -236,10 +236,9 @@ theorem theorem_5ℚA : IsEquivalenceRelation RatEqRel (ℤ ⨯ ℤ') := by
       ⟨a, b, haZ, hbNZ, rfl⟩
     rw [RatEqRel.Spec]
     refine ⟨?_, ?_⟩
-    · exact Pair.mem_product (ℤ ⨯ ℤ') (ℤ ⨯ ℤ')
-        (⟪a, b⟫) (⟪a, b⟫)
-        (by simpa using Pair.mem_product ℤ ℤ' a b haZ hbNZ)
-        (by simpa using Pair.mem_product ℤ ℤ' a b haZ hbNZ)
+    · exact (Product.Pair.Spec).2
+        ⟨(by simpa using (Product.Pair.Spec).2 (show a ∈ ℤ ∧ b ∈ ℤ' from ⟨haZ, hbNZ⟩)),
+         (by simpa using (Product.Pair.Spec).2 (show a ∈ ℤ ∧ b ∈ ℤ' from ⟨haZ, hbNZ⟩))⟩
     · exact ⟨a, b, a, b, haZ, hbNZ, haZ, hbNZ, rfl, rfl⟩
   · intro x y hxy
     rcases (RatEqRel.Spec).1 hxy with
@@ -249,12 +248,12 @@ theorem theorem_5ℚA : IsEquivalenceRelation RatEqRel (ℤ ⨯ ℤ') := by
     have hy : y = ⟪c, d⟫ :=
       (OrderedPair.uniqueness x y (⟪a, b⟫) (⟪c, d⟫)).1 hPairEq |>.2
     have hxCarrier : x ∈ (ℤ ⨯ ℤ') :=
-      (Pair.mem_product_elim (ℤ ⨯ ℤ') (ℤ ⨯ ℤ') x y hxyProd).1
+      ((Product.Pair.Spec).1 hxyProd).1
     have hyCarrier : y ∈ (ℤ ⨯ ℤ') :=
-      (Pair.mem_product_elim (ℤ ⨯ ℤ') (ℤ ⨯ ℤ') x y hxyProd).2
+      ((Product.Pair.Spec).1 hxyProd).2
     rw [RatEqRel.Spec]
     refine ⟨?_, ?_⟩
-    · exact Pair.mem_product (ℤ ⨯ ℤ') (ℤ ⨯ ℤ') y x hyCarrier hxCarrier
+    · exact (Product.Pair.Spec).2 ⟨hyCarrier, hxCarrier⟩
     · refine ⟨c, d, a, b, hcZ, hdNZ, haZ, hbNZ, ?_, hMul.symm⟩
       simp [hx, hy]
   · intro x y z hxy hyz
@@ -304,12 +303,12 @@ theorem theorem_5ℚA : IsEquivalenceRelation RatEqRel (ℤ ⨯ ℤ') := by
     have hFinalEq : a ·_ℤ f = e ·_ℤ b :=
       int_mul_right_cancel_of_ne_zero (a ·_ℤ f) (e ·_ℤ b) d hafZ hebZ hdZ hd0 hMulByD
     have hxCarrier : x ∈ (ℤ ⨯ ℤ') :=
-      (Pair.mem_product_elim (ℤ ⨯ ℤ') (ℤ ⨯ ℤ') x y hxyProd).1
+      ((Product.Pair.Spec).1 hxyProd).1
     have hzCarrier : z ∈ (ℤ ⨯ ℤ') :=
-      (Pair.mem_product_elim (ℤ ⨯ ℤ') (ℤ ⨯ ℤ') y z hyzProd).2
+      ((Product.Pair.Spec).1 hyzProd).2
     rw [RatEqRel.Spec]
     refine ⟨?_, ?_⟩
-    · exact Pair.mem_product (ℤ ⨯ ℤ') (ℤ ⨯ ℤ') x z hxCarrier hzCarrier
+    · exact (Product.Pair.Spec).2 ⟨hxCarrier, hzCarrier⟩
     · refine ⟨a, b, e, f, haZ, hbNZ, heZ, hfNZ, ?_, hFinalEq⟩
       simp [hx, hz]
 
@@ -319,24 +318,24 @@ notation "ℚ" => RationalSet
 noncomputable def zero_ℚ : Set := [⟪zero_ℤ, one_ℤ⟫]₍RatEqRel₎
 noncomputable def one_ℚ : Set := [⟪one_ℤ, one_ℤ⟫]₍RatEqRel₎
 
-@[simp] lemma one_ℤ_mem_nonzero : one_ℤ ∈ ℤ' := by
-  exact (ℤ'.Spec).2 ⟨one_ℤ_mem_ℤ, by
+@[simp] lemma one_ℤ_mem_nonzero : one_ℤ ∈ ℤ' :=
+  (ℤ'.Spec).2 ⟨one_ℤ_mem_ℤ, by
     intro hEq
     exact zero_ℤ_ne_one_ℤ hEq.symm⟩
 
-@[simp] lemma zero_ℚ_mem_ℚ : zero_ℚ ∈ ℚ := by
-  exact EquivalenceClass.mem_quotient (ℤ ⨯ ℤ') RatEqRel
+@[simp] lemma zero_ℚ_mem_ℚ : zero_ℚ ∈ ℚ :=
+  EquivalenceClass.mem_quotient (ℤ ⨯ ℤ') RatEqRel
     (⟪zero_ℤ, one_ℤ⟫)
     (by
-      simpa using Pair.mem_product ℤ ℤ'
-        zero_ℤ one_ℤ zero_ℤ_mem_ℤ one_ℤ_mem_nonzero)
+      simpa using (Product.Pair.Spec).2
+        (show zero_ℤ ∈ ℤ ∧ one_ℤ ∈ ℤ' from ⟨zero_ℤ_mem_ℤ, one_ℤ_mem_nonzero⟩))
 
-@[simp] lemma one_ℚ_mem_ℚ : one_ℚ ∈ ℚ := by
-  exact EquivalenceClass.mem_quotient (ℤ ⨯ ℤ') RatEqRel
+@[simp] lemma one_ℚ_mem_ℚ : one_ℚ ∈ ℚ :=
+  EquivalenceClass.mem_quotient (ℤ ⨯ ℤ') RatEqRel
     (⟪one_ℤ, one_ℤ⟫)
     (by
-      simpa using Pair.mem_product ℤ ℤ'
-        one_ℤ one_ℤ one_ℤ_mem_ℤ one_ℤ_mem_nonzero)
+      simpa using (Product.Pair.Spec).2
+        (show one_ℤ ∈ ℤ ∧ one_ℤ ∈ ℤ' from ⟨one_ℤ_mem_ℤ, one_ℤ_mem_nonzero⟩))
 
 noncomputable def rat_num (r : Set) : Set :=
   letI : DecidablePred (fun x : Set => x ∈ ℚ) := Classical.decPred (fun x : Set => x ∈ ℚ)
@@ -366,30 +365,29 @@ lemma RatEqRel.pair_mem
     (a b c d : Set)
     (haZ : a ∈ ℤ) (hbNZ : b ∈ ℤ') (hcZ : c ∈ ℤ) (hdNZ : d ∈ ℤ')
     (hEq : a ·_ℤ d = c ·_ℤ b) :
-    ⟨⟪a, b⟫, ⟪c, d⟫⟩ ∈ RatEqRel := by
+    ⟪⟪a, b⟫, ⟪c, d⟫⟫ ∈ RatEqRel := by
   rw [RatEqRel.Spec]
   refine ⟨?_, ?_⟩
-  · exact Pair.mem_product (ℤ ⨯ ℤ') (ℤ ⨯ ℤ')
-      (⟪a, b⟫) (⟪c, d⟫)
-      (by simpa using Pair.mem_product ℤ ℤ' a b haZ hbNZ)
-      (by simpa using Pair.mem_product ℤ ℤ' c d hcZ hdNZ)
+  · exact (Product.Pair.Spec).2
+      ⟨(by simpa using (Product.Pair.Spec).2 (show a ∈ ℤ ∧ b ∈ ℤ' from ⟨haZ, hbNZ⟩)),
+       (by simpa using (Product.Pair.Spec).2 (show c ∈ ℤ ∧ d ∈ ℤ' from ⟨hcZ, hdNZ⟩))⟩
   · exact ⟨a, b, c, d, haZ, hbNZ, hcZ, hdNZ, rfl, hEq⟩
 
 lemma rat_class_eq_iff
     (a b c d : Set)
     (haZ : a ∈ ℤ) (hbNZ : b ∈ ℤ') (hcZ : c ∈ ℤ) (hdNZ : d ∈ ℤ') :
     [⟪a, b⟫]₍RatEqRel₎ = [⟪c, d⟫]₍RatEqRel₎ ↔
-      ⟨⟪a, b⟫, ⟪c, d⟫⟩ ∈ RatEqRel := by
+      ⟪⟪a, b⟫, ⟪c, d⟫⟫ ∈ RatEqRel := by
   exact (equiv_class_eq_iff RatEqRel (ℤ ⨯ ℤ')
-      (⟪a, b⟫) (⟪c, d⟫) theorem_5ℚA
-      (by simpa using Pair.mem_product ℤ ℤ' a b haZ hbNZ)
-      (by simpa using Pair.mem_product ℤ ℤ' c d hcZ hdNZ))
+      (⟪a, b⟫) (⟪c, d⟫) thm_5ℚA
+      (by simpa using (Product.Pair.Spec).2 (show a ∈ ℤ ∧ b ∈ ℤ' from ⟨haZ, hbNZ⟩))
+      (by simpa using (Product.Pair.Spec).2 (show c ∈ ℤ ∧ d ∈ ℤ' from ⟨hcZ, hdNZ⟩)))
 
 lemma rat_mul_pair_congr
     (a b c d a' b' c' d' : Set)
-    (h₁ : ⟨⟪a, b⟫, ⟪a', b'⟫⟩ ∈ RatEqRel)
-    (h₂ : ⟨⟪c, d⟫, ⟪c', d'⟫⟩ ∈ RatEqRel) :
-    ⟨⟪(a ·_ℤ c), (b ·_ℤ d)⟫, ⟪(a' ·_ℤ c'), (b' ·_ℤ d')⟫⟩ ∈ RatEqRel := by
+    (h₁ : ⟪⟪a, b⟫, ⟪a', b'⟫⟫ ∈ RatEqRel)
+    (h₂ : ⟪⟪c, d⟫, ⟪c', d'⟫⟫ ∈ RatEqRel) :
+    ⟪⟪(a ·_ℤ c), (b ·_ℤ d)⟫, ⟪(a' ·_ℤ c'), (b' ·_ℤ d')⟫⟫ ∈ RatEqRel := by
   rcases (RatEqRel.Spec).1 h₁ with
     ⟨_, a0, b0, a1, b1, ha0Z, hb0NZ, ha1Z, hb1NZ, hPair₁, hEq₁⟩
   rcases (RatEqRel.Spec).1 h₂ with
@@ -486,10 +484,12 @@ lemma rat_mul_candidate_closed (r s : Set) (hr : r ∈ ℚ) (hs : s ∈ ℚ) :
   exact EquivalenceClass.mem_quotient (ℤ ⨯ ℤ') RatEqRel
     (⟪(rat_num r ·_ℤ rat_num s), (rat_den r ·_ℤ rat_den s)⟫)
     (by
-      simpa using Pair.mem_product ℤ ℤ'
-        (rat_num r ·_ℤ rat_num s) (rat_den r ·_ℤ rat_den s)
-        (int_mul_closed (rat_num r) (rat_num s) hrnZ hsnZ)
-        (int_mul_mem_nonzero (rat_den r) (rat_den s) hrdNZ hsdNZ))
+      simpa using (Product.Pair.Spec).2
+        (show
+          (rat_num r ·_ℤ rat_num s) ∈ ℤ ∧
+          (rat_den r ·_ℤ rat_den s) ∈ ℤ'
+          from ⟨int_mul_closed (rat_num r) (rat_num s) hrnZ hsnZ,
+                int_mul_mem_nonzero (rat_den r) (rat_den s) hrdNZ hsdNZ⟩))
 
 lemma rat_mul_candidate_comm (r s : Set) (hr : r ∈ ℚ) (hs : s ∈ ℚ) :
     rat_mul_candidate r s = rat_mul_candidate s r := by
@@ -534,8 +534,8 @@ lemma rat_mul_candidate_assoc (r s t : Set)
           = rat_mul_candidate s t := hSTspec.2.2.symm
       _ = [⟪(rat_num s ·_ℤ rat_num t), (rat_den s ·_ℤ rat_den t)⟫]₍RatEqRel₎ := by rfl
   have hRelRS :
-      ⟨⟪(rat_num (rat_mul_candidate r s)), (rat_den (rat_mul_candidate r s))⟫,
-        ⟪(rat_num r ·_ℤ rat_num s), (rat_den r ·_ℤ rat_den s)⟫⟩ ∈ RatEqRel := by
+      ⟪⟪(rat_num (rat_mul_candidate r s)), (rat_den (rat_mul_candidate r s))⟫,
+        ⟪(rat_num r ·_ℤ rat_num s), (rat_den r ·_ℤ rat_den s)⟫⟫ ∈ RatEqRel := by
     have hNumRSZ : rat_num (rat_mul_candidate r s) ∈ ℤ := hRSspec.1
     have hDenRSNZ : rat_den (rat_mul_candidate r s) ∈ ℤ' := hRSspec.2.1
     have hNumRawZ : rat_num r ·_ℤ rat_num s ∈ ℤ := int_mul_closed (rat_num r) (rat_num s) haZ hcZ
@@ -545,8 +545,8 @@ lemma rat_mul_candidate_assoc (r s t : Set)
       (rat_num r ·_ℤ rat_num s) (rat_den r ·_ℤ rat_den s)
       hNumRSZ hDenRSNZ hNumRawZ hDenRawNZ).1 hRSclassEq
   have hRelST :
-      ⟨⟪(rat_num (rat_mul_candidate s t)), (rat_den (rat_mul_candidate s t))⟫,
-        ⟪(rat_num s ·_ℤ rat_num t), (rat_den s ·_ℤ rat_den t)⟫⟩ ∈ RatEqRel := by
+      ⟪⟪(rat_num (rat_mul_candidate s t)), (rat_den (rat_mul_candidate s t))⟫,
+        ⟪(rat_num s ·_ℤ rat_num t), (rat_den s ·_ℤ rat_den t)⟫⟫ ∈ RatEqRel := by
     have hNumSTZ : rat_num (rat_mul_candidate s t) ∈ ℤ := hSTspec.1
     have hDenSTNZ : rat_den (rat_mul_candidate s t) ∈ ℤ' := hSTspec.2.1
     have hNumRawZ : rat_num s ·_ℤ rat_num t ∈ ℤ := int_mul_closed (rat_num s) (rat_num t) hcZ heZ
@@ -556,10 +556,10 @@ lemma rat_mul_candidate_assoc (r s t : Set)
       (rat_num s ·_ℤ rat_num t) (rat_den s ·_ℤ rat_den t)
       hNumSTZ hDenSTNZ hNumRawZ hDenRawNZ).1 hSTclassEq
   have hRelLeft :
-      ⟨⟪(rat_num (rat_mul_candidate r s) ·_ℤ rat_num t), (rat_den (rat_mul_candidate r s) ·_ℤ rat_den t)⟫,
-        ⟪((rat_num r ·_ℤ rat_num s) ·_ℤ rat_num t), ((rat_den r ·_ℤ rat_den s) ·_ℤ rat_den t)⟫⟩ ∈ RatEqRel := by
-    have hReflT : ⟨⟪(rat_num t), (rat_den t)⟫, ⟪(rat_num t), (rat_den t)⟫⟩ ∈ RatEqRel := by
-      exact RatEqRel.pair_mem (rat_num t) (rat_den t) (rat_num t) (rat_den t)
+      ⟪⟪(rat_num (rat_mul_candidate r s) ·_ℤ rat_num t), (rat_den (rat_mul_candidate r s) ·_ℤ rat_den t)⟫,
+        ⟪((rat_num r ·_ℤ rat_num s) ·_ℤ rat_num t), ((rat_den r ·_ℤ rat_den s) ·_ℤ rat_den t)⟫⟫ ∈ RatEqRel := by
+    have hReflT : ⟪⟪(rat_num t), (rat_den t)⟫, ⟪(rat_num t), (rat_den t)⟫⟫ ∈ RatEqRel :=
+      RatEqRel.pair_mem (rat_num t) (rat_den t) (rat_num t) (rat_den t)
         heZ hfNZ heZ hfNZ rfl
     exact rat_mul_pair_congr
       (rat_num (rat_mul_candidate r s)) (rat_den (rat_mul_candidate r s))
@@ -568,10 +568,10 @@ lemma rat_mul_candidate_assoc (r s t : Set)
       (rat_num t) (rat_den t)
       hRelRS hReflT
   have hRelRight :
-      ⟨⟪(rat_num r ·_ℤ rat_num (rat_mul_candidate s t)), (rat_den r ·_ℤ rat_den (rat_mul_candidate s t))⟫,
-        ⟪(rat_num r ·_ℤ (rat_num s ·_ℤ rat_num t)), (rat_den r ·_ℤ (rat_den s ·_ℤ rat_den t))⟫⟩ ∈ RatEqRel := by
-    have hReflR : ⟨⟪(rat_num r), (rat_den r)⟫, ⟪(rat_num r), (rat_den r)⟫⟩ ∈ RatEqRel := by
-      exact RatEqRel.pair_mem (rat_num r) (rat_den r) (rat_num r) (rat_den r)
+      ⟪⟪(rat_num r ·_ℤ rat_num (rat_mul_candidate s t)), (rat_den r ·_ℤ rat_den (rat_mul_candidate s t))⟫,
+        ⟪(rat_num r ·_ℤ (rat_num s ·_ℤ rat_num t)), (rat_den r ·_ℤ (rat_den s ·_ℤ rat_den t))⟫⟫ ∈ RatEqRel := by
+    have hReflR : ⟪⟪(rat_num r), (rat_den r)⟫, ⟪(rat_num r), (rat_den r)⟫⟫ ∈ RatEqRel :=
+      RatEqRel.pair_mem (rat_num r) (rat_den r) (rat_num r) (rat_den r)
         haZ hbNZ haZ hbNZ rfl
     exact rat_mul_pair_congr
       (rat_num r) (rat_den r)
@@ -640,17 +640,17 @@ lemma rat_mul_candidate_one_right (r : Set) (hr : r ∈ ℚ) :
       [⟪(rat_num one_ℚ), (rat_den one_ℚ)⟫]₍RatEqRel₎ = one_ℚ := h1Spec.2.2.symm
       _ = [⟪one_ℤ, one_ℤ⟫]₍RatEqRel₎ := rfl
   have hRelOne :
-      ⟨⟪(rat_num one_ℚ), (rat_den one_ℚ)⟫, ⟪one_ℤ, one_ℤ⟫⟩ ∈ RatEqRel := by
+      ⟪⟪(rat_num one_ℚ), (rat_den one_ℚ)⟫, ⟪one_ℤ, one_ℤ⟫⟫ ∈ RatEqRel := by
     exact (rat_class_eq_iff
       (rat_num one_ℚ) (rat_den one_ℚ) one_ℤ one_ℤ
       huZ hvNZ one_ℤ_mem_ℤ one_ℤ_mem_nonzero).1 hOneClassEq
   have hReflR :
-      ⟨⟪(rat_num r), (rat_den r)⟫, ⟪(rat_num r), (rat_den r)⟫⟩ ∈ RatEqRel := by
+      ⟪⟪(rat_num r), (rat_den r)⟫, ⟪(rat_num r), (rat_den r)⟫⟫ ∈ RatEqRel := by
     exact RatEqRel.pair_mem (rat_num r) (rat_den r) (rat_num r) (rat_den r)
       haZ hbNZ haZ hbNZ rfl
   have hRelMul :
-      ⟨⟪(rat_num r ·_ℤ rat_num one_ℚ), (rat_den r ·_ℤ rat_den one_ℚ)⟫,
-        ⟪(rat_num r ·_ℤ one_ℤ), (rat_den r ·_ℤ one_ℤ)⟫⟩ ∈ RatEqRel := by
+      ⟪⟪(rat_num r ·_ℤ rat_num one_ℚ), (rat_den r ·_ℤ rat_den one_ℚ)⟫,
+        ⟪(rat_num r ·_ℤ one_ℤ), (rat_den r ·_ℤ one_ℤ)⟫⟫ ∈ RatEqRel := by
     exact rat_mul_pair_congr
       (rat_num r) (rat_den r)
       (rat_num one_ℚ) (rat_den one_ℚ)
@@ -678,10 +678,10 @@ lemma rat_mul_candidate_one_right (r : Set) (hr : r ∈ ℚ) :
 
 lemma rat_add_pair_congr
     (a b c d a' b' c' d' : Set)
-    (h₁ : ⟨⟪a, b⟫, ⟪a', b'⟫⟩ ∈ RatEqRel)
-    (h₂ : ⟨⟪c, d⟫, ⟪c', d'⟫⟩ ∈ RatEqRel) :
-    ⟨⟪((a ·_ℤ d) +_ℤ (c ·_ℤ b)), (b ·_ℤ d)⟫,
-      ⟪((a' ·_ℤ d') +_ℤ (c' ·_ℤ b')), (b' ·_ℤ d')⟫⟩ ∈ RatEqRel := by
+    (h₁ : ⟪⟪a, b⟫, ⟪a', b'⟫⟫ ∈ RatEqRel)
+    (h₂ : ⟪⟪c, d⟫, ⟪c', d'⟫⟫ ∈ RatEqRel) :
+    ⟪⟪((a ·_ℤ d) +_ℤ (c ·_ℤ b)), (b ·_ℤ d)⟫,
+      ⟪((a' ·_ℤ d') +_ℤ (c' ·_ℤ b')), (b' ·_ℤ d')⟫⟫ ∈ RatEqRel := by
   rcases (RatEqRel.Spec).1 h₁ with
     ⟨_, a0, b0, a1, b1, ha0Z, hb0NZ, ha1Z, hb1NZ, hPair₁, hEq₁⟩
   rcases (RatEqRel.Spec).1 h₂ with
@@ -869,14 +869,15 @@ lemma rat_add_candidate_closed (r s : Set) (hr : r ∈ ℚ) (hs : s ∈ ℚ) :
   exact EquivalenceClass.mem_quotient (ℤ ⨯ ℤ') RatEqRel
     (⟪((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den s)⟫)
     (by
-      simpa using Pair.mem_product ℤ ℤ'
-        ((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r))
-        (rat_den r ·_ℤ rat_den s)
-        (int_add_closed
-          (rat_num r ·_ℤ rat_den s) (rat_num s ·_ℤ rat_den r)
-          (int_mul_closed (rat_num r) (rat_den s) hrnZ hsdZ)
-          (int_mul_closed (rat_num s) (rat_den r) hsnZ hrdZ))
-        (int_mul_mem_nonzero (rat_den r) (rat_den s) hrdNZ hsdNZ))
+      simpa using (Product.Pair.Spec).2
+        (show
+          ((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r)) ∈ ℤ ∧
+          (rat_den r ·_ℤ rat_den s) ∈ ℤ'
+          from ⟨int_add_closed
+            (rat_num r ·_ℤ rat_den s) (rat_num s ·_ℤ rat_den r)
+            (int_mul_closed (rat_num r) (rat_den s) hrnZ hsdZ)
+            (int_mul_closed (rat_num s) (rat_den r) hsnZ hrdZ),
+            int_mul_mem_nonzero (rat_den r) (rat_den s) hrdNZ hsdNZ⟩))
 
 lemma rat_add_candidate_comm (r s : Set) (hr : r ∈ ℚ) (hs : s ∈ ℚ) :
     rat_add_candidate r s = rat_add_candidate s r := by
@@ -911,17 +912,17 @@ lemma rat_add_candidate_zero_right (r : Set) (hr : r ∈ ℚ) :
       [⟪(rat_num zero_ℚ), (rat_den zero_ℚ)⟫]₍RatEqRel₎ = zero_ℚ := h0Spec.2.2.symm
       _ = [⟪zero_ℤ, one_ℤ⟫]₍RatEqRel₎ := rfl
   have hRelZero :
-      ⟨⟪(rat_num zero_ℚ), (rat_den zero_ℚ)⟫, ⟪zero_ℤ, one_ℤ⟫⟩ ∈ RatEqRel := by
+      ⟪⟪(rat_num zero_ℚ), (rat_den zero_ℚ)⟫, ⟪zero_ℤ, one_ℤ⟫⟫ ∈ RatEqRel := by
     exact (rat_class_eq_iff
       (rat_num zero_ℚ) (rat_den zero_ℚ) zero_ℤ one_ℤ
       huZ hvNZ zero_ℤ_mem_ℤ one_ℤ_mem_nonzero).1 h0ClassEq
   have hReflR :
-      ⟨⟪(rat_num r), (rat_den r)⟫, ⟪(rat_num r), (rat_den r)⟫⟩ ∈ RatEqRel := by
+      ⟪⟪(rat_num r), (rat_den r)⟫, ⟪(rat_num r), (rat_den r)⟫⟫ ∈ RatEqRel := by
     exact RatEqRel.pair_mem (rat_num r) (rat_den r) (rat_num r) (rat_den r)
       haZ hbNZ haZ hbNZ rfl
   have hRelAdd :
-      ⟨⟪((rat_num r ·_ℤ rat_den zero_ℚ) +_ℤ (rat_num zero_ℚ ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den zero_ℚ)⟫,
-        ⟪((rat_num r ·_ℤ one_ℤ) +_ℤ (zero_ℤ ·_ℤ rat_den r)), (rat_den r ·_ℤ one_ℤ)⟫⟩ ∈ RatEqRel := by
+      ⟪⟪((rat_num r ·_ℤ rat_den zero_ℚ) +_ℤ (rat_num zero_ℚ ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den zero_ℚ)⟫,
+        ⟪((rat_num r ·_ℤ one_ℤ) +_ℤ (zero_ℤ ·_ℤ rat_den r)), (rat_den r ·_ℤ one_ℤ)⟫⟫ ∈ RatEqRel := by
     exact rat_add_pair_congr
       (rat_num r) (rat_den r)
       (rat_num zero_ℚ) (rat_den zero_ℚ)
@@ -965,10 +966,10 @@ lemma rat_add_candidate_has_inverse (r : Set) (hr : r ∈ ℚ) :
   have haInvZ : aInv ∈ ℤ := (Classical.choose_spec (int_add_inv_exists (rat_num r) haZ)).1
   have hInvEq : rat_num r +_ℤ aInv = zero_ℤ := (Classical.choose_spec (int_add_inv_exists (rat_num r) haZ)).2
   let s : Set := [⟪aInv, (rat_den r)⟫]₍RatEqRel₎
-  have hs : s ∈ ℚ := by
-    exact EquivalenceClass.mem_quotient (ℤ ⨯ ℤ') RatEqRel
+  have hs : s ∈ ℚ :=
+    EquivalenceClass.mem_quotient (ℤ ⨯ ℤ') RatEqRel
       (⟪aInv, (rat_den r)⟫)
-      (by simpa using Pair.mem_product ℤ ℤ' aInv (rat_den r) haInvZ hbNZ)
+      (by simpa using (Product.Pair.Spec).2 (show aInv ∈ ℤ ∧ rat_den r ∈ ℤ' from ⟨haInvZ, hbNZ⟩))
   have hsSpec := rat_num_den_spec s hs
   have hClassSEq :
       [⟪(rat_num s), (rat_den s)⟫]₍RatEqRel₎ =
@@ -977,17 +978,17 @@ lemma rat_add_candidate_has_inverse (r : Set) (hr : r ∈ ℚ) :
       [⟪(rat_num s), (rat_den s)⟫]₍RatEqRel₎ = s := hsSpec.2.2.symm
       _ = [⟪aInv, (rat_den r)⟫]₍RatEqRel₎ := by simp [s]
   have hRelS :
-      ⟨⟪(rat_num s), (rat_den s)⟫, ⟪aInv, (rat_den r)⟫⟩ ∈ RatEqRel := by
-    exact (rat_class_eq_iff
+      ⟪⟪(rat_num s), (rat_den s)⟫, ⟪aInv, (rat_den r)⟫⟫ ∈ RatEqRel :=
+    (rat_class_eq_iff
       (rat_num s) (rat_den s) aInv (rat_den r)
       hsSpec.1 hsSpec.2.1 haInvZ hbNZ).1 hClassSEq
   have hReflR :
-      ⟨⟪(rat_num r), (rat_den r)⟫, ⟪(rat_num r), (rat_den r)⟫⟩ ∈ RatEqRel := by
-    exact RatEqRel.pair_mem (rat_num r) (rat_den r) (rat_num r) (rat_den r)
+      ⟪⟪(rat_num r), (rat_den r)⟫, ⟪(rat_num r), (rat_den r)⟫⟫ ∈ RatEqRel :=
+    RatEqRel.pair_mem (rat_num r) (rat_den r) (rat_num r) (rat_den r)
       haZ hbNZ haZ hbNZ rfl
   have hRelAdd :
-      ⟨⟪((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den s)⟫,
-        ⟪((rat_num r ·_ℤ rat_den r) +_ℤ (aInv ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den r)⟫⟩ ∈ RatEqRel := by
+      ⟪⟪((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den s)⟫,
+        ⟪((rat_num r ·_ℤ rat_den r) +_ℤ (aInv ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den r)⟫⟫ ∈ RatEqRel := by
     exact rat_add_pair_congr
       (rat_num r) (rat_den r)
       (rat_num s) (rat_den s)
@@ -1025,8 +1026,8 @@ lemma rat_add_candidate_has_inverse (r : Set) (hr : r ∈ ℚ) :
   have hDenZ : (rat_den r ·_ℤ rat_den r) ∈ ℤ :=
     (ℤ'.Spec).1 hDenNZ |>.1
   have hRelZero :
-      ⟨⟪((rat_num r ·_ℤ rat_den r) +_ℤ (aInv ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den r)⟫,
-        ⟪zero_ℤ, one_ℤ⟫⟩ ∈ RatEqRel := by
+      ⟪⟪((rat_num r ·_ℤ rat_den r) +_ℤ (aInv ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den r)⟫,
+        ⟪zero_ℤ, one_ℤ⟫⟫ ∈ RatEqRel := by
     refine RatEqRel.pair_mem
       ((rat_num r ·_ℤ rat_den r) +_ℤ (aInv ·_ℤ rat_den r))
       (rat_den r ·_ℤ rat_den r)
@@ -1107,8 +1108,8 @@ lemma rat_add_candidate_assoc (r s t : Set)
           = rat_add_candidate s t := hSTspec.2.2.symm
       _ = [⟪((rat_num s ·_ℤ rat_den t) +_ℤ (rat_num t ·_ℤ rat_den s)), (rat_den s ·_ℤ rat_den t)⟫]₍RatEqRel₎ := by rfl
   have hRelRS :
-      ⟨⟪(rat_num (rat_add_candidate r s)), (rat_den (rat_add_candidate r s))⟫,
-        ⟪((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den s)⟫⟩ ∈ RatEqRel := by
+      ⟪⟪(rat_num (rat_add_candidate r s)), (rat_den (rat_add_candidate r s))⟫,
+        ⟪((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den s)⟫⟫ ∈ RatEqRel := by
     have hNumRSZ :
         (rat_num (rat_add_candidate r s)) ∈ ℤ := hRSspec.1
     have hDenRSNZ :
@@ -1128,8 +1129,8 @@ lemma rat_add_candidate_assoc (r s t : Set)
       (rat_den r ·_ℤ rat_den s)
       hNumRSZ hDenRSNZ hNumRawZ hDenRawNZ).1 hRSclassEq
   have hRelST :
-      ⟨⟪(rat_num (rat_add_candidate s t)), (rat_den (rat_add_candidate s t))⟫,
-        ⟪((rat_num s ·_ℤ rat_den t) +_ℤ (rat_num t ·_ℤ rat_den s)), (rat_den s ·_ℤ rat_den t)⟫⟩ ∈ RatEqRel := by
+      ⟪⟪(rat_num (rat_add_candidate s t)), (rat_den (rat_add_candidate s t))⟫,
+        ⟪((rat_num s ·_ℤ rat_den t) +_ℤ (rat_num t ·_ℤ rat_den s)), (rat_den s ·_ℤ rat_den t)⟫⟫ ∈ RatEqRel := by
     have hNumSTZ :
         (rat_num (rat_add_candidate s t)) ∈ ℤ := hSTspec.1
     have hDenSTNZ :
@@ -1149,12 +1150,12 @@ lemma rat_add_candidate_assoc (r s t : Set)
       (rat_den s ·_ℤ rat_den t)
       hNumSTZ hDenSTNZ hNumRawZ hDenRawNZ).1 hSTclassEq
   have hRelLeft :
-      ⟨⟪((rat_num (rat_add_candidate r s) ·_ℤ rat_den t) +_ℤ
+      ⟪⟪((rat_num (rat_add_candidate r s) ·_ℤ rat_den t) +_ℤ
           (rat_num t ·_ℤ rat_den (rat_add_candidate r s))), (rat_den (rat_add_candidate r s) ·_ℤ rat_den t)⟫,
         ⟪((((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r)) ·_ℤ rat_den t) +_ℤ
-          (rat_num t ·_ℤ (rat_den r ·_ℤ rat_den s))), ((rat_den r ·_ℤ rat_den s) ·_ℤ rat_den t)⟫⟩ ∈ RatEqRel := by
-    have hReflT : ⟨⟪(rat_num t), (rat_den t)⟫, ⟪(rat_num t), (rat_den t)⟫⟩ ∈ RatEqRel := by
-      exact RatEqRel.pair_mem (rat_num t) (rat_den t) (rat_num t) (rat_den t)
+          (rat_num t ·_ℤ (rat_den r ·_ℤ rat_den s))), ((rat_den r ·_ℤ rat_den s) ·_ℤ rat_den t)⟫⟫ ∈ RatEqRel := by
+    have hReflT : ⟪⟪(rat_num t), (rat_den t)⟫, ⟪(rat_num t), (rat_den t)⟫⟫ ∈ RatEqRel :=
+      RatEqRel.pair_mem (rat_num t) (rat_den t) (rat_num t) (rat_den t)
         heZ hfNZ heZ hfNZ rfl
     exact rat_add_pair_congr
       (rat_num (rat_add_candidate r s)) (rat_den (rat_add_candidate r s))
@@ -1164,12 +1165,12 @@ lemma rat_add_candidate_assoc (r s t : Set)
       (rat_num t) (rat_den t)
       hRelRS hReflT
   have hRelRight :
-      ⟨⟪((rat_num r ·_ℤ rat_den (rat_add_candidate s t)) +_ℤ
+      ⟪⟪((rat_num r ·_ℤ rat_den (rat_add_candidate s t)) +_ℤ
           (rat_num (rat_add_candidate s t) ·_ℤ rat_den r)), (rat_den r ·_ℤ rat_den (rat_add_candidate s t))⟫,
         ⟪((rat_num r ·_ℤ (rat_den s ·_ℤ rat_den t)) +_ℤ
-          (((rat_num s ·_ℤ rat_den t) +_ℤ (rat_num t ·_ℤ rat_den s)) ·_ℤ rat_den r)), (rat_den r ·_ℤ (rat_den s ·_ℤ rat_den t))⟫⟩ ∈ RatEqRel := by
-    have hReflR : ⟨⟪(rat_num r), (rat_den r)⟫, ⟪(rat_num r), (rat_den r)⟫⟩ ∈ RatEqRel := by
-      exact RatEqRel.pair_mem (rat_num r) (rat_den r) (rat_num r) (rat_den r)
+          (((rat_num s ·_ℤ rat_den t) +_ℤ (rat_num t ·_ℤ rat_den s)) ·_ℤ rat_den r)), (rat_den r ·_ℤ (rat_den s ·_ℤ rat_den t))⟫⟫ ∈ RatEqRel := by
+    have hReflR : ⟪⟪(rat_num r), (rat_den r)⟫, ⟪(rat_num r), (rat_den r)⟫⟫ ∈ RatEqRel :=
+      RatEqRel.pair_mem (rat_num r) (rat_den r) (rat_num r) (rat_den r)
         haZ hbNZ haZ hbNZ rfl
     exact rat_add_pair_congr
       (rat_num r) (rat_den r)
@@ -1354,10 +1355,10 @@ lemma rat_add_candidate_assoc (r s t : Set)
           (int_mul_closed (rat_num t) (rat_den s) heZ hdZ))
         hbZ)
   have hRelMain :
-      ⟨⟪((((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r)) ·_ℤ rat_den t) +_ℤ
+      ⟪⟪((((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r)) ·_ℤ rat_den t) +_ℤ
           (rat_num t ·_ℤ (rat_den r ·_ℤ rat_den s))), ((rat_den r ·_ℤ rat_den s) ·_ℤ rat_den t)⟫,
         ⟪((rat_num r ·_ℤ (rat_den s ·_ℤ rat_den t)) +_ℤ
-          (((rat_num s ·_ℤ rat_den t) +_ℤ (rat_num t ·_ℤ rat_den s)) ·_ℤ rat_den r)), (rat_den r ·_ℤ (rat_den s ·_ℤ rat_den t))⟫⟩ ∈ RatEqRel := by
+          (((rat_num s ·_ℤ rat_den t) +_ℤ (rat_num t ·_ℤ rat_den s)) ·_ℤ rat_den r)), (rat_den r ·_ℤ (rat_den s ·_ℤ rat_den t))⟫⟫ ∈ RatEqRel := by
     refine RatEqRel.pair_mem
       ((((rat_num r ·_ℤ rat_den s) +_ℤ (rat_num s ·_ℤ rat_den r)) ·_ℤ rat_den t) +_ℤ
         (rat_num t ·_ℤ (rat_den r ·_ℤ rat_den s)))
@@ -1412,7 +1413,7 @@ def RatAddAxioms (addQ : Set → Set → Set) : Prop :=
   (∀ r, r ∈ ℚ → ∃ s, s ∈ ℚ ∧ addQ r s = zero_ℚ)
 
 -- [Enderton, Theorem 5QC, p.104]
-theorem theorem_5ℚC : ∃ addQ : Set → Set → Set, RatAddAxioms addQ := by
+theorem thm_5ℚC : ∃ addQ : Set → Set → Set, RatAddAxioms addQ := by
   refine ⟨rat_add_candidate, ?_⟩
   refine ⟨?_, ?_, ?_, ?_, ?_⟩
   · intro r s hr hs
@@ -1440,7 +1441,7 @@ def RatMulAxioms (mulQ : Set → Set → Set) : Prop :=
   (∀ r, r ∈ ℚ → mulQ r one_ℚ = r)
 
 -- [Enderton, Theorem 5QE, p.106]
-theorem theorem_5ℚE : ∃ mulQ : Set → Set → Set, RatMulAxioms mulQ := by
+theorem thm_5ℚE : ∃ mulQ : Set → Set → Set, RatMulAxioms mulQ := by
   refine ⟨rat_mul_candidate, ?_⟩
   refine ⟨?_, ?_, ?_, ?_, ?_⟩
   · intro r s hr hs
@@ -1455,11 +1456,11 @@ theorem theorem_5ℚE : ∃ mulQ : Set → Set → Set, RatMulAxioms mulQ := by
     exact rat_mul_candidate_one_right r hr
 
 -- [Enderton, Theorem 5QF, p.107]
-theorem theorem_5ℚF : True := by
+theorem thm_5ℚF : True := by
   trivial
 
 -- [Enderton, Corollary 5QG, p.107]
-theorem corollary_5ℚG : True := by
+theorem cor_5ℚG : True := by
   trivial
 
 def RatLtAxioms (ltQ : Set → Set → Prop) : Prop :=
@@ -1474,13 +1475,13 @@ theorem lemma_5ℚH : True := by
   trivial
 
 -- [Enderton, Theorem 5QI, p.109]
-theorem theorem_5ℚI : ∃ ltQ : Set → Set → Prop, RatLtAxioms ltQ := by
+theorem thm_5ℚI : ∃ ltQ : Set → Set → Prop, RatLtAxioms ltQ := by
   let ltQ : Set → Set → Prop := fun r s =>
     r ∈ ℚ ∧ s ∈ ℚ ∧
       ((rat_num r <_ℤ rat_num s) ∨
         (rat_num r = rat_num s ∧ rat_den r <_ℤ rat_den s))
   refine ⟨ltQ, ?_⟩
-  have hZaxioms : IntOrderAxioms lt_ℤ := Classical.choose_spec theorem_5ℤI
+  have hZaxioms : IntOrderAxioms lt_ℤ := Classical.choose_spec thm_5ℤI
   have hZtrans := hZaxioms.2.1
   have hZtri : ∀ a b, a ∈ ℤ → b ∈ ℤ → (a <_ℤ b ∨ a = b ∨ b <_ℤ a) := by
     intro a b ha hb
@@ -1572,24 +1573,24 @@ theorem theorem_5ℚI : ∃ ltQ : Set → Set → Prop, RatLtAxioms ltQ := by
       subst hrsEq
       exact hLtIrr hsr
 
-noncomputable def add_ℚ : Set → Set → Set := Classical.choose theorem_5ℚC
-noncomputable def mul_ℚ : Set → Set → Set := Classical.choose theorem_5ℚE
-noncomputable def lt_ℚ : Set → Set → Prop := Classical.choose theorem_5ℚI
+noncomputable def add_ℚ : Set → Set → Set := Classical.choose thm_5ℚC
+noncomputable def mul_ℚ : Set → Set → Set := Classical.choose thm_5ℚE
+noncomputable def lt_ℚ : Set → Set → Prop := Classical.choose thm_5ℚI
 
 infixl:65 " +_ℚ " => add_ℚ
 infixl:70 " ·_ℚ " => mul_ℚ
 infix:50 " <_ℚ " => lt_ℚ
 
 -- [Enderton, Theorem 5QJ, p.109]
-theorem theorem_5ℚJ : True := by
+theorem thm_5ℚJ : True := by
   trivial
 
 -- [Enderton, Theorem 5QK, p.110]
-theorem theorem_5ℚK : True := by
+theorem thm_5ℚK : True := by
   trivial
 
 -- [Enderton, Theorem 5QL, p.110]
-theorem theorem_5ℚL : True := by
+theorem thm_5ℚL : True := by
   trivial
 
 end Set

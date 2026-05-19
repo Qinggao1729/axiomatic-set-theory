@@ -111,7 +111,7 @@ noncomputable def IntEqRel : Set :=
     (fun w =>
       ∃ a b c d,
         a ∈ ω ∧ b ∈ ω ∧ c ∈ ω ∧ d ∈ ω ∧
-        w = ⟨⟨a, b⟩, ⟨c, d⟩⟩ ∧
+        w = ⟪⟪a, b⟫, ⟪c, d⟫⟫ ∧
         a + d = c + b)
     (IntegerCarrier ⨯ IntegerCarrier)
 
@@ -120,11 +120,11 @@ lemma IntEqRel.Spec {w : Set} :
       w ∈ (IntegerCarrier ⨯ IntegerCarrier) ∧
       ∃ a b c d,
         a ∈ ω ∧ b ∈ ω ∧ c ∈ ω ∧ d ∈ ω ∧
-        w = ⟨⟨a, b⟩, ⟨c, d⟩⟩ ∧
+        w = ⟪⟪a, b⟫, ⟪c, d⟫⟫ ∧
         a + d = c + b := by
   simp [IntEqRel, Comprehension.Spec]
 
-theorem theorem_5ℤA : IntEqRel.IsEquivalenceRelation IntegerCarrier := by
+theorem thm_5ℤA : IntEqRel.IsEquivalenceRelation IntegerCarrier := by
   refine ⟨⟨?_, ?_⟩, ?_, ?_, ?_⟩
   · intro w hw
     rcases (IntEqRel.Spec).1 hw with ⟨_, a, b, c, d, _, _, _, _, hEqPair, _⟩
@@ -136,10 +136,9 @@ theorem theorem_5ℤA : IntEqRel.IsEquivalenceRelation IntegerCarrier := by
       ⟨a, b, ha, hb, rfl⟩
     rw [IntEqRel.Spec]
     refine ⟨?_, ?_⟩
-    · exact Pair.mem_product IntegerCarrier IntegerCarrier
-        (⟪a, b⟫) (⟪a, b⟫)
-        (by simpa [IntegerCarrier] using Pair.mem_product ω ω a b ha hb)
-        (by simpa [IntegerCarrier] using Pair.mem_product ω ω a b ha hb)
+    · exact (Product.Pair.Spec).2
+        ⟨(by simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show a ∈ ω ∧ b ∈ ω from ⟨ha, hb⟩)),
+         (by simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show a ∈ ω ∧ b ∈ ω from ⟨ha, hb⟩))⟩
     · exact ⟨a, b, a, b, ha, hb, ha, hb, rfl, rfl⟩
   · intro x y hxy
     rcases (IntEqRel.Spec).1 hxy with
@@ -147,12 +146,12 @@ theorem theorem_5ℤA : IntEqRel.IsEquivalenceRelation IntegerCarrier := by
     have hx : x = ⟪a, b⟫ := (OrderedPair.uniqueness x y (⟪a, b⟫) (⟪c, d⟫)).1 hEqPair |>.1
     have hy : y = ⟪c, d⟫ := (OrderedPair.uniqueness x y (⟪a, b⟫) (⟪c, d⟫)).1 hEqPair |>.2
     have hxCarrier : x ∈ IntegerCarrier :=
-      (Pair.mem_product_elim IntegerCarrier IntegerCarrier x y hxyProd).1
+      ((Product.Pair.Spec).1 hxyProd).1
     have hyCarrier : y ∈ IntegerCarrier :=
-      (Pair.mem_product_elim IntegerCarrier IntegerCarrier x y hxyProd).2
+      ((Product.Pair.Spec).1 hxyProd).2
     rw [IntEqRel.Spec]
     refine ⟨?_, ?_⟩
-    · exact Pair.mem_product IntegerCarrier IntegerCarrier y x hyCarrier hxCarrier
+    · exact (Product.Pair.Spec).2 ⟨hyCarrier, hxCarrier⟩
     · refine ⟨c, d, a, b, hc, hd, ha, hb, ?_, hSum.symm⟩
       simp [hx, hy]
   · intro x y z hxy hyz
@@ -191,19 +190,19 @@ theorem theorem_5ℤA : IntEqRel.IsEquivalenceRelation IntegerCarrier := by
         _ = e + (d + b) := h₃
         _ = e + (b + d) := by rw [nat_add_comm d b hd hb]
         _ = (e + b) + d := by rw [← nat_add_assoc e b d he hb hd]
-    have hFinal : a + f = e + b := by
-      exact nat_add_right_cancel (a + f) (e + b) d
+    have hFinal : a + f = e + b :=
+      nat_add_right_cancel (a + f) (e + b) d
         (nat_add_closed a f ha hf)
         (nat_add_closed e b he hb)
         hd
         h₄
     have hxCarrier : x ∈ IntegerCarrier :=
-      (Pair.mem_product_elim IntegerCarrier IntegerCarrier x y hxyProd).1
+      ((Product.Pair.Spec).1 hxyProd).1
     have hzCarrier : z ∈ IntegerCarrier :=
-      (Pair.mem_product_elim IntegerCarrier IntegerCarrier y z hyzProd).2
+      ((Product.Pair.Spec).1 hyzProd).2
     rw [IntEqRel.Spec]
     refine ⟨?_, ?_⟩
-    · exact Pair.mem_product IntegerCarrier IntegerCarrier x z hxCarrier hzCarrier
+    · exact (Product.Pair.Spec).2 ⟨hxCarrier, hzCarrier⟩
     · refine ⟨a, b, e, f, ha, hb, he, hf, ?_, hFinal⟩
       simp [hx, hz]
 
@@ -283,24 +282,40 @@ lemma IntEqRel.pair_mem
     (a b c d : Set)
     (haω : a ∈ ω) (hbω : b ∈ ω) (hcω : c ∈ ω) (hdω : d ∈ ω)
     (hEq : a + d = c + b) :
-    ⟨⟪a, b⟫, ⟪c, d⟫⟩ ∈ IntEqRel := by
+    ⟪⟪a, b⟫, ⟪c, d⟫⟫ ∈ IntEqRel := by
   rw [IntEqRel.Spec]
   refine ⟨?_, ?_⟩
-  · exact Pair.mem_product IntegerCarrier IntegerCarrier
-      (⟪a, b⟫) (⟪c, d⟫)
-      (by simpa [IntegerCarrier] using Pair.mem_product ω ω a b haω hbω)
-      (by simpa [IntegerCarrier] using Pair.mem_product ω ω c d hcω hdω)
+  · exact (Product.Pair.Spec).2
+      ⟨(by simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show a ∈ ω ∧ b ∈ ω from ⟨haω, hbω⟩)),
+       (by simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show c ∈ ω ∧ d ∈ ω from ⟨hcω, hdω⟩))⟩
   · exact ⟨a, b, c, d, haω, hbω, hcω, hdω, rfl, hEq⟩
 
-lemma zero_ℤ_mem_ℤ : zero_ℤ ∈ ℤ := by
-  exact EquivalenceClass.mem_quotient IntegerCarrier IntEqRel
-    (⟪zero_ω, zero_ω⟫)
-    (by simpa [IntegerCarrier] using Pair.mem_product ω ω zero_ω zero_ω zero_ω_mem_ω zero_ω_mem_ω)
+lemma int_rel_pair_sum_eq (m n m' n' : Set) :
+    ⟪⟪m, n⟫, ⟪m', n'⟫⟫ ∈ IntEqRel → m + n' = m' + n := by
+  intro hRel
+  rcases (IntEqRel.Spec).1 hRel with
+    ⟨_, a, b, c, d, haω, hbω, hcω, hdω, hPairEq, hSum⟩
+  have hLeft : ⟪m, n⟫ = ⟪a, b⟫ :=
+    (OrderedPair.uniqueness (⟪m, n⟫) (⟪m', n'⟫) (⟪a, b⟫) (⟪c, d⟫)).1 hPairEq |>.1
+  have hRight : ⟪m', n'⟫ = ⟪c, d⟫ :=
+    (OrderedPair.uniqueness (⟪m, n⟫) (⟪m', n'⟫) (⟪a, b⟫) (⟪c, d⟫)).1 hPairEq |>.2
+  rcases (OrderedPair.uniqueness m n a b).1 hLeft with ⟨hm, hn⟩
+  rcases (OrderedPair.uniqueness m' n' c d).1 hRight with ⟨hm', hn'⟩
+  subst a
+  subst b
+  subst c
+  subst d
+  simpa using hSum
 
-lemma one_ℤ_mem_ℤ : one_ℤ ∈ ℤ := by
-  exact EquivalenceClass.mem_quotient IntegerCarrier IntEqRel
+lemma zero_ℤ_mem_ℤ : zero_ℤ ∈ ℤ :=
+  EquivalenceClass.mem_quotient IntegerCarrier IntEqRel
+    (⟪zero_ω, zero_ω⟫)
+    (by simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show zero_ω ∈ ω ∧ zero_ω ∈ ω from ⟨zero_ω_mem_ω, zero_ω_mem_ω⟩))
+
+lemma one_ℤ_mem_ℤ : one_ℤ ∈ ℤ :=
+  EquivalenceClass.mem_quotient IntegerCarrier IntEqRel
     (⟪one_ω, zero_ω⟫)
-    (by simpa [IntegerCarrier] using Pair.mem_product ω ω one_ω zero_ω one_ω_mem_ω zero_ω_mem_ω)
+    (by simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show one_ω ∈ ω ∧ zero_ω ∈ ω from ⟨one_ω_mem_ω, zero_ω_mem_ω⟩))
 
 noncomputable def int_add_candidate (a b : Set) : Set := by
   by_cases ha : a ∈ ℤ
@@ -339,11 +354,12 @@ lemma int_add_candidate_closed (a b : Set) :
   exact EquivalenceClass.mem_quotient IntegerCarrier IntEqRel
     (⟪(int_rep_left a ha + int_rep_left b hb), (int_rep_right a ha + int_rep_right b hb)⟫)
     (by
-      simpa [IntegerCarrier] using Pair.mem_product ω ω
-        (int_rep_left a ha + int_rep_left b hb)
-        (int_rep_right a ha + int_rep_right b hb)
-        (nat_add_closed _ _ hlaω hlbω)
-        (nat_add_closed _ _ hraω hrbω))
+      simpa [IntegerCarrier] using (Product.Pair.Spec).2
+        (show
+          (int_rep_left a ha + int_rep_left b hb) ∈ ω ∧
+          (int_rep_right a ha + int_rep_right b hb) ∈ ω
+          from ⟨nat_add_closed _ _ hlaω hlbω, nat_add_closed _ _ hraω hrbω⟩))
+      
 
 lemma int_mul_candidate_closed (a b : Set) :
     a ∈ ℤ → b ∈ ℤ → int_mul_candidate a b ∈ ℤ := by
@@ -356,11 +372,12 @@ lemma int_mul_candidate_closed (a b : Set) :
   exact EquivalenceClass.mem_quotient IntegerCarrier IntEqRel
     (⟪((int_rep_left a ha * int_rep_left b hb) + (int_rep_right a ha * int_rep_right b hb)), ((int_rep_left a ha * int_rep_right b hb) + (int_rep_right a ha * int_rep_left b hb))⟫)
     (by
-      simpa [IntegerCarrier] using Pair.mem_product ω ω
-        (((int_rep_left a ha * int_rep_left b hb) + (int_rep_right a ha * int_rep_right b hb)))
-        (((int_rep_left a ha * int_rep_right b hb) + (int_rep_right a ha * int_rep_left b hb)))
-        (by set_omega)
-        (by set_omega))
+      simpa [IntegerCarrier] using (Product.Pair.Spec).2
+        (show
+          ((int_rep_left a ha * int_rep_left b hb) + (int_rep_right a ha * int_rep_right b hb)) ∈ ω ∧
+          ((int_rep_left a ha * int_rep_right b hb) + (int_rep_right a ha * int_rep_left b hb)) ∈ ω
+          from ⟨by set_omega, by set_omega⟩))
+      
 
 lemma int_pair_add_congr
     (m n m' n' p q p' q' : Set)
@@ -368,7 +385,7 @@ lemma int_pair_add_congr
     (hpω : p ∈ ω) (hqω : q ∈ ω) (hp'ω : p' ∈ ω) (hq'ω : q' ∈ ω)
     (hmn : m + n' = m' + n)
     (hpq : p + q' = p' + q) :
-    ⟨⟪(m + p), (n + q)⟫, ⟪(m' + p'), (n' + q')⟫⟩ ∈ IntEqRel := by
+    ⟪⟪(m + p), (n + q)⟫, ⟪(m' + p'), (n' + q')⟫⟫ ∈ IntEqRel := by
   apply IntEqRel.pair_mem
   · exact nat_add_closed m p hmω hpω
   · exact nat_add_closed n q hnω hqω
@@ -390,19 +407,11 @@ lemma int_add_candidate_comm (a b : Set) :
   have hrbω : int_rep_right b hb ∈ ω := (int_rep_spec b hb).2.1
   let p1 : Set := ⟪(int_rep_left a ha + int_rep_left b hb), (int_rep_right a ha + int_rep_right b hb)⟫
   let p2 : Set := ⟪(int_rep_left b hb + int_rep_left a ha), (int_rep_right b hb + int_rep_right a ha)⟫
-  have hp1 : p1 ∈ IntegerCarrier := by
-    exact Pair.mem_product ω ω
-      (int_rep_left a ha + int_rep_left b hb)
-      (int_rep_right a ha + int_rep_right b hb)
-      (nat_add_closed _ _ hlaω hlbω)
-      (nat_add_closed _ _ hraω hrbω)
-  have hp2 : p2 ∈ IntegerCarrier := by
-    exact Pair.mem_product ω ω
-      (int_rep_left b hb + int_rep_left a ha)
-      (int_rep_right b hb + int_rep_right a ha)
-      (nat_add_closed _ _ hlbω hlaω)
-      (nat_add_closed _ _ hrbω hraω)
-  have hRel : ⟨p1, p2⟩ ∈ IntEqRel := by
+  have hp1 : p1 ∈ IntegerCarrier :=
+    (Product.Pair.Spec).2 ⟨nat_add_closed _ _ hlaω hlbω, nat_add_closed _ _ hraω hrbω⟩
+  have hp2 : p2 ∈ IntegerCarrier :=
+    (Product.Pair.Spec).2 ⟨nat_add_closed _ _ hlbω hlaω, nat_add_closed _ _ hrbω hraω⟩
+  have hRel : ⟪p1, p2⟫ ∈ IntEqRel := by
     apply IntEqRel.pair_mem
     · exact nat_add_closed _ _ hlaω hlbω
     · exact nat_add_closed _ _ hraω hrbω
@@ -411,7 +420,7 @@ lemma int_add_candidate_comm (a b : Set) :
     · set_perm
   have hClass :
       [p1]₍IntEqRel₎ = [p2]₍IntEqRel₎ :=
-    (equiv_class_eq_iff IntEqRel IntegerCarrier p1 p2 theorem_5ℤA hp1 hp2).2 hRel
+    (equiv_class_eq_iff IntEqRel IntegerCarrier p1 p2 thm_5ℤA hp1 hp2).2 hRel
   simpa [int_add_candidate_spec a b ha hb, int_add_candidate_spec b a hb ha, p1, p2] using hClass
 
 lemma int_mul_candidate_comm (a b : Set) :
@@ -423,17 +432,11 @@ lemma int_mul_candidate_comm (a b : Set) :
   have hrbω : int_rep_right b hb ∈ ω := (int_rep_spec b hb).2.1
   let p1 : Set := ⟪((int_rep_left a ha * int_rep_left b hb) + (int_rep_right a ha * int_rep_right b hb)), ((int_rep_left a ha * int_rep_right b hb) + (int_rep_right a ha * int_rep_left b hb))⟫
   let p2 : Set := ⟪((int_rep_left b hb * int_rep_left a ha) + (int_rep_right b hb * int_rep_right a ha)), ((int_rep_left b hb * int_rep_right a ha) + (int_rep_right b hb * int_rep_left a ha))⟫
-  have hp1 : p1 ∈ IntegerCarrier := by
-    exact Pair.mem_product ω ω
-      ((int_rep_left a ha * int_rep_left b hb) + (int_rep_right a ha * int_rep_right b hb))
-      ((int_rep_left a ha * int_rep_right b hb) + (int_rep_right a ha * int_rep_left b hb))
-      (by set_omega) (by set_omega)
-  have hp2 : p2 ∈ IntegerCarrier := by
-    exact Pair.mem_product ω ω
-      ((int_rep_left b hb * int_rep_left a ha) + (int_rep_right b hb * int_rep_right a ha))
-      ((int_rep_left b hb * int_rep_right a ha) + (int_rep_right b hb * int_rep_left a ha))
-      (by set_omega) (by set_omega)
-  have hRel : ⟨p1, p2⟩ ∈ IntEqRel := by
+  have hp1 : p1 ∈ IntegerCarrier :=
+    (Product.Pair.Spec).2 ⟨by set_omega, by set_omega⟩
+  have hp2 : p2 ∈ IntegerCarrier :=
+    (Product.Pair.Spec).2 ⟨by set_omega, by set_omega⟩
+  have hRel : ⟪p1, p2⟫ ∈ IntEqRel := by
     apply IntEqRel.pair_mem
     · exact by set_omega
     · exact by set_omega
@@ -451,7 +454,7 @@ lemma int_mul_candidate_comm (a b : Set) :
         (by set_omega) (by set_omega)]
   have hClass :
       [p1]₍IntEqRel₎ = [p2]₍IntEqRel₎ :=
-    (equiv_class_eq_iff IntEqRel IntegerCarrier p1 p2 theorem_5ℤA hp1 hp2).2 hRel
+    (equiv_class_eq_iff IntEqRel IntegerCarrier p1 p2 thm_5ℤA hp1 hp2).2 hRel
   simpa [int_mul_candidate_spec a b ha hb, int_mul_candidate_spec b a hb ha, p1, p2] using hClass
 
 lemma zero_ω_ne_one_ω : zero_ω ≠ one_ω := by
@@ -467,13 +470,15 @@ lemma zero_ℤ_ne_one_ℤ : zero_ℤ ≠ one_ℤ := by
   let p0 : Set := ⟪zero_ω, zero_ω⟫
   let p1 : Set := ⟪one_ω, zero_ω⟫
   have hp0 : p0 ∈ IntegerCarrier := by
-    simpa [p0, IntegerCarrier] using Pair.mem_product ω ω zero_ω zero_ω zero_ω_mem_ω zero_ω_mem_ω
+    simpa [p0, IntegerCarrier] using (Product.Pair.Spec).2
+      (show zero_ω ∈ ω ∧ zero_ω ∈ ω from ⟨zero_ω_mem_ω, zero_ω_mem_ω⟩)
   have hp1 : p1 ∈ IntegerCarrier := by
-    simpa [p1, IntegerCarrier] using Pair.mem_product ω ω one_ω zero_ω one_ω_mem_ω zero_ω_mem_ω
+    simpa [p1, IntegerCarrier] using (Product.Pair.Spec).2
+      (show one_ω ∈ ω ∧ zero_ω ∈ ω from ⟨one_ω_mem_ω, zero_ω_mem_ω⟩)
   have hClass : [p0]₍IntEqRel₎ = [p1]₍IntEqRel₎ := by
     simpa [zero_ℤ, one_ℤ, p0, p1] using hEq
-  have hRel : ⟨p0, p1⟩ ∈ IntEqRel :=
-    (equiv_class_eq_iff IntEqRel IntegerCarrier p0 p1 theorem_5ℤA hp0 hp1).1 hClass
+  have hRel : ⟪p0, p1⟫ ∈ IntEqRel :=
+    (equiv_class_eq_iff IntEqRel IntegerCarrier p0 p1 thm_5ℤA hp0 hp1).1 hClass
   rcases (IntEqRel.Spec).1 hRel with
     ⟨_, a, b, c, d, haω, hbω, hcω, hdω, hPairEq, hSum⟩
   have hAB : a = zero_ω ∧ b = zero_ω := by
@@ -513,31 +518,31 @@ lemma int_add_candidate_zero_right (a : Set) :
   let ps : Set := ⟪(int_rep_left a ha + int_rep_left zero_ℤ hz), (int_rep_right a ha + int_rep_right zero_ℤ hz)⟫
   let pt : Set := ⟪(int_rep_left a ha + zero_ω), (int_rep_right a ha + zero_ω)⟫
   have hpzCarrier : pz ∈ IntegerCarrier := by
-    simpa [pz, IntegerCarrier] using Pair.mem_product ω ω
-      (int_rep_left zero_ℤ hz) (int_rep_right zero_ℤ hz) hlzω hrzω
+    simpa [pz, IntegerCarrier] using (Product.Pair.Spec).2
+      (show int_rep_left zero_ℤ hz ∈ ω ∧ int_rep_right zero_ℤ hz ∈ ω from ⟨hlzω, hrzω⟩)
   have hp0Carrier : p0 ∈ IntegerCarrier := by
-    simpa [p0, IntegerCarrier] using Pair.mem_product ω ω
-      zero_ω zero_ω zero_ω_mem_ω zero_ω_mem_ω
+    simpa [p0, IntegerCarrier] using (Product.Pair.Spec).2
+      (show zero_ω ∈ ω ∧ zero_ω ∈ ω from ⟨zero_ω_mem_ω, zero_ω_mem_ω⟩)
   have hpsCarrier : ps ∈ IntegerCarrier := by
-    simpa [ps, IntegerCarrier] using Pair.mem_product ω ω
-      (int_rep_left a ha + int_rep_left zero_ℤ hz)
-      (int_rep_right a ha + int_rep_right zero_ℤ hz)
-      (nat_add_closed _ _ hlaω hlzω)
-      (nat_add_closed _ _ hraω hrzω)
+    simpa [ps, IntegerCarrier] using (Product.Pair.Spec).2
+      (show
+        (int_rep_left a ha + int_rep_left zero_ℤ hz) ∈ ω ∧
+        (int_rep_right a ha + int_rep_right zero_ℤ hz) ∈ ω
+        from ⟨nat_add_closed _ _ hlaω hlzω, nat_add_closed _ _ hraω hrzω⟩)
   have hptCarrier : pt ∈ IntegerCarrier := by
-    simpa [pt, IntegerCarrier] using Pair.mem_product ω ω
-      (int_rep_left a ha + zero_ω)
-      (int_rep_right a ha + zero_ω)
-      (nat_add_closed _ _ hlaω zero_ω_mem_ω)
-      (nat_add_closed _ _ hraω zero_ω_mem_ω)
+    simpa [pt, IntegerCarrier] using (Product.Pair.Spec).2
+      (show
+        (int_rep_left a ha + zero_ω) ∈ ω ∧
+        (int_rep_right a ha + zero_ω) ∈ ω
+        from ⟨nat_add_closed _ _ hlaω zero_ω_mem_ω, nat_add_closed _ _ hraω zero_ω_mem_ω⟩)
   have hzRep : zero_ℤ = [pz]₍IntEqRel₎ := by
     simpa [pz] using (int_rep_spec zero_ℤ hz).2.2
   have hzClassEq : [pz]₍IntEqRel₎ = [p0]₍IntEqRel₎ := by
     calc
       [pz]₍IntEqRel₎ = zero_ℤ := hzRep.symm
       _ = [p0]₍IntEqRel₎ := by rfl
-  have hpz0Rel : ⟨pz, p0⟩ ∈ IntEqRel :=
-    (equiv_class_eq_iff IntEqRel IntegerCarrier pz p0 theorem_5ℤA hpzCarrier hp0Carrier).1 hzClassEq
+  have hpz0Rel : ⟪pz, p0⟫ ∈ IntEqRel :=
+    (equiv_class_eq_iff IntEqRel IntegerCarrier pz p0 thm_5ℤA hpzCarrier hp0Carrier).1 hzClassEq
   have hzEq : int_rep_left zero_ℤ hz + zero_ω = zero_ω + int_rep_right zero_ℤ hz := by
     rcases (IntEqRel.Spec).1 hpz0Rel with
       ⟨_, a1, b1, c1, d1, ha1ω, hb1ω, hc1ω, hd1ω, hPairEq, hSum⟩
@@ -560,14 +565,14 @@ lemma int_add_candidate_zero_right (a : Set) :
     subst c1
     subst d1
     simpa using hSum
-  have hRelSum : ⟨ps, pt⟩ ∈ IntEqRel := by
+  have hRelSum : ⟪ps, pt⟫ ∈ IntEqRel := by
     simpa [ps, pt, pa] using int_pair_add_congr
       (int_rep_left a ha) (int_rep_right a ha) (int_rep_left a ha) (int_rep_right a ha)
       (int_rep_left zero_ℤ hz) (int_rep_right zero_ℤ hz) zero_ω zero_ω
       hlaω hraω hlaω hraω hlzω hrzω zero_ω_mem_ω zero_ω_mem_ω
       rfl hzEq
   have hClassSP : [ps]₍IntEqRel₎ = [pt]₍IntEqRel₎ :=
-    (equiv_class_eq_iff IntEqRel IntegerCarrier ps pt theorem_5ℤA hpsCarrier hptCarrier).2 hRelSum
+    (equiv_class_eq_iff IntEqRel IntegerCarrier ps pt thm_5ℤA hpsCarrier hptCarrier).2 hRelSum
   have hPtPa : [pt]₍IntEqRel₎ = [pa]₍IntEqRel₎ := by
     have hptEq : pt = pa := by
       simp [pt, pa, nat_add_zero, hlaω, hraω]
@@ -587,12 +592,12 @@ lemma int_add_candidate_has_inverse (a : Set) :
   have hlaω : int_rep_left a ha ∈ ω := (int_rep_spec a ha).1
   have hraω : int_rep_right a ha ∈ ω := (int_rep_spec a ha).2.1
   let b : Set := [⟪(int_rep_right a ha), (int_rep_left a ha)⟫]₍IntEqRel₎
-  have hb : b ∈ ℤ := by
-    exact EquivalenceClass.mem_quotient IntegerCarrier IntEqRel
+  have hb : b ∈ ℤ :=
+    EquivalenceClass.mem_quotient IntegerCarrier IntEqRel
       (⟪(int_rep_right a ha), (int_rep_left a ha)⟫)
       (by
-        simpa [IntegerCarrier] using Pair.mem_product ω ω
-          (int_rep_right a ha) (int_rep_left a ha) hraω hlaω)
+        simpa [IntegerCarrier] using (Product.Pair.Spec).2
+          (show int_rep_right a ha ∈ ω ∧ int_rep_left a ha ∈ ω from ⟨hraω, hlaω⟩))
   have hlbω : int_rep_left b hb ∈ ω := (int_rep_spec b hb).1
   have hrbω : int_rep_right b hb ∈ ω := (int_rep_spec b hb).2.1
   let pb : Set := ⟪(int_rep_left b hb), (int_rep_right b hb)⟫
@@ -600,27 +605,28 @@ lemma int_add_candidate_has_inverse (a : Set) :
   let pSum : Set := ⟪(int_rep_left a ha + int_rep_left b hb), (int_rep_right a ha + int_rep_right b hb)⟫
   let p0 : Set := ⟪zero_ω, zero_ω⟫
   have hpbCarrier : pb ∈ IntegerCarrier := by
-    simpa [pb, IntegerCarrier] using Pair.mem_product ω ω
-      (int_rep_left b hb) (int_rep_right b hb) hlbω hrbω
+    simpa [pb, IntegerCarrier] using (Product.Pair.Spec).2
+      (show int_rep_left b hb ∈ ω ∧ int_rep_right b hb ∈ ω from ⟨hlbω, hrbω⟩)
   have hSwapCarrier : pSwap ∈ IntegerCarrier := by
-    simpa [pSwap, IntegerCarrier] using Pair.mem_product ω ω
-      (int_rep_right a ha) (int_rep_left a ha) hraω hlaω
+    simpa [pSwap, IntegerCarrier] using (Product.Pair.Spec).2
+      (show int_rep_right a ha ∈ ω ∧ int_rep_left a ha ∈ ω from ⟨hraω, hlaω⟩)
   have hSumCarrier : pSum ∈ IntegerCarrier := by
-    simpa [pSum, IntegerCarrier] using Pair.mem_product ω ω
-      (int_rep_left a ha + int_rep_left b hb)
-      (int_rep_right a ha + int_rep_right b hb)
-      (nat_add_closed _ _ hlaω hlbω)
-      (nat_add_closed _ _ hraω hrbω)
+    simpa [pSum, IntegerCarrier] using (Product.Pair.Spec).2
+      (show
+        (int_rep_left a ha + int_rep_left b hb) ∈ ω ∧
+        (int_rep_right a ha + int_rep_right b hb) ∈ ω
+        from ⟨nat_add_closed _ _ hlaω hlbω, nat_add_closed _ _ hraω hrbω⟩)
   have h0Carrier : p0 ∈ IntegerCarrier := by
-    simpa [p0, IntegerCarrier] using Pair.mem_product ω ω zero_ω zero_ω zero_ω_mem_ω zero_ω_mem_ω
+    simpa [p0, IntegerCarrier] using (Product.Pair.Spec).2
+      (show zero_ω ∈ ω ∧ zero_ω ∈ ω from ⟨zero_ω_mem_ω, zero_ω_mem_ω⟩)
   have hbRep : b = [pb]₍IntEqRel₎ := by
     simpa [pb] using (int_rep_spec b hb).2.2
   have hbClass : [pb]₍IntEqRel₎ = [pSwap]₍IntEqRel₎ := by
     calc
       [pb]₍IntEqRel₎ = b := hbRep.symm
       _ = [pSwap]₍IntEqRel₎ := by rfl
-  have hRelBS : ⟨pb, pSwap⟩ ∈ IntEqRel :=
-    (equiv_class_eq_iff IntEqRel IntegerCarrier pb pSwap theorem_5ℤA hpbCarrier hSwapCarrier).1 hbClass
+  have hRelBS : ⟪pb, pSwap⟫ ∈ IntEqRel :=
+    (equiv_class_eq_iff IntEqRel IntegerCarrier pb pSwap thm_5ℤA hpbCarrier hSwapCarrier).1 hbClass
   have hBS :
       int_rep_left b hb + int_rep_left a ha =
       int_rep_right a ha + int_rep_right b hb := by
@@ -653,7 +659,7 @@ lemma int_add_candidate_has_inverse (a : Set) :
           int_rep_left b hb + int_rep_left a ha := by
             rw [nat_add_comm (int_rep_left a ha) (int_rep_left b hb) hlaω hlbω]
       _ = int_rep_right a ha + int_rep_right b hb := hBS
-  have hRelSum0 : ⟨pSum, p0⟩ ∈ IntEqRel := by
+  have hRelSum0 : ⟪pSum, p0⟫ ∈ IntEqRel := by
     apply IntEqRel.pair_mem
     · exact nat_add_closed _ _ hlaω hlbω
     · exact nat_add_closed _ _ hraω hrbω
@@ -669,13 +675,140 @@ lemma int_add_candidate_has_inverse (a : Set) :
               have hxω : (int_rep_right a ha + int_rep_right b hb) ∈ ω := by set_omega
               exact (nat_zero_add (int_rep_right a ha + int_rep_right b hb) hxω).symm
   have hClassSum0 : [pSum]₍IntEqRel₎ = [p0]₍IntEqRel₎ :=
-    (equiv_class_eq_iff IntEqRel IntegerCarrier pSum p0 theorem_5ℤA hSumCarrier h0Carrier).2 hRelSum0
+    (equiv_class_eq_iff IntEqRel IntegerCarrier pSum p0 thm_5ℤA hSumCarrier h0Carrier).2 hRelSum0
   refine ⟨b, hb, ?_⟩
   calc
     int_add_candidate a b = [pSum]₍IntEqRel₎ := by
       simpa [pSum] using int_add_candidate_spec a b ha hb
     _ = [p0]₍IntEqRel₎ := hClassSum0
     _ = zero_ℤ := by rfl
+
+lemma int_add_candidate_assoc (a b c : Set) :
+    a ∈ ℤ → b ∈ ℤ → c ∈ ℤ →
+      int_add_candidate (int_add_candidate a b) c =
+        int_add_candidate a (int_add_candidate b c) := by
+  intro ha hb hc
+  have hab : int_add_candidate a b ∈ ℤ := int_add_candidate_closed a b ha hb
+  have hbc : int_add_candidate b c ∈ ℤ := int_add_candidate_closed b c hb hc
+  let la : Set := int_rep_left a ha
+  let ra : Set := int_rep_right a ha
+  let lb : Set := int_rep_left b hb
+  let rb : Set := int_rep_right b hb
+  let lc : Set := int_rep_left c hc
+  let rc : Set := int_rep_right c hc
+  let lab : Set := int_rep_left (int_add_candidate a b) hab
+  let rab : Set := int_rep_right (int_add_candidate a b) hab
+  let lbc : Set := int_rep_left (int_add_candidate b c) hbc
+  let rbc : Set := int_rep_right (int_add_candidate b c) hbc
+  have hlaω : la ∈ ω := by simpa [la] using (int_rep_spec a ha).1
+  have hraω : ra ∈ ω := by simpa [ra] using (int_rep_spec a ha).2.1
+  have hlbω : lb ∈ ω := by simpa [lb] using (int_rep_spec b hb).1
+  have hrbω : rb ∈ ω := by simpa [rb] using (int_rep_spec b hb).2.1
+  have hlcω : lc ∈ ω := by simpa [lc] using (int_rep_spec c hc).1
+  have hrcω : rc ∈ ω := by simpa [rc] using (int_rep_spec c hc).2.1
+  have hlabω : lab ∈ ω := by
+    simpa [lab] using (int_rep_spec (int_add_candidate a b) hab).1
+  have hrabω : rab ∈ ω := by
+    simpa [rab] using (int_rep_spec (int_add_candidate a b) hab).2.1
+  have hlbcω : lbc ∈ ω := by
+    simpa [lbc] using (int_rep_spec (int_add_candidate b c) hbc).1
+  have hrbcω : rbc ∈ ω := by
+    simpa [rbc] using (int_rep_spec (int_add_candidate b c) hbc).2.1
+  have hLabCarrier : ⟪lab, rab⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show lab ∈ ω ∧ rab ∈ ω from ⟨hlabω, hrabω⟩)
+  have hDirABCarrier : ⟪la + lb, ra + rb⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2
+      (show (la + lb) ∈ ω ∧ (ra + rb) ∈ ω from
+        ⟨nat_add_closed _ _ hlaω hlbω, nat_add_closed _ _ hraω hrbω⟩)
+  have hClassAB : [⟪lab, rab⟫]₍IntEqRel₎ = [⟪la + lb, ra + rb⟫]₍IntEqRel₎ := by
+    calc
+      [⟪lab, rab⟫]₍IntEqRel₎ = int_add_candidate a b := by
+        simpa [lab, rab] using (int_rep_spec (int_add_candidate a b) hab).2.2.symm
+      _ = [⟪la + lb, ra + rb⟫]₍IntEqRel₎ := by
+        simpa [la, lb, ra, rb] using int_add_candidate_spec a b ha hb
+  have hRelAB : ⟪⟪lab, rab⟫, ⟪la + lb, ra + rb⟫⟫ ∈ IntEqRel :=
+    (equiv_class_eq_iff IntEqRel IntegerCarrier
+      (⟪lab, rab⟫) (⟪la + lb, ra + rb⟫) thm_5ℤA hLabCarrier hDirABCarrier).1 hClassAB
+  have hEqAB : lab + (ra + rb) = (la + lb) + rab := by
+    simpa using int_rel_pair_sum_eq lab rab (la + lb) (ra + rb) hRelAB
+  have hLeftRepCarrier : ⟪lab + lc, rab + rc⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2
+      (show (lab + lc) ∈ ω ∧ (rab + rc) ∈ ω from
+        ⟨nat_add_closed _ _ hlabω hlcω, nat_add_closed _ _ hrabω hrcω⟩)
+  have hLeftDirCarrier : ⟪(la + lb) + lc, (ra + rb) + rc⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show ((la + lb) + lc) ∈ ω ∧ ((ra + rb) + rc) ∈ ω from ⟨by set_omega, by set_omega⟩)
+  have hRelLeft :
+      ⟪⟪lab + lc, rab + rc⟫, ⟪(la + lb) + lc, (ra + rb) + rc⟫⟫ ∈ IntEqRel := by
+    exact int_pair_add_congr
+      lab rab (la + lb) (ra + rb) lc rc lc rc
+      hlabω hrabω (by set_omega) (by set_omega)
+      hlcω hrcω hlcω hrcω
+      hEqAB rfl
+  have hClassLeft :
+      [⟪lab + lc, rab + rc⟫]₍IntEqRel₎ = [⟪(la + lb) + lc, (ra + rb) + rc⟫]₍IntEqRel₎ :=
+    (equiv_class_eq_iff IntEqRel IntegerCarrier
+      (⟪lab + lc, rab + rc⟫) (⟪(la + lb) + lc, (ra + rb) + rc⟫)
+      thm_5ℤA hLeftRepCarrier hLeftDirCarrier).2 hRelLeft
+  have hBcCarrier : ⟪lbc, rbc⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show lbc ∈ ω ∧ rbc ∈ ω from ⟨hlbcω, hrbcω⟩)
+  have hDirBCCarrier : ⟪lb + lc, rb + rc⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2
+      (show (lb + lc) ∈ ω ∧ (rb + rc) ∈ ω from
+        ⟨nat_add_closed _ _ hlbω hlcω, nat_add_closed _ _ hrbω hrcω⟩)
+  have hClassBC : [⟪lbc, rbc⟫]₍IntEqRel₎ = [⟪lb + lc, rb + rc⟫]₍IntEqRel₎ := by
+    calc
+      [⟪lbc, rbc⟫]₍IntEqRel₎ = int_add_candidate b c := by
+        simpa [lbc, rbc] using (int_rep_spec (int_add_candidate b c) hbc).2.2.symm
+      _ = [⟪lb + lc, rb + rc⟫]₍IntEqRel₎ := by
+        simpa [lb, lc, rb, rc] using int_add_candidate_spec b c hb hc
+  have hRelBC : ⟪⟪lbc, rbc⟫, ⟪lb + lc, rb + rc⟫⟫ ∈ IntEqRel :=
+    (equiv_class_eq_iff IntEqRel IntegerCarrier
+      (⟪lbc, rbc⟫) (⟪lb + lc, rb + rc⟫) thm_5ℤA hBcCarrier hDirBCCarrier).1 hClassBC
+  have hEqBC : lbc + (rb + rc) = (lb + lc) + rbc := by
+    simpa using int_rel_pair_sum_eq lbc rbc (lb + lc) (rb + rc) hRelBC
+  have hRightRepCarrier : ⟪la + lbc, ra + rbc⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2
+      (show (la + lbc) ∈ ω ∧ (ra + rbc) ∈ ω from
+        ⟨nat_add_closed _ _ hlaω hlbcω, nat_add_closed _ _ hraω hrbcω⟩)
+  have hRightDirCarrier : ⟪la + (lb + lc), ra + (rb + rc)⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2
+      (show (la + (lb + lc)) ∈ ω ∧ (ra + (rb + rc)) ∈ ω from ⟨by set_omega, by set_omega⟩)
+  have hRelRight :
+      ⟪⟪la + lbc, ra + rbc⟫, ⟪la + (lb + lc), ra + (rb + rc)⟫⟫ ∈ IntEqRel := by
+    exact int_pair_add_congr
+      la ra la ra lbc rbc (lb + lc) (rb + rc)
+      hlaω hraω hlaω hraω
+      hlbcω hrbcω (by set_omega) (by set_omega)
+      rfl hEqBC
+  have hClassRight :
+      [⟪la + lbc, ra + rbc⟫]₍IntEqRel₎ = [⟪la + (lb + lc), ra + (rb + rc)⟫]₍IntEqRel₎ :=
+    (equiv_class_eq_iff IntEqRel IntegerCarrier
+      (⟪la + lbc, ra + rbc⟫) (⟪la + (lb + lc), ra + (rb + rc)⟫)
+      thm_5ℤA hRightRepCarrier hRightDirCarrier).2 hRelRight
+  have hAssocRel :
+      ⟪⟪(la + lb) + lc, (ra + rb) + rc⟫, ⟪la + (lb + lc), ra + (rb + rc)⟫⟫ ∈ IntEqRel := by
+    apply IntEqRel.pair_mem
+    · exact by set_omega
+    · exact by set_omega
+    · exact by set_omega
+    · exact by set_omega
+    · set_perm
+  have hClassAssoc :
+      [⟪(la + lb) + lc, (ra + rb) + rc⟫]₍IntEqRel₎ =
+        [⟪la + (lb + lc), ra + (rb + rc)⟫]₍IntEqRel₎ :=
+    (equiv_class_eq_iff IntEqRel IntegerCarrier
+      (⟪(la + lb) + lc, (ra + rb) + rc⟫) (⟪la + (lb + lc), ra + (rb + rc)⟫)
+      thm_5ℤA hLeftDirCarrier hRightDirCarrier).2 hAssocRel
+  calc
+    int_add_candidate (int_add_candidate a b) c
+        = [⟪lab + lc, rab + rc⟫]₍IntEqRel₎ := by
+            simpa [lab, rab, lc, rc] using int_add_candidate_spec (int_add_candidate a b) c hab hc
+    _ = [⟪(la + lb) + lc, (ra + rb) + rc⟫]₍IntEqRel₎ := hClassLeft
+    _ = [⟪la + (lb + lc), ra + (rb + rc)⟫]₍IntEqRel₎ := hClassAssoc
+    _ = [⟪la + lbc, ra + rbc⟫]₍IntEqRel₎ := hClassRight.symm
+    _ = int_add_candidate a (int_add_candidate b c) := by
+          symm
+          simpa [la, ra, lbc, rbc] using int_add_candidate_spec a (int_add_candidate b c) ha hbc
 
 lemma nat_mul_one_ω (m : Set) (hmω : m ∈ ω) : m * one_ω = m := by
   calc
@@ -684,7 +817,79 @@ lemma nat_mul_one_ω (m : Set) (hmω : m ∈ ω) : m * one_ω = m := by
     _ = zero_ω + m := by rw [nat_mul_zero m hmω]
     _ = m := nat_zero_add m hmω
 
-theorem theorem_5ℤF :
+lemma int_mul_candidate_one_right (a : Set) :
+    a ∈ ℤ → int_mul_candidate a one_ℤ = a := by
+  intro ha
+  have h1 : one_ℤ ∈ ℤ := one_ℤ_mem_ℤ
+  let la : Set := int_rep_left a ha
+  let ra : Set := int_rep_right a ha
+  let l1 : Set := int_rep_left one_ℤ h1
+  let r1 : Set := int_rep_right one_ℤ h1
+  have hlaω : la ∈ ω := by simpa [la] using (int_rep_spec a ha).1
+  have hraω : ra ∈ ω := by simpa [ra] using (int_rep_spec a ha).2.1
+  have hl1ω : l1 ∈ ω := by simpa [l1] using (int_rep_spec one_ℤ h1).1
+  have hr1ω : r1 ∈ ω := by simpa [r1] using (int_rep_spec one_ℤ h1).2.1
+  have hRep1Carrier : ⟪l1, r1⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show l1 ∈ ω ∧ r1 ∈ ω from ⟨hl1ω, hr1ω⟩)
+  have hOneCarrier : ⟪one_ω, zero_ω⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show one_ω ∈ ω ∧ zero_ω ∈ ω from ⟨one_ω_mem_ω, zero_ω_mem_ω⟩)
+  have hClass1 : [⟪l1, r1⟫]₍IntEqRel₎ = [⟪one_ω, zero_ω⟫]₍IntEqRel₎ := by
+    calc
+      [⟪l1, r1⟫]₍IntEqRel₎ = one_ℤ := by
+        simpa [l1, r1] using (int_rep_spec one_ℤ h1).2.2.symm
+      _ = [⟪one_ω, zero_ω⟫]₍IntEqRel₎ := by rfl
+  have hRel1 : ⟪⟪l1, r1⟫, ⟪one_ω, zero_ω⟫⟫ ∈ IntEqRel :=
+    (equiv_class_eq_iff IntEqRel IntegerCarrier
+      (⟪l1, r1⟫) (⟪one_ω, zero_ω⟫) thm_5ℤA hRep1Carrier hOneCarrier).1 hClass1
+  have hl1EqRaw : l1 + zero_ω = one_ω + r1 :=
+    int_rel_pair_sum_eq l1 r1 one_ω zero_ω hRel1
+  have hl1Eq : l1 = one_ω + r1 := by
+    calc
+      l1 = l1 + zero_ω := (nat_add_zero l1 hl1ω).symm
+      _ = one_ω + r1 := hl1EqRaw
+  have hMulEq :
+      (la * l1 + ra * r1) + ra = la + (la * r1 + ra * l1) := by
+    rw [hl1Eq]
+    rw [nat_left_distrib la one_ω r1 hlaω one_ω_mem_ω hr1ω]
+    rw [nat_left_distrib ra one_ω r1 hraω one_ω_mem_ω hr1ω]
+    rw [nat_mul_one_ω la hlaω, nat_mul_one_ω ra hraω]
+    have hlar1ω : la * r1 ∈ ω := nat_mul_closed la r1 hlaω hr1ω
+    have hrar1ω : ra * r1 ∈ ω := nat_mul_closed ra r1 hraω hr1ω
+    calc
+      ((la + la * r1) + ra * r1) + ra
+          = (la + (la * r1 + ra * r1)) + ra := by
+              rw [nat_add_assoc la (la * r1) (ra * r1) hlaω hlar1ω hrar1ω]
+      _ = la + ((la * r1 + ra * r1) + ra) := by
+              rw [nat_add_assoc la (la * r1 + ra * r1) ra hlaω (nat_add_closed _ _ hlar1ω hrar1ω) hraω]
+      _ = la + (la * r1 + (ra * r1 + ra)) := by
+              rw [nat_add_assoc (la * r1) (ra * r1) ra hlar1ω hrar1ω hraω]
+      _ = la + (la * r1 + (ra + ra * r1)) := by
+              rw [nat_add_comm (ra * r1) ra hrar1ω hraω]
+  have hMulCarrier : ⟪(la * l1 + ra * r1), (la * r1 + ra * l1)⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2
+      (show (la * l1 + ra * r1) ∈ ω ∧ (la * r1 + ra * l1) ∈ ω from ⟨by set_omega, by set_omega⟩)
+  have hACarrier : ⟪la, ra⟫ ∈ IntegerCarrier := by
+    simpa [IntegerCarrier] using (Product.Pair.Spec).2 (show la ∈ ω ∧ ra ∈ ω from ⟨hlaω, hraω⟩)
+  have hRelMul : ⟪⟪(la * l1 + ra * r1), (la * r1 + ra * l1)⟫, ⟪la, ra⟫⟫ ∈ IntEqRel := by
+    apply IntEqRel.pair_mem
+    · exact by set_omega
+    · exact by set_omega
+    · exact hlaω
+    · exact hraω
+    · simpa [nat_add_comm (la * r1 + ra * l1) la (by set_omega) hlaω] using hMulEq
+  have hClassMul :
+      [⟪(la * l1 + ra * r1), (la * r1 + ra * l1)⟫]₍IntEqRel₎ = [⟪la, ra⟫]₍IntEqRel₎ :=
+    (equiv_class_eq_iff IntEqRel IntegerCarrier
+      (⟪(la * l1 + ra * r1), (la * r1 + ra * l1)⟫) (⟪la, ra⟫)
+      thm_5ℤA hMulCarrier hACarrier).2 hRelMul
+  calc
+    int_mul_candidate a one_ℤ = [⟪(la * l1 + ra * r1), (la * r1 + ra * l1)⟫]₍IntEqRel₎ := by
+      simpa [la, ra, l1, r1] using int_mul_candidate_spec a one_ℤ ha h1
+    _ = [⟪la, ra⟫]₍IntEqRel₎ := hClassMul
+    _ = a := by
+      simpa [la, ra] using (int_rep_spec a ha).2.2.symm
+
+theorem thm_5ℤF :
     ∃ addZ mulZ,
       IntAddAxioms addZ ∧
       IntMulAxioms mulZ ∧
@@ -694,38 +899,38 @@ theorem theorem_5ℤF :
   · refine ⟨?_, ?_, ?_, ?_, ?_⟩
     · exact int_add_candidate_closed
     · exact int_add_candidate_comm
-    · sorry
+    · exact int_add_candidate_assoc
     · exact int_add_candidate_zero_right
     · exact int_add_candidate_has_inverse
   · refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
     · exact int_mul_candidate_closed
     · exact int_mul_candidate_comm
     · sorry
-    · sorry
+    · exact int_mul_candidate_one_right
     · exact zero_ℤ_ne_one_ℤ
     · sorry
   · sorry
 
-theorem theorem_5ℤC : ∃ addZ : Set → Set → Set, IntAddAxioms addZ := by
-  rcases theorem_5ℤF with ⟨addZ, _, hAdd, _, _⟩
+theorem thm_5ℤC : ∃ addZ : Set → Set → Set, IntAddAxioms addZ := by
+  rcases thm_5ℤF with ⟨addZ, _, hAdd, _, _⟩
   exact ⟨addZ, hAdd⟩
 
-theorem theorem_5ℤD (addZ : Set → Set → Set) (hAddAxioms : IntAddAxioms addZ) :
+theorem thm_5ℤD (addZ : Set → Set → Set) (hAddAxioms : IntAddAxioms addZ) :
     (∀ a, a ∈ ℤ → addZ a zero_ℤ = a) ∧
     (∀ a, a ∈ ℤ → ∃ b, b ∈ ℤ ∧ addZ a b = zero_ℤ) := by
   exact ⟨hAddAxioms.2.2.2.1, hAddAxioms.2.2.2.2⟩
 
-theorem theorem_5ℤE : ∃ mulZ : Set → Set → Set, IntMulAxioms mulZ := by
-  rcases theorem_5ℤF with ⟨_, mulZ, _, hMul, _⟩
+theorem thm_5ℤE : ∃ mulZ : Set → Set → Set, IntMulAxioms mulZ := by
+  rcases thm_5ℤF with ⟨_, mulZ, _, hMul, _⟩
   exact ⟨mulZ, hMul⟩
 
-theorem theorem_5ℤG (mulZ : Set → Set → Set) (hMulAxioms : IntMulAxioms mulZ) :
+theorem thm_5ℤG (mulZ : Set → Set → Set) (hMulAxioms : IntMulAxioms mulZ) :
     (∀ a, a ∈ ℤ → mulZ a one_ℤ = a) ∧
     zero_ℤ ≠ one_ℤ ∧
     (∀ a b, a ∈ ℤ → b ∈ ℤ → mulZ a b = zero_ℤ → a = zero_ℤ ∨ b = zero_ℤ) := by
   exact ⟨hMulAxioms.2.2.2.1, hMulAxioms.2.2.2.2.1, hMulAxioms.2.2.2.2.2⟩
 
-theorem theorem_5ℤI : ∃ ltZ : Set → Set → Prop, IntOrderAxioms ltZ := by
+theorem thm_5ℤI : ∃ ltZ : Set → Set → Prop, IntOrderAxioms ltZ := by
   letI : DecidablePred (fun x : Set => x ∈ ℤ) := Classical.decPred (fun x : Set => x ∈ ℤ)
   let ltZ : Set → Set → Prop := fun a b =>
     if ha : a ∈ ℤ then
@@ -856,19 +1061,19 @@ theorem theorem_5ℤI : ∃ ltZ : Set → Set → Prop, IntOrderAxioms ltZ := by
         left
         let pa : Set := ⟪(int_rep_left a ha), (int_rep_right a ha)⟫
         let pb : Set := ⟪(int_rep_left b hb), (int_rep_right b hb)⟫
-        have hpaω : pa ∈ IntegerCarrier := by
-          exact Pair.mem_product ω ω _ _ h1ω h2ω
-        have hpbω : pb ∈ IntegerCarrier := by
-          exact Pair.mem_product ω ω _ _ h3ω h4ω
-        have hRel : ⟨pa, pb⟩ ∈ IntEqRel := by
+        have hpaω : pa ∈ IntegerCarrier :=
+          (Product.Pair.Spec).2 ⟨h1ω, h2ω⟩
+        have hpbω : pb ∈ IntegerCarrier :=
+          (Product.Pair.Spec).2 ⟨h3ω, h4ω⟩
+        have hRel : ⟪pa, pb⟫ ∈ IntEqRel := by
           rw [IntEqRel.Spec]
           refine ⟨?_, ?_⟩
-          · exact Pair.mem_product IntegerCarrier IntegerCarrier pa pb hpaω hpbω
+          · exact (Product.Pair.Spec).2 ⟨hpaω, hpbω⟩
           · refine ⟨int_rep_left a ha, int_rep_right a ha, int_rep_left b hb, int_rep_right b hb,
               h1ω, h2ω, h3ω, h4ω, rfl, habEq⟩
         have hClass :
             [pa]₍IntEqRel₎ = [pb]₍IntEqRel₎ :=
-          (equiv_class_eq_iff IntEqRel IntegerCarrier pa pb theorem_5ℤA hpaω hpbω).2 hRel
+          (equiv_class_eq_iff IntEqRel IntegerCarrier pa pb thm_5ℤA hpaω hpbω).2 hRel
         have haRep := (int_rep_spec a ha).2.2
         have hbRep := (int_rep_spec b hb).2.2
         calc
@@ -915,26 +1120,26 @@ theorem theorem_5ℤI : ∃ ltZ : Set → Set → Prop, IntOrderAxioms ltZ := by
         simpa [habEq] using hba'
       exact (natural_not_mem_self (int_rep_left a ha + int_rep_right a ha) (by set_omega)) hSelf
 
-noncomputable def add_ℤ : Set → Set → Set := Classical.choose theorem_5ℤF
-noncomputable def mul_ℤ : Set → Set → Set := Classical.choose (Classical.choose_spec theorem_5ℤF)
-noncomputable def lt_ℤ : Set → Set → Prop := Classical.choose theorem_5ℤI
+noncomputable def add_ℤ : Set → Set → Set := Classical.choose thm_5ℤF
+noncomputable def mul_ℤ : Set → Set → Set := Classical.choose (Classical.choose_spec thm_5ℤF)
+noncomputable def lt_ℤ : Set → Set → Prop := Classical.choose thm_5ℤI
 
 infixl:65 " +_ℤ " => add_ℤ
 infixl:70 " ·_ℤ " => mul_ℤ
 infix:50 " <_ℤ " => lt_ℤ
 
-lemma add_ℤ_axioms : IntAddAxioms add_ℤ := by
-  exact (Classical.choose_spec (Classical.choose_spec theorem_5ℤF)).1
+lemma add_ℤ_axioms : IntAddAxioms add_ℤ :=
+  (Classical.choose_spec (Classical.choose_spec thm_5ℤF)).1
 
-lemma mul_ℤ_axioms : IntMulAxioms mul_ℤ := by
-  exact (Classical.choose_spec (Classical.choose_spec theorem_5ℤF)).2.1
+lemma mul_ℤ_axioms : IntMulAxioms mul_ℤ :=
+  (Classical.choose_spec (Classical.choose_spec thm_5ℤF)).2.1
 
 lemma mul_ℤ_left_distrib (a b c : Set) (ha : a ∈ ℤ) (hb : b ∈ ℤ) (hc : c ∈ ℤ) :
-    a ·_ℤ (b +_ℤ c) = (a ·_ℤ b) +_ℤ (a ·_ℤ c) := by
-  exact (Classical.choose_spec (Classical.choose_spec theorem_5ℤF)).2.2 a b c ha hb hc
+    a ·_ℤ (b +_ℤ c) = (a ·_ℤ b) +_ℤ (a ·_ℤ c) :=
+  (Classical.choose_spec (Classical.choose_spec thm_5ℤF)).2.2 a b c ha hb hc
 
-lemma lt_ℤ_axioms : IntOrderAxioms lt_ℤ := by
-  exact Classical.choose_spec theorem_5ℤI
+lemma lt_ℤ_axioms : IntOrderAxioms lt_ℤ :=
+  Classical.choose_spec thm_5ℤI
 
 lemma int_pair_mul_congr
     (a b c d a' b' c' d' : Set)

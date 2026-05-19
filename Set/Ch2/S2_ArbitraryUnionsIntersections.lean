@@ -21,8 +21,7 @@ noncomputable def BigUnion (A : Set) : Set := Classical.choose (union A)
 
 @[simp] lemma BigUnion.Spec {A x : Set} :
     x ∈ BigUnion A ↔ (∃ b : Set, b ∈ A ∧ x ∈ b) :=
-by
-  exact (Classical.choose_spec (union A)) x
+  (Classical.choose_spec (union A)) x
 attribute [set_spec_simps] BigUnion.Spec
 
 theorem bigUnion_eq_bigUnion (A U : Set)
@@ -66,7 +65,7 @@ theorem union_of_empty_set : ⋃ Empty = Empty := by
 
 
 /- Intersection existence/uniqueness [Enderton, Theorem 2B] -/
-theorem intersection (A : Set) (h : A.Nonempty) :
+theorem thm_2B_intersection (A : Set) (h : A.Nonempty) :
     ∃! (B : Set), ∀ (x : Set), x ∈ B ↔ (∀ (a : Set), a ∈ A → x ∈ a) := by
   obtain ⟨c, hc⟩ := h
   obtain ⟨B, hBspec⟩ :
@@ -96,6 +95,10 @@ theorem intersection (A : Set) (h : A.Nonempty) :
   apply extensionality
   intro x
   simp only [hB'spec, hCanonicalSpec]
+
+theorem intersection (A : Set) (h : A.Nonempty) :
+    ∃! (B : Set), ∀ (x : Set), x ∈ B ↔ (∀ (a : Set), a ∈ A → x ∈ a) :=
+  thm_2B_intersection A h
 
 noncomputable def BigIntersection (A : Set) (hA : A.Nonempty) : Set :=
   Classical.choose (intersection A hA)

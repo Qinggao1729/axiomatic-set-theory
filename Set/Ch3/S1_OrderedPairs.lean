@@ -61,7 +61,7 @@ lemma Pair.eq_pair_right_or {a b c d : Set} : Pair a b = Pair c d → b = c ∨ 
 
 
 /- [Enderton, Theorem 3A, p. 36] -/
-theorem OrderedPair.uniqueness (u v x y : Set) :
+theorem thm_3A_ordered_pair_uniqueness (u v x y : Set) :
   ⟪u, v⟫ = ⟪x, y⟫ ↔ u = x ∧ v = y := by
   constructor
   · intro h
@@ -132,9 +132,13 @@ theorem OrderedPair.uniqueness (u v x y : Set) :
     obtain ⟨hux, hvy⟩ := h
     rw [hux, hvy]
 
+theorem OrderedPair.uniqueness (u v x y : Set) :
+  ⟪u, v⟫ = ⟪x, y⟫ ↔ u = x ∧ v = y :=
+  thm_3A_ordered_pair_uniqueness u v x y
+
 
 /- [Enderton, Lemma 3B, p.37] -/
-lemma OrderedPair.in_power_power (x y C : Set) :
+lemma lemma_3B_ordered_pair_in_power_power (x y C : Set) :
   x ∈ C → y ∈ C → OrderedPair x y ∈ Power (Power C) := by
   intro hx hy
   simp only [Power.Spec]
@@ -142,6 +146,10 @@ lemma OrderedPair.in_power_power (x y C : Set) :
   simp only [Power.Spec, SubsetOf]
   simp []
   exact And.intro hx hy
+
+lemma OrderedPair.in_power_power (x y C : Set) :
+  x ∈ C → y ∈ C → OrderedPair x y ∈ Power (Power C) :=
+  lemma_3B_ordered_pair_in_power_power x y C
 
 lemma OrderedPair.product (A B : Set) :
   ∃ (C : Set), ∀ (w : Set), w ∈ C ↔ w ∈ 𝒫 𝒫 (A ∪ B) ∧ ∃ (x y : Set), x ∈ A ∧ y ∈ B ∧ w = ⟪x, y⟫ := by
@@ -158,7 +166,7 @@ lemma Product.Spec_full (A B : Set) : ∀ (w : Set), w ∈ Product A B ↔ w ∈
 
 /- [Enderton, Corollary 3C, p.38] -/
 @[simp]
-lemma Product.Spec {A B w : Set} : w ∈ Product A B ↔ ∃ (x y : Set), x ∈ A ∧ y ∈ B ∧ w = ⟪x, y⟫ := by
+lemma cor_3C_product_spec {A B w : Set} : w ∈ Product A B ↔ ∃ (x y : Set), x ∈ A ∧ y ∈ B ∧ w = ⟪x, y⟫ := by
   constructor
   · intro hw
     have h :=(Product.Spec_full A B w).1 hw
@@ -167,13 +175,33 @@ lemma Product.Spec {A B w : Set} : w ∈ Product A B ↔ ∃ (x y : Set), x ∈ 
     rcases hw with ⟨x, y, hxA, hyB, hEq⟩
     subst hEq
     have hxyPow : ⟪x, y⟫ ∈ 𝒫 𝒫 (A ∪ B) := by
-      refine OrderedPair.in_power_power x y (A ∪ B) ?_ ?_
+      refine lemma_3B_ordered_pair_in_power_power x y (A ∪ B) ?_ ?_
       · simp [hxA]
       · simp [hyB]
     apply (Product.Spec_full A B (⟪x, y⟫)).2
     exact ⟨hxyPow, ⟨x, y, hxA, hyB, rfl⟩⟩
+attribute [set_spec_simps] cor_3C_product_spec
+
+@[simp]
+lemma Product.Spec {A B w : Set} : w ∈ Product A B ↔ ∃ (x y : Set), x ∈ A ∧ y ∈ B ∧ w = ⟪x, y⟫ :=
+  cor_3C_product_spec
 attribute [set_spec_simps] Product.Spec
 
 infix:60 " ⨯ " => Product
+
+@[simp]
+lemma Product.Pair.Spec {A B x y : Set} : ⟪x, y⟫ ∈ Product A B ↔ x ∈ A ∧ y ∈ B := by
+  constructor
+  · intro hxy
+    rcases (Product.Spec).1 hxy with ⟨u, v, huA, hvB, hEq⟩
+    rcases (OrderedPair.uniqueness x y u v).1 hEq with ⟨hxu, hyv⟩
+    subst hxu
+    subst hyv
+    exact ⟨huA, hvB⟩
+  · intro hxy
+    rcases hxy with ⟨hxA, hyB⟩
+    exact (Product.Spec).2 ⟨x, y, hxA, hyB, rfl⟩
+attribute [set_spec_simps] Product.Pair.Spec
+
 
 end Set

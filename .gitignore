@@ -9,10 +9,8 @@
 
 # Editor / agent (local)
 .cursor/
+Unused/
+Writeups/
 
 # Textbook PDF (copyrighted; keep a local copy only)
-135 Elements of Set Theory - Enderton.pdf
-
-# Omit from remote while coordinating with upstream (re-add to the index when publishing)
-/LICENSE
-/NOTICE
+Enderton_Textbook.pdf

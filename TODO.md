@@ -391,9 +391,8 @@ _Checklist audit policy (manual): items through **`Set/Ch3/S3_NAryRelations.lean
 ## Functions (pp. 42–54)
 
 Primary files:
-- `Set/Ch3/S4_Functions.lean`
-- `Set/Ch3/S5_InfiniteCartesianProducts.lean` (for Theorem 3J)
-- `Set/Choice.lean` (choice-first-form statement)
+- `Set/Ch3/S4_Functions.lean` — AC-free core (3E–3I, 3K, 3L, indexed families, function space) **plus** Theorem 3J(a)/(b) at the bottom inside a reopened `namespace Choice`
+- `Set/Choice.lean` — the single home for the (six) equivalent forms of AC (`Set.Choice.ChoiceFirstForm`, `Set.Choice.choice_first_form`, `Set.Choice.ChoiceSecondForm`; with predicates inlined to break the import cycle into `S4_Functions`)
 
 - [ ] **Definition (Function):**
   - **Set theory:** $F$ is a relation and for each $x \in \operatorname{dom}(F)$ there exists a unique $y$ with $\langle x, y \rangle \in F$
@@ -464,9 +463,15 @@ Primary files:
 - [ ] **Indexed family operators and function space ${}^A B$:**
   - **Set theory:** indexed union/intersection via range of restricted family; function space as maps from `A` into `B`
   - **Lean:** `noncomputable def IndexedUnion ...`; `noncomputable def IndexedIntersection ...`; `noncomputable def FunctionSpace ...`; `lemma FunctionSpace.Spec ...`
-- [ ] **Theorem 3J and choice-first-form cross-file linkage:**
-  - **Set theory:** left/right inverse characterizations (with choice for right inverse)
-  - **Lean:** `theorem thm_3J_a_left_inverse_iff_one_to_one ...` and `theorem thm_3J_b_right_inverse_iff_onto ...` in `Set/Ch3/S5_InfiniteCartesianProducts.lean`; `def ChoiceFirstForm` and `axiom choice_first_form` in `Set/Choice.lean`
+- [x] **Theorem 3J(a) (left inverse iff one-to-one, AC-free):**
+  - **Set theory:** for `F : A → B` with `A` nonempty, `∃ G : B → A, G ∘ F = I_A` iff `F` is one-to-one
+  - **Lean:** `theorem Set.thm_3J_a_left_inverse_iff_one_to_one ...` at the bottom of `Set/Ch3/S4_Functions.lean` in the plain `Set` namespace (the `Choice` namespace is reserved for declarations whose proofs *actually* use AC). The (⇒) direction uses the helper construction `noncomputable def LeftInverseRelation (F B a₀ : Set) : Set := F⁻¹ ∪ ((B - ran F) ⨯ Singleton a₀)` (also AC-free) and proves it is a function directly, plus `lemma one_to_one_preimage_unique ...`. A `#print axioms` check at the bottom of the file enforces AC-freeness.
+- [x] **Theorem 3J(b) (right inverse iff onto, uses first-form AC):**
+  - **Set theory:** for `F : A → B` with `A` nonempty, `∃ H : B → A, F ∘ H = I_B` iff `F` maps `A` onto `B`
+  - **Lean:** `theorem Set.Choice.thm_3J_b_right_inverse_iff_onto ...` at the bottom of `Set/Ch3/S4_Functions.lean`, inside a reopened `namespace Choice` block. This is the *only* declaration in `S4_Functions.lean` that lives in `Choice`, because it is the only one whose proof invokes `choice_first_form`. A `#print axioms` check at the bottom of the file enforces AC-dependence.
+- [x] **Axiom of Choice (first form):**
+  - **Set theory:** for any relation `R` there is a function `H ⊆ R` with `dom H = dom R` (Enderton p.49)
+  - **Lean:** `def Set.Choice.ChoiceFirstForm` and `axiom Set.Choice.choice_first_form` in `Set/Choice.lean` (wrapped in the `Choice` sub-namespace so every use site must `open Choice` or qualify, making the AC dependency visible). The "function" conjunct is inlined as `IsRelation H ∧ ∀ x ∈ dom H, ∃! y, ⟪x, y⟫ ∈ H` so `Set/Choice.lean` need only import `Set.Ch3.S2_Relations`; this lets `Set/Ch3/S4_Functions.lean` import `Set.Choice` without a cycle. `S4_Functions.lean` `#check`s the declarations at Enderton's introduction point (p.49).
 
 ## Infinite Cartesian Products (pp. 54–55)
 
@@ -482,7 +487,7 @@ Primary files:
   - **Lean:** `lemma InfiniteProduct.Spec {I H f : Set} : f ∈ InfiniteProduct I H ↔ ...`
 - [ ] **Axiom of Choice (second form):**
   - **Set theory:** For any set $I$ and function $H$ with $\operatorname{dom}(H)=I$, if every $H(i)$ is nonempty, then $\prod_{i \in I}H(i)\neq\varnothing$.
-  - **Lean:** `def ChoiceSecondForm : Prop := ...` (in `Set/Choice.lean`)
+  - **Lean:** `def Set.Choice.ChoiceSecondForm : Prop := ...` (in `Set/Choice.lean`, with the "function" conjuncts inlined for the same reason as the first form; surfaced in `Set/Ch3/S5_InfiniteCartesianProducts.lean` via `open Choice`)
 - [ ] **Derived theorem (ChoiceSecondForm gives nonempty product):**
   - **Set theory:** $\text{ChoiceSecondForm} \Rightarrow \forall I,H,\big((\forall i\in I,\ H(i)\neq\varnothing)\Rightarrow \prod_{i\in I}H(i)\neq\varnothing\big)$.
   - **Lean:** `theorem infiniteProduct_nonempty_of_choice_second_form (hChoice₂ : ChoiceSecondForm) : ...`
@@ -576,9 +581,9 @@ Primary file: `Set/Ch3/S7_OrderingRelations.lean`
 - [ ] **Definition (Inductive set):**
   - **Set theory:** $\text{Inductive}(A) \Leftrightarrow 0 \in A \land (\forall a \in A)\, a^+ \in A$
   - **Lean:** `def Inductive (A : Set) : Prop := ∅ ∈ A ∧ ∀ a, a ∈ A → a⁺ ∈ A`
-- [ ] **Derived Infinity statement (from primitive infinity axiom):**
+- [ ] **Infinity axiom (Enderton's literal form, declared at site):**
   - **Set theory:** $\exists A\, \text{Inductive}(A)$
-  - **Lean:** `theorem infinity_inductive : ∃ (A : Set), Inductive A`
+  - **Lean:** `axiom infinity : ∃ A : Set, Inductive A` (in `Set/Ch4/S1_InductiveSets.lean`, after `∅`/`Successor`/`Inductive` are in scope); chosen witness `noncomputable def Infinity := Classical.choose infinity`; spec `lemma Infinity.Inductive : Inductive Infinity`
 - [ ] **Definition (Natural number):**
   - **Set theory:** $\text{Natural}(n) \Leftrightarrow (\forall A)\,(\text{Inductive}(A) \Rightarrow n \in A)$
   - **Lean:** `def Natural (n : Set) : Prop := ∀ (A : Set), Inductive A → n ∈ A`
@@ -593,7 +598,7 @@ Primary file: `Set/Ch3/S7_OrderingRelations.lean`
   - **Lean:** `lemma natural_of_mem_omega (n : Set) : n ∈ ω → Natural n`; `lemma mem_omega_of_natural (n : Set) : Natural n → n ∈ ω`
 - [ ] **Theorem 4B (minimal inductive set):**
   - **Set theory:** $\text{Inductive}(\omega)$ and $(\forall A)(\text{Inductive}(A) \Rightarrow \omega \subseteq A)$
-  - **Lean:** `theorem thm_4B_omega_inductive : Inductive ω`; `theorem ω.subset_of_inductive : ∀ (A : Set), Inductive A → ω ⊆ A`
+  - **Lean:** `theorem thm_4B_ω_inductive : Inductive ω`; `theorem thm_4B_ω_subset_of_inductive : ∀ (A : Set), Inductive A → ω ⊆ A`
 - [ ] **Induction principle for $\omega$ (predicate form):**
   - **Set theory:** $\big(P(0)\land (\forall k\in\omega, P(k)\Rightarrow P(k^+))\big)\Rightarrow (\forall n\in\omega, P(n))$
   - **Lean:** `lemma ω_induction (P : Set → Prop) (hBase : P Set.Empty) (hStep : ∀ k, k ∈ ω → P k → P (k⁺)) : ∀ n, n ∈ ω → P n`

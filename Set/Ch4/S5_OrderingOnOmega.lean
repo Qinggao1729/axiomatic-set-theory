@@ -12,26 +12,8 @@ namespace Set
 def NatLt (m n : Set) : Prop := m ∈ n
 def NatLe (m n : Set) : Prop := m ∈ n ∨ m = n
 
-@[simp]
-lemma mem_successor_iff (x a : Set) : x ∈ a⁺ ↔ x ∈ a ∨ x = a := by
-  rw [Successor, Union.Spec, Singleton.Spec]
-
-theorem succ_mem_succ_of_mem (m n : Set) :
-    n ∈ ω → m ∈ n → m⁺ ∈ n⁺ := by
-  intro hnω hmn
-  have hAll : ∀ t, t ∈ ω → (∀ u, u ∈ t → u⁺ ∈ t⁺) := by
-    apply ω_induction (fun t => ∀ u, u ∈ t → u⁺ ∈ t⁺)
-    · intro u hu
-      exact (Empty.Spec hu).elim
-    · intro k hkω hkProp u hu
-      rcases (mem_successor_iff u k).1 hu with huk | hueq
-      · have huSuccInKSucc : u⁺ ∈ k⁺ := hkProp u huk
-        exact (mem_successor_iff (u⁺) (k⁺)).2 (Or.inl huSuccInKSucc)
-      · have huSuccEq : u⁺ = k⁺ := by simp [hueq]
-        exact (mem_successor_iff (u⁺) (k⁺)).2 (Or.inr huSuccEq)
-  exact hAll n hnω m hmn
-
-theorem natural_succ_mem_iff (m n : Set) :
+/- [Enderton, Lemma 4L(a), pp.83-84] -/
+theorem thm_4L_a_natural_succ_mem_iff (m n : Set) :
     m ∈ ω → n ∈ ω → (m ∈ n ↔ m⁺ ∈ n⁺) := by
   intro hmω hnω
   apply Iff.intro
@@ -44,43 +26,34 @@ theorem natural_succ_mem_iff (m n : Set) :
       exact hnTrans _ _ hmInSucc hSuccInN
     · exact by simpa [hEq] using hmInSucc
 
-theorem natural_not_mem_self (n : Set) : n ∈ ω → n ∉ n := by
-  intro hnω
-  apply ω_induction (fun k => k ∉ k)
-  · exact Empty.Spec
-  · intro k hkω hkNot
-    intro hkSuccIn
-    rw [Successor, Union.Spec, Singleton.Spec] at hkSuccIn
-    have hkInSucc : k ∈ k⁺ := by
-      rw [Successor, Union.Spec]
-      exact Or.inr (Singleton.Spec.2 rfl)
-    cases hkSuccIn with
-    | inl hkSuccInK =>
-      have hkTrans : IsTransitiveSet k := natural_transitive_set k ((ω.Spec).1 hkω)
-      have hkInK : k ∈ k := hkTrans k (k⁺) hkInSucc hkSuccInK
-      exact hkNot hkInK
-    | inr hEq =>
-      have hEq' : k⁺ = k := by simpa [Successor] using hEq
-      have hkInK : k ∈ k := by
-        rw [hEq'] at hkInSucc
-        exact hkInSucc
-      exact hkNot hkInK
-  · exact hnω
+abbrev natural_succ_mem_iff := thm_4L_a_natural_succ_mem_iff
 
-theorem natural_mem_implies_subset (m n : Set) :
+/- [Enderton, Lemma 4L(b), pp.83-84] -/
+theorem thm_4L_b_natural_not_mem_self (n : Set) : n ∈ ω → n ∉ n := by
+  intro hnω
+  exact natural_not_mem_self n hnω
+
+abbrev natural_not_mem_self_4L := thm_4L_b_natural_not_mem_self
+
+/- [Enderton, Lemma 4L(a), pp.83-84] -/
+theorem thm_4L_a_natural_mem_implies_subset (m n : Set) :
     m ∈ ω → n ∈ ω → m ∈ n → m ⊆ n := by
   intro hmω hnω hmn
   have hnTrans : IsTransitiveSet n := natural_transitive_set n ((ω.Spec).1 hnω)
   intro x hx
   exact hnTrans x m hx hmn
 
-theorem natural_mem_implies_ne (m n : Set) :
+abbrev natural_mem_implies_subset := thm_4L_a_natural_mem_implies_subset
+
+/- [Enderton, Lemma 4L(b) consequence, pp.83-84] -/
+theorem thm_4L_b_consequence_natural_mem_implies_ne (m n : Set) :
     m ∈ ω → n ∈ ω → m ∈ n → m ≠ n := by
   intro hmω hnω hmn hEq
-  have hmNot : m ∉ m := natural_not_mem_self m hmω
+  have hmNot : m ∉ m := natural_not_mem_self_4L m hmω
   have hmInm : m ∈ m := by simpa [hEq] using hmn
   exact hmNot hmInm
 
+/- [Enderton, helper for Trichotomy on ω, p.84] -/
 theorem natural_zero_eq_or_mem (m : Set) : m ∈ ω → (m = Set.Empty ∨ Set.Empty ∈ m) := by
   intro hmω
   apply ω_induction (fun k => k = Set.Empty ∨ Set.Empty ∈ k)
@@ -95,6 +68,7 @@ theorem natural_zero_eq_or_mem (m : Set) : m ∈ ω → (m = Set.Empty ∨ Set.E
     exact Or.inr h0InKSucc
   · exact hmω
 
+/- [Enderton, Trichotomy preparation on ω, p.84] -/
 theorem natural_compare (m n : Set) :
     m ∈ ω → n ∈ ω → (m ∈ n ∨ m = n ∨ n ∈ m) := by
   intro hmω hnω
@@ -114,6 +88,7 @@ theorem natural_compare (m n : Set) :
         · exact Or.inr (Or.inl hkSuccEqT.symm)
   exact hAll n hnω m hmω
 
+/- [Enderton, Trichotomy Law for ω, p.84] -/
 theorem natural_trichotomy (m n : Set) :
     m ∈ ω → n ∈ ω →
     (m ∈ n ∨ m = n ∨ n ∈ m) ∧
@@ -124,22 +99,25 @@ theorem natural_trichotomy (m n : Set) :
   refine ⟨natural_compare m n hmω hnω, ?_, ?_, ?_⟩
   · intro h
     rcases h with ⟨hmn, hEq⟩
-    have hmNot : m ∉ m := natural_not_mem_self m hmω
+    have hmNot : m ∉ m := natural_not_mem_self_4L m hmω
     have hmInm : m ∈ m := by simpa [hEq] using hmn
     exact hmNot hmInm
   · intro h
     rcases h with ⟨hmn, hnm⟩
-    have hmNot : m ∉ m := natural_not_mem_self m hmω
+    have hmNot : m ∉ m := natural_not_mem_self_4L m hmω
     have hmTrans : IsTransitiveSet m := natural_transitive_set m ((ω.Spec).1 hmω)
     have hmInm : m ∈ m := hmTrans m n hmn hnm
     exact hmNot hmInm
   · intro h
     rcases h with ⟨hEq, hnm⟩
-    have hnNot : n ∉ n := natural_not_mem_self n hnω
+    have hnNot : n ∉ n := natural_not_mem_self_4L n hnω
     have hnInn : n ∈ n := by simpa [hEq] using hnm
     exact hnNot hnInn
 
-theorem natural_mem_iff_proper_subset (m n : Set) :
+abbrev natural_mem_implies_ne := thm_4L_b_consequence_natural_mem_implies_ne
+
+/- [Enderton, Corollary 4M (membership vs proper subset), p.84] -/
+theorem cor_4M_mem_iff_proper_subset (m n : Set) :
     m ∈ ω → n ∈ ω → (m ∈ n ↔ m ⊆ n ∧ m ≠ n) := by
   intro hmω hnω
   apply Iff.intro
@@ -152,10 +130,13 @@ theorem natural_mem_iff_proper_subset (m n : Set) :
     · exfalso
       exact hNe hEq
     · exfalso
-      have hnNot : n ∉ n := natural_not_mem_self n hnω
+      have hnNot : n ∉ n := natural_not_mem_self_4L n hnω
       exact hnNot (hSub n hnm)
 
-theorem natural_le_iff_subset (m n : Set) :
+abbrev natural_mem_iff_proper_subset := cor_4M_mem_iff_proper_subset
+
+/- [Enderton, Corollary 4M (≤ vs subset), p.84] -/
+theorem cor_4M_le_iff_subset (m n : Set) :
     m ∈ ω → n ∈ ω → ((m ∈ n ∨ m = n) ↔ m ⊆ n) := by
   intro hmω hnω
   apply Iff.intro
@@ -171,9 +152,10 @@ theorem natural_le_iff_subset (m n : Set) :
     · exact Or.inl hmn
     · exact Or.inr hEq
     · exfalso
-      have hnNot : n ∉ n := natural_not_mem_self n hnω
+      have hnNot : n ∉ n := natural_not_mem_self_4L n hnω
       exact hnNot (hSub n hnm)
 
+/- [Enderton, Well-ordering of ω, pp.86-87] -/
 theorem omega_well_ordering (A : Set) :
     A ⊆ ω → A.Nonempty → ∃ m, m ∈ A ∧ ∀ n, n ∈ A → (m ∈ n ∨ m = n) := by
   intro hAω hANe
@@ -204,12 +186,13 @@ theorem omega_well_ordering (A : Set) :
         exact (hkProp t htk) htA
   rcases hANe with ⟨a, haA⟩
   have haω : a ∈ ω := hAω a haA
-  have haSuccω : a⁺ ∈ ω := ω.inductive.right a haω
+  have haSuccω : a⁺ ∈ ω := thm_4B_ω_inductive.right a haω
   have hNotA : a ∉ A := by
     have haInSucc : a ∈ a⁺ := (mem_successor_iff a a).2 (Or.inr rfl)
     exact hAllNotA (a⁺) haSuccω a haInSucc
   exact hNotA haA
 
+/- [Enderton, Strong induction principle on ω, p.88] -/
 theorem strong_induction_omega (A : Set) :
     (∀ n, n ∈ ω → (∀ m, m ∈ n → m ∈ A) → n ∈ A) → ω ⊆ A := by
   intro hStep
@@ -233,13 +216,16 @@ theorem strong_induction_omega (A : Set) :
     rcases hcLeast m hmC with hcm | hEq
     · have hmTrans : IsTransitiveSet m := natural_transitive_set m ((ω.Spec).1 hmω)
       have hmInm : m ∈ m := hmTrans m c hmc hcm
-      exact (natural_not_mem_self m hmω) hmInm
+      exact (natural_not_mem_self_4L m hmω) hmInm
     · have hcInc : c ∈ c := by simpa [hEq] using hmc
-      exact (natural_not_mem_self c hcω) hcInc
+      exact (natural_not_mem_self_4L c hcω) hcInc
   have hcA : c ∈ A := hStep c hcω hAllSmallA
   exact hcNotA hcA
 
-theorem no_descending_omega_sequence :
+abbrev natural_le_iff_subset := cor_4M_le_iff_subset
+
+/- [Enderton, Corollary 4Q, p.88] -/
+theorem cor_4Q_no_descending_omega_sequence :
     ¬ ∃ (f : Set → Set), (∀ n, n ∈ ω → f n ∈ ω) ∧ (∀ n, n ∈ ω → f (n⁺) ∈ f n) := by
   intro h
   rcases h with ⟨f, hInω, hDesc⟩
@@ -250,14 +236,14 @@ theorem no_descending_omega_sequence :
   have hRne : Rset.Nonempty := by
     refine ⟨f Set.Empty, ?_⟩
     rw [hRspec]
-    refine ⟨hInω Set.Empty ω.inductive.left, ?_⟩
-    exact ⟨Set.Empty, ω.inductive.left, rfl⟩
+    refine ⟨hInω Set.Empty thm_4B_ω_inductive.left, ?_⟩
+    exact ⟨Set.Empty, thm_4B_ω_inductive.left, rfl⟩
   have hRsub : Rset ⊆ ω := by
     intro y hy
     exact (hRspec y).1 hy |>.left
   rcases omega_well_ordering Rset hRsub hRne with ⟨m, hmR, hmLeast⟩
   rcases (hRspec m).1 hmR with ⟨hmω, n, hnω, hmEq⟩
-  have hnSuccω : n⁺ ∈ ω := ω.inductive.right n hnω
+  have hnSuccω : n⁺ ∈ ω := thm_4B_ω_inductive.right n hnω
   have hmnSucc : f (n⁺) ∈ m := by simpa [hmEq] using hDesc n hnω
   have hfnSuccR : f (n⁺) ∈ Rset := by
     rw [hRspec]
@@ -266,11 +252,14 @@ theorem no_descending_omega_sequence :
   rcases hmLeast (f (n⁺)) hfnSuccR with hmInFnSucc | hmEqSucc
   · have hmTrans : IsTransitiveSet m := natural_transitive_set m ((ω.Spec).1 hmω)
     have hmInm : m ∈ m := hmTrans m (f (n⁺)) hmInFnSucc hmnSucc
-    exact (natural_not_mem_self m hmω) hmInm
+    exact (natural_not_mem_self_4L m hmω) hmInm
   · have hmInm : m ∈ m := by simpa [hmEqSucc] using hmnSucc
-    exact (natural_not_mem_self m hmω) hmInm
+    exact (natural_not_mem_self_4L m hmω) hmInm
 
-theorem nat_order_preserved_by_add
+abbrev no_descending_omega_sequence := cor_4Q_no_descending_omega_sequence
+
+/- [Enderton, Theorem 4N (addition monotonicity component), pp.85-86] -/
+theorem thm_4N_order_preserved_by_add
   (m n k : Set) :
   m ∈ ω → n ∈ ω → k ∈ ω → m ∈ n → (m + k) ∈ (n + k) := by
   intro hmω hnω hkω hmn
@@ -289,13 +278,16 @@ theorem nat_order_preserved_by_add
       simpa [hmSuccEq, hnSuccEq] using hSuccMem
   exact hAll k hkω
 
-theorem nat_order_preserved_by_mul_succ_factor
+abbrev nat_order_preserved_by_add := thm_4N_order_preserved_by_add
+
+/- [Enderton, Theorem 4N (multiplication monotonicity, successor factor), pp.85-86] -/
+theorem thm_4N_order_preserved_by_mul_succ_factor
   (m n p : Set) :
   m ∈ ω → n ∈ ω → p ∈ ω → m ∈ n → (m * p⁺) ∈ (n * p⁺) := by
   intro hmω hnω hpω hmn
   have hAll : ∀ t, t ∈ ω → (m * t⁺) ∈ (n * t⁺) := by
     apply ω_induction (fun t => (m * t⁺) ∈ (n * t⁺))
-    · have h0ω : Set.Empty ∈ ω := ω.inductive.left
+    · have h0ω : Set.Empty ∈ ω := thm_4B_ω_inductive.left
       have hmZero : m * Set.Empty = Set.Empty := by
         simpa [zero_ω] using (nat_mul_zero m hmω)
       have hm1 : m * Set.Empty⁺ = m := by
@@ -312,7 +304,7 @@ theorem nat_order_preserved_by_mul_succ_factor
           _ = n := nat_zero_add n hnω
       simpa [hm1, hn1] using hmn
     · intro t htω hmtp
-      have htSuccω : t⁺ ∈ ω := ω.inductive.right t htω
+      have htSuccω : t⁺ ∈ ω := thm_4B_ω_inductive.right t htω
       have hmtω : m * t⁺ ∈ ω := nat_mul_closed m (t⁺) hmω htSuccω
       have hntω : n * t⁺ ∈ ω := nat_mul_closed n (t⁺) hnω htSuccω
       have h1 : (m * t⁺) + m ∈ (n * t⁺) + m :=
@@ -323,7 +315,7 @@ theorem nat_order_preserved_by_mul_succ_factor
         simpa [nat_add_comm (n * t⁺) m hntω hmω, nat_add_comm (n * t⁺) n hntω hnω] using h2raw
       have hmsEq : m * (t⁺)⁺ = (m * t⁺) + m := nat_mul_succ m (t⁺) hmω htSuccω
       have hnsEq : n * (t⁺)⁺ = (n * t⁺) + n := nat_mul_succ n (t⁺) hnω htSuccω
-      have hnsSuccω : n * ((t⁺)⁺) ∈ ω := nat_mul_closed n ((t⁺)⁺) hnω (ω.inductive.right (t⁺) htSuccω)
+      have hnsSuccω : n * ((t⁺)⁺) ∈ ω := nat_mul_closed n ((t⁺)⁺) hnω (thm_4B_ω_inductive.right (t⁺) htSuccω)
       have hab : m * (t⁺)⁺ ∈ (n * t⁺) + m := by simpa [hmsEq] using h1
       have hbc : (n * t⁺) + m ∈ n * (t⁺)⁺ := by simpa [hnsEq] using h2
       have hTrans : IsTransitiveSet (n * (t⁺)⁺) :=
@@ -331,22 +323,29 @@ theorem nat_order_preserved_by_mul_succ_factor
       exact hTrans (m * (t⁺)⁺) ((n * t⁺) + m) hab hbc
   exact hAll p hpω
 
-theorem nat_order_preserved_by_mul_nonzero
+abbrev nat_order_preserved_by_mul_succ_factor := thm_4N_order_preserved_by_mul_succ_factor
+
+/- [Enderton, Theorem 4N (multiplication monotonicity, nonzero factor), pp.85-86] -/
+theorem thm_4N_order_preserved_by_mul_nonzero
   (m n k : Set) :
   m ∈ ω → n ∈ ω → k ∈ ω → k ≠ zero_ω → m ∈ n → (m * k) ∈ (n * k) := by
   intro hmω hnω hkω hkNe hmn
   have hkNeEmpty : k ≠ Set.Empty := by simpa [zero_ω] using hkNe
   have hkNat : Natural k := (ω.Spec).1 hkω
-  rcases ω.exists_successor k hkNeEmpty hkNat with ⟨p, hpω, hkEq⟩
+  rcases thm_4C_omega_exists_successor k hkNeEmpty hkNat with ⟨p, hpω, hkEq⟩
   have hsucc : (m * p⁺) ∈ (n * p⁺) := nat_order_preserved_by_mul_succ_factor m n p hmω hnω hpω hmn
   simpa [hkEq] using hsucc
 
-theorem theorem_4N_order_preservation :
+/- [Enderton, Theorem 4N, pp.85-86] -/
+theorem thm_4N_order_preservation :
     (∀ m n k, m ∈ ω → n ∈ ω → k ∈ ω → m ∈ n → (m + k) ∈ (n + k)) ∧
-    (∀ m n k, m ∈ ω → n ∈ ω → k ∈ ω → k ≠ zero_ω → m ∈ n → (m * k) ∈ (n * k)) := by
-  exact ⟨nat_order_preserved_by_add, nat_order_preserved_by_mul_nonzero⟩
+    (∀ m n k, m ∈ ω → n ∈ ω → k ∈ ω → k ≠ zero_ω → m ∈ n → (m * k) ∈ (n * k)) :=
+  ⟨thm_4N_order_preserved_by_add, thm_4N_order_preserved_by_mul_nonzero⟩
 
-theorem nat_add_right_cancel
+abbrev nat_order_preserved_by_mul_nonzero := thm_4N_order_preserved_by_mul_nonzero
+
+/- [Enderton, Corollary 4P (addition cancellation component), pp.86-87] -/
+theorem cor_4P_add_right_cancel
   (a b k : Set) :
   a ∈ ω → b ∈ ω → k ∈ ω → a + k = b + k → a = b := by
   intro haω hbω hkω hEq
@@ -354,16 +353,19 @@ theorem nat_add_right_cancel
   · exfalso
     have hmem : a + k ∈ b + k := nat_order_preserved_by_add a b k haω hbω hkω hab
     have hsumω : a + k ∈ ω := nat_add_closed a k haω hkω
-    have hNot : (a + k) ∉ (a + k) := natural_not_mem_self (a + k) hsumω
+    have hNot : (a + k) ∉ (a + k) := natural_not_mem_self_4L (a + k) hsumω
     exact hNot (by simpa [hEq] using hmem)
   · exact habEq
   · exfalso
     have hmem : b + k ∈ a + k := nat_order_preserved_by_add b a k hbω haω hkω hba
     have hsumω : b + k ∈ ω := nat_add_closed b k hbω hkω
-    have hNot : (b + k) ∉ (b + k) := natural_not_mem_self (b + k) hsumω
+    have hNot : (b + k) ∉ (b + k) := natural_not_mem_self_4L (b + k) hsumω
     exact hNot (by simpa [hEq] using hmem)
 
-theorem nat_mul_right_cancel
+abbrev nat_add_right_cancel := cor_4P_add_right_cancel
+
+/- [Enderton, Corollary 4P (multiplication cancellation component), pp.86-87] -/
+theorem cor_4P_mul_right_cancel
   (a b k : Set) :
   a ∈ ω → b ∈ ω → k ∈ ω → k ≠ zero_ω → a * k = b * k → a = b := by
   intro haω hbω hkω hkNe hEq
@@ -372,19 +374,22 @@ theorem nat_mul_right_cancel
     have hmem : a * k ∈ b * k :=
       nat_order_preserved_by_mul_nonzero a b k haω hbω hkω hkNe hab
     have hprodω : a * k ∈ ω := nat_mul_closed a k haω hkω
-    have hNot : (a * k) ∉ (a * k) := natural_not_mem_self (a * k) hprodω
+    have hNot : (a * k) ∉ (a * k) := natural_not_mem_self_4L (a * k) hprodω
     exact hNot (by simpa [hEq] using hmem)
   · exact habEq
   · exfalso
     have hmem : b * k ∈ a * k :=
       nat_order_preserved_by_mul_nonzero b a k hbω haω hkω hkNe hba
     have hprodω : b * k ∈ ω := nat_mul_closed b k hbω hkω
-    have hNot : (b * k) ∉ (b * k) := natural_not_mem_self (b * k) hprodω
+    have hNot : (b * k) ∉ (b * k) := natural_not_mem_self_4L (b * k) hprodω
     exact hNot (by simpa [hEq] using hmem)
 
-theorem corollary_4P_cancellation :
+/- [Enderton, Corollary 4P, pp.86-87] -/
+theorem cor_4P_cancellation :
     (∀ a b k, a ∈ ω → b ∈ ω → k ∈ ω → a + k = b + k → a = b) ∧
-    (∀ a b k, a ∈ ω → b ∈ ω → k ∈ ω → k ≠ zero_ω → a * k = b * k → a = b) := by
-  exact ⟨nat_add_right_cancel, nat_mul_right_cancel⟩
+    (∀ a b k, a ∈ ω → b ∈ ω → k ∈ ω → k ≠ zero_ω → a * k = b * k → a = b) :=
+  ⟨cor_4P_add_right_cancel, cor_4P_mul_right_cancel⟩
+
+abbrev nat_mul_right_cancel := cor_4P_mul_right_cancel
 
 end Set

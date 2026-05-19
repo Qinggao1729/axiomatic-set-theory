@@ -22,6 +22,9 @@ For each new section:
    - Theorems/Lemmas/Corollaries
    - Examples/exercises used in narrative
 3. Keep theorem order consistent with the textbook unless there is a hard Lean dependency issue.
+4. For Chapter 4 Section 3 specifically:
+   - Keep `Set/Ch4/S3_RecursionOnOmega.lean` focused on the recursion theorem chain and 4H.
+   - Place arithmetic-specific specializations (e.g. successor graph wrappers used by addition/multiplication) in `Set/Ch4/S4_Arithmetic.lean`.
 
 ## 2) Create a Section Extraction Draft
 
@@ -39,7 +42,7 @@ Before formalizing:
 
 ## 3) Update TODO First (Planning Contract)
 
-Add/update the corresponding section in `Enderton_Textbook_Todos.md` before proving.
+Add/update the corresponding section in `TODO.md` before proving.
 
 Required format per item:
 

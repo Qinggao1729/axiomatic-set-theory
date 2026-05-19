@@ -1,136 +1,131 @@
-# Axiomatic Set Theory
+# Axiomatic Set Theory in Lean 4
 
-**License / third-party notes:** If you have them locally, see [LICENSE](LICENSE) and [NOTICE](NOTICE) (these files are gitignored for some fork/outreach workflows—add your own when publishing).  
+**Project scope:** standalone research formalization following Enderton.  
 **Acknowledgments:** [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
 
-This project seeks to formalize an axiomatic approach to set theory within Lean.
-Drawing inspiration from Enderton's *Elements of Set Theory*, it begins with the fundamental axioms and proceeds to formalize selected theorems and exercises presented in the book. While this document provides a brief overview, the project's full details and implementations (including proofs to theorems and exercises) can be found in its source code.
+This repository formalizes Herbert Enderton's *Elements of Set Theory* in Lean 4, using a primitive `Set` type and primitive membership relation `∈`, then building definitions and theorems chapter-by-chapter in textbook order.
 
-## Overview
+## Why This Repo Exists
 
-The core of the project involves introducing a primitive notion of a set and a membership relation, and then building up the standard axioms of ZFC-like set theory.
-The development proceeds through sets, elementary constructions, relations, functions, equivalence/ordering relations, and a substantial Chapter 4 formalization of natural numbers on `ω` (including recursion, arithmetic, and ordering results).
+This project is both:
 
-### Basic Definitions
+- a machine-checked development of textbook set theory, and
+- a pedagogical formalization that makes hidden assumptions explicit (carriers for comprehension, nonempty side-conditions for intersections, function-value well-definedness, AC usage boundaries, etc.).
 
-First, a `Set` type is introduced as an axiom, along with a membership predicate `ElementOf`:
+Mathlib imports are intentionally minimal for foundational material so the core thread is rebuilt explicitly rather than inherited from higher-level abstractions.
 
-```lean
-axiom Set : Type
+## Current Human-Checked Scope
 
-axiom ElementOf : Set -> Set -> Prop
-infix:50 " ∈ " => ElementOf
-infix:40 " ∉ " => λ x y => ¬ ElementOf x y
+From the project writeup in `Writeups/CS263 Project Report.md`:
+
+- Chapter 2
+- Chapter 3 Sections 1–4
+- Chapter 4 Section 1
+
+The repository contains additional material through Chapter 5, but not all of it is at the same audit maturity yet.
+
+## Quick Start
+
+### Prerequisites
+
+- Lean 4 via [elan](https://github.com/leanprover/elan)
+- Lake (bundled with Lean)
+
+### Build
+
+```bash
+cd axiomatic-set-theory
+lake exe cache get   # optional, speeds first build
+lake build
 ```
 
-Using this notion, the usual set-theoretic definitions are introduced:
+Default target is the `Set` library.
+
+## Repository Layout (Start Here)
+
+- `Set.lean` — root import for chapter aggregators.
+- `Set/Axioms.lean` — primitive layer: `Set`, `∈`, `⊆`, core axioms (Ch2 + primitive infinity).
+- `Set/Ch2/` — axioms unpacked into concrete constructions, arbitrary unions/intersections, algebra of sets.
+- `Set/Ch3/` — ordered pairs, relations, n-ary relations, functions, infinite products/choice, equivalence, orderings.
+- `Set/Ch4/` — `ω` construction, Peano system, recursion, arithmetic, order on `ω`.
+- `Set/Ch5/` — integer/rational/real scaffolding and summaries (some placeholders remain).
+- `Set/Choice.lean` — central home for AC forms in `Set.Choice` namespace.
+- `Set/SimpAttrs.lean` — custom simp attribute `set_spec_simps`.
+- `docs/textbook-transcriptions/` — section-by-section textbook extraction notes.
+- `TODO.md` — master checklist mapping set-theoretic statements to Lean declarations.
+
+## Core Design Patterns
+
+### 1) Axioms -> `Classical.choose` -> `*.Spec`
+
+Most canonical objects follow:
+
+1. existential axiom (`∃ B, ...`) in primitive layer,
+2. `noncomputable def` via `Classical.choose`,
+3. membership specification lemma `Name.Spec`.
+
+This keeps set construction explicit and proof automation local.
+
+### 2) `set_spec_simps` for specification unfolding
+
+`*.Spec` lemmas are accumulated under a custom simp attribute, so proofs can use:
 
 ```lean
-def Nonempty (A : Set) : Prop := ∃ (x : Set), x ∈ A
-def SubsetOf (x a : Set) : Prop := ∀ (t : Set), t ∈ x → t ∈ a
+simp only [set_spec_simps]
+simp_all only [set_spec_simps]
 ```
 
-### Axioms
+This avoids long manual rewrite chains.
 
-With these fundamental ingredients in place, the axioms of set theory are stated.
-These include the axiom of comprehension (sometimes called subset or separation), extensionality, the existence of an empty set, pairing, the power set, and union.
-Each axiom is stated as an existential claim that asserts the existence of a set satisfying a given property:
+### 3) Ordered-pair notation choice
 
-```lean
-axiom comprehension (P : Set → Prop) (c : Set) :
-∃ (B : Set), ∀ (x : Set), x ∈ B ↔ x ∈ c ∧ P x
-axiom extensionality : ∀ (A B : Set), (∀ (x : Set), (x ∈ A ↔ x ∈ B)) → A = B
-axiom empty : ∃ (B : Set), ∀ (x : Set), x ∉ B
-axiom pairing : ∀ (u v : Set), ∃ (B: Set), ∀ (x : Set), x ∈ B ↔ x = u ∨ x = v
-axiom power : ∀ (a : Set), ∃ (B : Set), ∀ (x : Set), x ∈ B ↔ x ⊆ a
-axiom union_preliminary : ∀ (a b : Set), ∃ (B : Set), ∀ (x : Set), x ∈ B ↔ x ∈ a ∨ x ∈ b
-axiom union : ∀ (A : Set), ∃ (B : Set), ∀ (x : Set), x ∈ B ↔ (∃ (b : Set), b ∈ A ∧ x ∈ b)
-```
+Project preference in section proofs is `⟪x, y⟫` (distinct from Lean constructor `⟨...⟩`) to reduce visual ambiguity in proofs.
 
-### Constructing Specific Sets
+### 4) Infinity axiom structure
 
-From these axioms, particular sets are constructed using the classical choice operator ([`Classical.choose`](https://leanprover-community.github.io/mathlib4_docs/Init/Classical.html#Classical.choose)).
-For example, the empty set is defined as follows:
+`Set/Axioms.lean` contains a primitive infinity axiom form (with explicit empty/successor-like witnesses).  
+`Set/Ch4/S1_InductiveSets.lean` `#check`s it and derives Enderton's shorthand form `∃ A, Inductive A`.
 
-```lean
-noncomputable def Empty : Set := Classical.choose empty
-lemma Empty.Spec : ∀ x : Set, x ∉ Empty := Classical.choose_spec empty
-notation "∅" => Empty
-```
+### 5) AC visibility policy
 
-This pattern -- defining a set using `Classical.choose` and then providing a lemma stating its properties -- recurs throughout the project.
-For instance, the construction of pairs, singletons, unions, intersections, and power sets follows a similar methodology.
-Uniqueness results can then be proven separately when necessary.
+AC declarations are centralized in `Set/Choice.lean` under `Set.Choice`.  
+Consumers either `open Choice` or qualify names, making AC dependence explicit.
 
-### Relations and Functions
+In `Set/Ch3/S4_Functions.lean`, only genuinely AC-dependent declarations (notably 3J(b)) live in `namespace Choice`; AC-free results remain in plain `Set`.
 
-Once these basic building blocks are in place, the formalization extends to ordered pairs, products, relations, and functions.
-Ordered pairs are defined following Kuratowski's approach as outlined in Enderton:
+## Workflow for New Sections (Mandatory)
 
-```lean
-noncomputable def OrderedPair (x y : Set) : Set := Pair (Singleton x) (Pair x y)
-notation:90 "⟨" x ", " y "⟩" => OrderedPair x y
-```
+Use `workflow.md` as the source of truth. In short:
 
-With ordered pairs, we can proceed by defining products and products, along with domains, ranges, and fields of relations.
+1. Read textbook section first.
+2. Draft/update transcription in `docs/textbook-transcriptions/`.
+3. Update `TODO.md` with checkbox + set-theory line + Lean declaration line.
+4. Implement in matching `Set/Ch#/S*_*.lean` file.
+5. Build and sync TODO status with actual code.
 
-```lean
-noncomputable def Product (A B : Set) : Set := Classical.choose (OrderedPair.product A B)
-infix:60 " ⨯ " => Product
-def IsRelation (R : Set) : Prop := ∀ w, w ∈ R → ∃ x y, w = ⟨x, y⟩
-noncomputable def Relation.Domain (R : Set) : Set :=
-  Classical.choose (comprehension (λ x ↦ ∃ (y : Set), ⟨x, y⟩ ∈ R) (⋃⋃R))
-noncomputable def Relation.Range (R : Set) : Set :=
-  Classical.choose (comprehension (λ y ↦ ∃ (x : Set), ⟨x, y⟩ ∈ R) (⋃⋃R))
-noncomputable def Relation.Field (R : Set) : Set := (dom R) ∪ (ran R)
-```
+Synchronization rule: TODO and corresponding Lean section must match.
 
-A natural extension of relations is formalizing the notions of functions, which are defined as a special kind of relation. From Enderton, to be a function, a set must be a relation that satisfies the property that for each $x$ in the domain of the relation, there exists only one $y$ such that $xFy$.
-This is expressed in Lean as follows:
+## Proof Style Summary
 
-```lean
-def IsFunction (F : Set) : Prop :=
-  IsRelation F ∧ ∀ x, x ∈ (dom F) → ∃! y, ⟨x, y⟩ ∈ F
-```
+Before proof edits, read `proof_style.md`.
 
-From here, we can define function operations: inverse, composition, restriction, and image.
-Their formalizations are as follows:
+Core expectations:
 
-```lean
-noncomputable def Inverse (F : Set) :=
-  Classical.choose (comprehension (λ w ↦ ∃ (u v : Set), ⟨u, v⟩ ∈ F ∧ w = ⟨v, u⟩) ((ran F) ⨯ (dom F)))
-postfix:90 "⁻¹" => Inverse
-noncomputable def Composition (F G : Set) :=
-  Classical.choose (comprehension
-    (λ w ↦ ∃ (u v t : Set), ⟨u, t⟩ ∈ G ∧ ⟨t, v⟩ ∈ F ∧ w = ⟨u, v⟩)
-    ((dom G) ⨯ (ran F)))
-infixr:90 " ∘ " => Composition
-noncomputable def Restriction (F : Set) (C : Set) :=
-  Classical.choose (comprehension (λ w ↦ ∃ (u v : Set), ⟨u, v⟩ ∈ F ∧ u ∈ C ∧ w = ⟨u, v⟩) F)
-infixr:90 " ↾ " => Restriction
-noncomputable def Image (F : Set) (C : Set) :=
-  ran (Restriction F C)
-notation:90 F "⟦" A "⟧" => Image F A
-```
+- visible proof skeleton (`intro`, `constructor`, `extensionality`),
+- reuse existing theorems before manual decomposition,
+- use `simp`/`simp_all` (especially with `set_spec_simps`) for routine logic,
+- avoid opaque heavy automation in final foundational proofs (`aesop` as search aid only),
+- keep AC boundaries explicit (`namespace Choice` only when AC is actually used).
 
-As noted in Enderton, this is formalized in a way that applies to all sets, not just sets that are functions.
+## Progress Tracking
 
-### Natural Numbers on ω
+Use `TODO.md` for:
 
-The project formalizes the set-theoretic natural numbers on `ω`.
-Following Enderton, the successor operation is introduced, inductive sets are defined, and natural numbers are characterized as sets that belong to every inductive set.
-On top of this base, the development includes recursion on `ω`, arithmetic operations (addition/multiplication/exponentiation), and key ordering theorems.
+- per-section statement mapping (set-theory text <-> Lean names),
+- checked vs pending items,
+- chapter-level status snapshot.
 
-```lean
-noncomputable def Successor (a : Set) : Set := a ∪ Singleton a
-postfix:90 "⁺" => Successor
-def Inductive (A : Set) : Prop := ∅ ∈ A ∧ ∀ a, a ∈ A → a⁺ ∈ A
-def Natural (n : Set) : Prop := ∀ (A : Set), Inductive A → n ∈ A
-```
+## Known Limitations
 
-## Next Steps
-
-The codebase now covers the core flow through Chapters 2–4 in a section-oriented module layout.
-Natural next steps are to (1) expand exercise coverage, (2) add the six equivalent forms of AC and their equivalence proofs, and (3) continue onward to later chapters (cardinality, ordinals, and related constructions).
-
-Planning and book-to-Lean traceability live in **`Enderton_Textbook_Todos.md`** (with **`docs/textbook-transcriptions/`** and **`ARCHITECTURE_SECTION_MODULES.md`** for structure).
+- Later chapters (especially Chapter 5) may include scaffolds/placeholders (`sorry`) while development is in progress.
+- Some prose docs can lag code after refactors; when in doubt, trust `.lean` files and `lake build`.

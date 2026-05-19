@@ -88,10 +88,10 @@ theorem ℤ_is_integral_domain_of
 -- Largest textbook category for integers in this section.
 theorem ℤ_is_integral_domain :
     ∃ addZ mulZ, IsIntegralDomain ℤ addZ mulZ zero_ℤ one_ℤ := by
-  rcases theorem_5ℤF with ⟨addZ, mulZ, hAddAxioms, hMulAxioms, hDistrib⟩
-  have hD := theorem_5ℤD addZ hAddAxioms
+  rcases thm_5ℤF with ⟨addZ, mulZ, hAddAxioms, hMulAxioms, hDistrib⟩
+  have hD := thm_5ℤD addZ hAddAxioms
   rcases hD with ⟨hAddId, hAddInv⟩
-  have hG := theorem_5ℤG mulZ hMulAxioms
+  have hG := thm_5ℤG mulZ hMulAxioms
   rcases hG with ⟨hMulOne, hZeroNeOne, hNoZeroDiv⟩
   refine ⟨addZ, mulZ, ?_⟩
   exact ℤ_is_integral_domain_of addZ mulZ

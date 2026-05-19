@@ -4,28 +4,37 @@ import Set.Ch2
 # Chapter 4, Section 1: Inductive Sets
 
 Core natural-number construction in Enderton Ch4 §Inductive Sets.
+
+This file `#check`s the primitive Infinity axiom from `Set/Axioms.lean`,
+derives Enderton's literal form `∃ A, Inductive A`, defines the carrier
+`Infinity` as a `Classical.choose` witness (analogous to `Empty`,
+`Pair`, … in Ch2 §1), and develops Theorems 4A–4C.
 -/
 
 namespace Set
 
-#check infinity
-
+/-- Successor `a⁺ = a ∪ {a}` (Enderton p.68). -/
 noncomputable def Successor (a : Set) : Set := a ∪ Singleton a
 postfix:90 "⁺" => Successor
 
+/-- An *inductive* set: contains `∅` and is closed under successor
+    (Enderton p.68). -/
 def Inductive (A : Set) : Prop := ∅ ∈ A ∧ ∀ a, a ∈ A → a⁺ ∈ A
 
--- Derived Enderton-style infinity statement from the primitive declaration
--- in `Set/Axioms.lean`.
+-- [Enderton Ch4 §Inductive Sets, p.68] primitive Infinity axiom
+-- imported from `Set/Axioms.lean`.
+#check infinity
+
+-- Enderton-style statement derived from the primitive Infinity axiom.
 theorem infinity_inductive : ∃ (A : Set), Inductive A := by
-  rcases (Set.infinity) with ⟨A, hEmpty, hSucc⟩
+  rcases Set.infinity with ⟨A, hEmpty, hSucc⟩
   rcases hEmpty with ⟨e, heEmpty, heA⟩
   refine ⟨A, ?_⟩
   constructor
   · have heq : e = Set.Empty := by
       apply extensionality
       intro x
-      apply Iff.intro
+      constructor
       · intro hx
         exact (heEmpty x hx).elim
       · intro hx
@@ -36,149 +45,130 @@ theorem infinity_inductive : ∃ (A : Set), Inductive A := by
     have hsEq : s = a⁺ := by
       apply extensionality
       intro x
-      apply Iff.intro
+      constructor
       · intro hx
-        have h : x ∈ a ∨ x = a := (hsSpec x).1 hx
-        rw [Successor, Union.Spec, Singleton.Spec]
-        exact h
+        have hxa : x ∈ a ∨ x = a := (hsSpec x).1 hx
+        simpa [Successor, Union.Spec, Singleton.Spec] using hxa
       · intro hx
-        rw [Successor, Union.Spec, Singleton.Spec] at hx
-        exact (hsSpec x).2 hx
+        have hxa : x ∈ a ∨ x = a := by
+          simpa [Successor, Union.Spec, Singleton.Spec] using hx
+        exact (hsSpec x).2 hxa
     simpa [hsEq] using hsA
 
--- A natural number is a set that belongs to every inductive set.
+/-- A chosen inductive set, analogous to `Empty`, `Pair u v`, etc. in Ch2. -/
+noncomputable def Infinity : Set := Classical.choose infinity_inductive
+
+lemma Infinity.Inductive : Inductive Infinity :=
+  Classical.choose_spec infinity_inductive
+
+/-- A natural number is a set that belongs to every inductive set. -/
 def Natural (n : Set) : Prop := ∀ (A : Set), Inductive A → n ∈ A
 
-/- [Enderton, Theorem 4A, p.68] -/
-theorem natural_numbers_exist : ∃ (ω : Set), ∀ (n : Set), n ∈ ω ↔ Natural n := by
-  obtain ⟨A, hA⟩ := infinity_inductive
-  have hw : ∃ (w : Set), ∀ (x : Set), x ∈ w ↔ x ∈ A ∧ ∀ (A' : Set), A' ≠ A ∧ Inductive A' → x ∈ A' := by
-    apply comprehension
-  obtain ⟨w, hw⟩ := hw
-  apply Exists.intro w
-  intro n
-  apply Iff.intro
-  · intro hn
-    intro a ha
-    have h : n ∈ A ∧ ∀ (A' : Set), A' ≠ A ∧ Inductive A' → n ∈ A' := by aesop
-    cases Classical.em (a = A) with
-      | inl heq => aesop
-      | inr hneq => aesop
-  · aesop
+/- [Enderton, Theorem 4A, p.68]
 
-noncomputable def ω := Classical.choose natural_numbers_exist
+   Existence of `ω`. Following the textbook: pick a fixed inductive set
+   (here `Infinity`) and carve out the elements that also belong to every
+   *other* inductive set; this set is the natural numbers. -/
+theorem thm_4A_natural_numbers_exist : ∃ (ω : Set), ∀ (n : Set), n ∈ ω ↔ Natural n := by
+  have hInfInd : Inductive Infinity := Infinity.Inductive
+  obtain ⟨w, hw⟩ : ∃ (w : Set), ∀ (x : Set),
+      x ∈ w ↔ x ∈ Infinity ∧ ∀ (A' : Set), A' ≠ Infinity ∧ Inductive A' → x ∈ A' :=
+    comprehension _ Infinity
+  refine ⟨w, ?_⟩
+  intro n
+  constructor
+  · intro hnw
+    obtain ⟨hnInf, hnOther⟩ := (hw n).mp hnw
+    intro B hBind
+    by_cases hBeq : B = Infinity
+    · rw [hBeq]; exact hnInf
+    · exact hnOther B ⟨hBeq, hBind⟩
+  · intro hnat
+    apply (hw n).mpr
+    refine ⟨hnat Infinity hInfInd, ?_⟩
+    intro B hB
+    exact hnat B hB.2
+
+noncomputable def ω := Classical.choose thm_4A_natural_numbers_exist
 
 @[simp]
 lemma ω.Spec {n : Set} : n ∈ ω ↔ Natural n := by
-  have h := Classical.choose_spec natural_numbers_exist
+  have h := Classical.choose_spec thm_4A_natural_numbers_exist
   rw [ω]
-  aesop
+  simp_all
 
-lemma natural_of_mem_omega (n : Set) : n ∈ ω → Natural n := by
-  intro hnω
-  exact (ω.Spec).1 hnω
 
-lemma mem_omega_of_natural (n : Set) : Natural n → n ∈ ω := by
-  intro hnNat
-  exact (ω.Spec).2 hnNat
 
-/- [Enderton, Theorem 4B, p.69] -/
-theorem ω.inductive : Inductive ω := by
-  rw [Inductive]
-  apply And.intro
+/- [Enderton, Theorem 4B (first half), p.69]
+
+   `ω` is inductive. Proof follows the textbook three-step chain:
+   `a ∈ ω → a belongs to every inductive set → a⁺ belongs to every
+   inductive set → a⁺ ∈ ω`. -/
+theorem thm_4B_ω_inductive : Inductive ω := by
+  refine ⟨?_, ?_⟩
   · rw [ω.Spec, Natural]
     intro A hA
-    rw [Inductive] at hA
     exact hA.left
   · intro n hn
     rw [ω.Spec, Natural]
     intro A hA
-    obtain ⟨hA₁, hA₂⟩ := hA
-    apply hA₂ n
-    rw [ω.Spec] at hn
-    rw [Natural] at hn
-    apply hn
-    rw [Inductive]
-    exact And.intro hA₁ hA₂
+    apply hA.right n
+    rw [ω.Spec, Natural] at hn
+    exact hn A hA
 
-theorem ω.subset_of_inductive : ∀ (A : Set), Inductive A → ω ⊆ A := by
-  intro A hA
-  intro n hn
-  rw [ω.Spec] at hn
-  rw [Natural] at hn
-  apply hn
-  exact hA
+/- [Enderton, Theorem 4B (second half), p.69]
 
+   `ω` is a subset of every inductive set — i.e. `ω` is the smallest
+   inductive set. Together with `thm_4B_ω_inductive` this is the full
+   content of Theorem 4B. -/
+theorem thm_4B_ω_subset_of_inductive : ∀ (A : Set), Inductive A → ω ⊆ A := by
+  intro A hA n hn
+  rw [ω.Spec, Natural] at hn
+  exact hn A hA
 
+/-- **Induction Principle for `ω`** (Enderton p.69).
+
+    Predicate form of "any inductive subset of `ω` equals `ω`": given a
+    base case `P ∅` and a successor step `P k → P (k⁺)` on `ω`, the
+    conclusion `P n` holds for all `n ∈ ω`.
+
+    The proof builds `T = {n ∈ ω | P n}`, shows it is inductive, hence
+    `ω ⊆ T` by minimality, hence `P n` for every `n ∈ ω`. -/
 lemma ω_induction (P : Set → Prop)
     (hBase : P Set.Empty)
     (hStep : ∀ k, k ∈ ω → P k → P (k⁺)) :
     ∀ n, n ∈ ω → P n := by
   intro n hnω
-  have hT : ∃ (T : Set), ∀ (k : Set), k ∈ T ↔ k ∈ ω ∧ P k := by
-    apply comprehension
-  obtain ⟨T, hTspec⟩ := hT
+  obtain ⟨T, hTspec⟩ : ∃ (T : Set), ∀ (k : Set), k ∈ T ↔ k ∈ ω ∧ P k :=
+    comprehension _ ω
   have hTind : Inductive T := by
-    rw [Inductive]
     refine ⟨?_, ?_⟩
-    · exact (hTspec Set.Empty).2 ⟨ω.inductive.left, hBase⟩
+    · exact (hTspec Set.Empty).2 ⟨thm_4B_ω_inductive.left, hBase⟩
     · intro k hk
       rcases (hTspec k).1 hk with ⟨hkω, hkP⟩
-      exact (hTspec (k⁺)).2 ⟨ω.inductive.right k hkω, hStep k hkω hkP⟩
-  have hωSubT : ω ⊆ T := ω.subset_of_inductive T hTind
-  have hnT : n ∈ T := hωSubT n hnω
-  exact (hTspec n).1 hnT |>.right
+      exact (hTspec (k⁺)).2 ⟨thm_4B_ω_inductive.right k hkω, hStep k hkω hkP⟩
+  have hωSubT : ω ⊆ T := thm_4B_ω_subset_of_inductive T hTind
+  exact ((hTspec n).1 (hωSubT n hnω)).right
 
-/- [Enderton, Theorem 4C, p.69] -/
-theorem ω.exists_successor (n : Set) : n ≠ ∅ → Natural n → ∃ (m : Set), m ∈ ω ∧ n = m⁺ := by
-  intro hneqe hnat
-  have hT : ∃ (T : Set), ∀ (n : Set), n ∈ T ↔ n ∈ ω ∧ (n = Empty ∨ ∃ (p : Set), p ∈ ω ∧ n = p⁺) := by
-    apply comprehension
-  obtain ⟨T, hT⟩ := hT
-  have hTn : n ∈ T ↔ n ∈ ω ∧ (n = Empty ∨ ∃ p, p ∈ ω ∧ n = p⁺) := by apply hT n
-  have hTinductive : Inductive T := by
-    rw [Inductive]
-    apply And.intro
-    · have he : ∅ ∈ ω := by
-        rw [ω.Spec]
-        intro A hA
-        rw [Inductive] at hA
-        exact hA.left
-      aesop
-    · intro k hk
-      rw [hT] at hk
-      obtain ⟨hk, h⟩ := hk
-      cases h with
-        | inl h =>
-          rw [h]
-          apply (hT (∅⁺)).mpr
-          apply And.intro
-          · rw [ω.Spec, Natural]
-            intro A hA
-            rw [Inductive] at hA
-            obtain ⟨hA₁, hA₂⟩ := hA
-            apply hA₂ ∅
-            exact hA₁
-          · aesop
-        | inr h =>
-          apply (hT (k⁺)).mpr
-          apply And.intro
-          · rw [ω.Spec, Natural]
-            intro A hA
-            obtain ⟨hA₁, hA₂⟩ := hA
-            apply hA₂ k
-            rw [ω.Spec, Natural] at hk
-            apply hk A
-            rw [Inductive]
-            exact And.intro hA₁ hA₂
-          · aesop
-  have hnT : n ∈ T := by
-    rw [Natural] at hnat
-    apply hnat T hTinductive
-  rw [hT] at hnT
-  obtain ⟨_, h⟩ := hnT
-  cases h with
-    | inl h => contradiction
-    | inr h => exact h
+/- [Enderton, Theorem 4C, p.69]
+
+   Every natural number other than `∅` is the successor of some natural
+   number. Textbook proof: apply the Induction Principle for `ω` to the
+   predicate `P n := n = ∅ ∨ ∃ p ∈ ω, n = p⁺`; the base case is the
+   left disjunct, and the inductive step uses the witness `p := k`. -/
+theorem thm_4C_omega_exists_successor (n : Set) :
+    n ≠ ∅ → Natural n → ∃ (m : Set), m ∈ ω ∧ n = m⁺ := by
+  intro hne hnat
+  have hnω : n ∈ ω := ω.Spec.mpr hnat
+  have hP : ∀ k, k ∈ ω → (k = Set.Empty ∨ ∃ p, p ∈ ω ∧ k = p⁺) := by
+    apply ω_induction (fun k => k = Set.Empty ∨ ∃ p, p ∈ ω ∧ k = p⁺)
+    · left
+      rfl
+    · intro k hkω _
+      right
+      exact ⟨k, hkω, rfl⟩
+  rcases hP n hnω with h | h
+  · exact absurd h hne
+  · exact h
 
 end Set

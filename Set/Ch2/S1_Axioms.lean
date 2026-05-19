@@ -21,8 +21,8 @@ namespace Set
 
 noncomputable def Empty : Set := Classical.choose empty
 
-@[simp] lemma Empty.Spec {x : Set} : x ∉ Empty := by
-  exact (Classical.choose_spec empty) x
+@[simp] lemma Empty.Spec {x : Set} : x ∉ Empty :=
+  (Classical.choose_spec empty) x
 attribute [set_spec_simps] Empty.Spec
 
 -- Every empty set is equal to `∅` (empty set uniqueness in definitional form).
@@ -51,8 +51,8 @@ notation "∅" => Empty
 noncomputable def Pair (u v : Set) : Set := Classical.choose (pairing u v)
 notation:max "{" x ", " y "}" => Pair x y
 
-@[simp] lemma Pair.Spec {u v x : Set} : x ∈ Pair u v ↔ x = u ∨ x = v := by
-  exact (Classical.choose_spec (pairing u v)) x
+@[simp] lemma Pair.Spec {u v x : Set} : x ∈ Pair u v ↔ x = u ∨ x = v :=
+  (Classical.choose_spec (pairing u v)) x
 attribute [set_spec_simps] Pair.Spec
 
 -- Any set with the pair-membership specification is equal to `Pair u v`.
@@ -89,8 +89,8 @@ attribute [set_spec_simps] Singleton.Spec
 
 noncomputable def Power (A : Set) : Set := Classical.choose (power A)
 
-@[simp] lemma Power.Spec {A x : Set} : x ∈ Power A ↔ x ⊆ A := by
-  exact (Classical.choose_spec (power A)) x
+@[simp] lemma Power.Spec {A x : Set} : x ∈ Power A ↔ x ⊆ A :=
+  (Classical.choose_spec (power A)) x
 attribute [set_spec_simps] Power.Spec
 
 -- Any set with the power-set membership specification is equal to `Power A`.
@@ -118,8 +118,8 @@ prefix:75 "𝒫" => Power
 
 noncomputable def Union (A B : Set) : Set := Classical.choose (union_preliminary A B)
 
-@[simp] lemma Union.Spec {A B x : Set} : x ∈ Union A B ↔ x ∈ A ∨ x ∈ B := by
-  exact (Classical.choose_spec (union_preliminary A B)) x
+@[simp] lemma Union.Spec {A B x : Set} : x ∈ Union A B ↔ x ∈ A ∨ x ∈ B :=
+  (Classical.choose_spec (union_preliminary A B)) x
 attribute [set_spec_simps] Union.Spec
 
 theorem union_eq_union (A B U : Set)
@@ -228,7 +228,7 @@ infix:70 " - " => Difference
 
 
 /- There is no set to which every set belongs. [Enderton, Theorem 2A] -/
-theorem no_universal_set : ¬ ∃ (A : Set), ∀ (x : Set), x ∈ A := by
+theorem thm_2A_no_universal_set : ¬ ∃ (A : Set), ∀ (x : Set), x ∈ A := by
   intro h
   obtain ⟨A, hA⟩ := h
   have hB : ∃ (B : Set), ∀ (x : Set), x ∈ B ↔ x ∈ A ∧ x ∉ x := by apply comprehension
@@ -239,5 +239,8 @@ theorem no_universal_set : ¬ ∃ (A : Set), ∀ (x : Set), x ∈ A := by
     exact (h.mp hBB).2 hBB
   have hBB : B ∈ B := h.mpr ⟨hA B, hnBB⟩
   exact hnBB hBB
+
+theorem no_universal_set : ¬ ∃ (A : Set), ∀ (x : Set), x ∈ A :=
+  thm_2A_no_universal_set
 
 end Set

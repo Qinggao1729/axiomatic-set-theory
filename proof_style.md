@@ -10,7 +10,7 @@ This file records preferred proof style choices for this project.
 - Avoid heavy automation (`aesop`) in core theorem statements unless truly needed.
 - `simp` / `simpa` / `simp_all` are allowed (and preferred) to collapse consecutive
   rewrites, including rewrites spread across hypotheses and goals.
-- Try not to use `Classical`
+- Avoid unnecessary `Classical`; use it deliberately when the mathematics is genuinely nonconstructive (especially AC-facing proofs).
 
 ## Core Summary (Quick version)
 
@@ -31,6 +31,10 @@ This file records preferred proof style choices for this project.
   over one complicated `exact` expression.
 - Avoid long `exact (...)` expressions; prefer `refine`/`apply` to expose proof structure.
 - Avoid complicated `exact (...)`, long `rw` chains, and unnecessary `have`.
+- For intermediate steps, avoid both
+  `have h : T := by exact ...` and `have h : T := (very long exact term ...)`.
+  Prefer short direct assignment (`have h : T := ...`) or a small tactic block when needed.
+- One-line declaration style is flexible (`:= by ...` vs direct term) when readability is clear.
 - Use `aesop?` only to discover an idea, then rewrite the final proof cleanly.
 
 ## Agent Proof Protocol (MUST follow)
@@ -47,6 +51,8 @@ Before writing any new proof, do this checklist in order:
    - prefer a short `rw` + `apply` chain using existing results over hand-written logical plumbing
    - if a repetitive micro-pattern appears in multiple branches, stop and factor it into a
      helper lemma first, then replace repeated blocks with that lemma
+  - for nontrivial goals, explicitly ask first: "is this already proved in this file/chapter?"
+    before opening definitions again
 4. **If not immediately clear, write a 1-2 sentence human proof sketch first**:
    - identify the key reduction and which existing theorem should discharge it
    - then encode that sketch in Lean
@@ -70,6 +76,14 @@ Before writing any new proof, do this checklist in order:
 9. **If stuck**:
    - try `aesop?` as search only
    - then rewrite the final proof into explicit + `simp` style (do not keep opaque automation output)
+
+10. **Respect namespace-level axiom boundaries**:
+   - AC-dependent declarations should live in `namespace Choice` only when they truly invoke AC
+   - AC-free declarations should stay in plain `namespace Set`
+   - if a theorem can be proved without AC, do not place it in `Choice` just for convenience
+   - when introducing a section where AC is used historically, `#check` AC declarations at the
+     introduction point so usage is explicit in the file's narrative flow
+
 
 Hard constraints for core files:
 
@@ -122,6 +136,50 @@ For objects built from an existence axiom (for example empty set, pair, power se
     - `exact hx`
 - When this pattern works cleanly, prefer it over long manual `rcases`/`cases` chains.
 
+## Set-Theoretic Notation Summary
+
+- **Core membership/subset:** `x ∈ A`, `x ∉ A`, `A ⊆ B`.
+- **Basic sets/ops:** `∅`, `{x}`, `{x, y}`, `𝒫 A`, `A ∪ B`, `A ∩ B`, `A - B`.
+- **Arbitrary unions/intersections:** `⋃A`, `⋂A`.
+- **Ordered pairs and product:** `⟪x, y⟫` (preferred in section proofs), legacy alias `⟨x, y⟩`, and Cartesian product `A ⨯ B`.
+- **Relation operators:** `dom R`, `ran R`, `fld R`.
+- **Successor/naturals:** `a⁺`, `ω`, `zero_ω`, `one_ω`.
+- **Function-style relation operators:** `F⁻¹`, `F ∘ G`, `F ↾ C`, `F⟦C⟧`.
+- **Quotient/equivalence notation:** `[x]₍R₎`, `A / R`.
+- **Chapter 5 numeric carriers:** `ℤ`, `ℤ'`, `ℚ`, `ℝ` and their operations (`+_ℤ`, `·_ℤ`, `<_ℤ`, etc.).
+
+## Textbook Citation Comment Format
+
+- For theorem declarations in chapter files, place a one-line Enderton citation comment
+  immediately above the `theorem` line, using this exact block-comment style:
+  - `/- [Enderton, Theorem 4E, p.72] -/`
+- If the result is a textbook component/derived helper (not a standalone numbered theorem),
+  still include theorem name context and pages:
+  - `/- [Enderton, Theorem 4K (component: commutativity of addition), pp.82-83] -/`
+- Keep citation comments concise:
+  - source (`Enderton`), theorem label/name, page or page range
+  - no extra narrative in the citation line.
+
+## Numbered Declaration Naming
+
+- If a declaration corresponds to an explicitly numbered Enderton result, the primary
+  declaration name should start with that number label.
+- Preferred short prefixes for numbered declarations:
+  - theorem: `thm_<number>_<name>`
+  - lemma: `lem_<number>_<name>`
+  - corollary: `cor_<number>_<name>`
+  - axiom: `ax_<number>_<name>`
+  - Examples: `thm_3E_domain_inverse`, `lem_4L_a_natural_succ_mem_iff`,
+    `cor_4P_add_right_cancel`, `ax_2A_no_universal_set`.
+- Number token formatting:
+  - keep chapter/theorem letters (for example `3E`, `4K`, `5QF`);
+  - flatten parenthesized parts with underscores (for example `4L(a)` -> `4L_a`).
+- Use this rule only when the numbering is explicitly known from the source/comment.
+  Do not guess theorem numbers.
+- For high-churn foundational names used widely across chapters, temporary compatibility
+  aliases are acceptable during refactors; after migration, new references should prefer
+  the short numbered primary declaration.
+
 ## Simp Usage
 
 - Good candidates for `@[simp]`:
@@ -133,6 +191,9 @@ For objects built from an existence axiom (for example empty set, pair, power se
   `bigUnion_pair` / `bigIntersection_pair` by default:
   - these are useful rewrite facts, but not canonical simplification rules.
   - keep them as ordinary theorems and invoke them explicitly (`rw`/`simp [theorem]`) when needed.
+- Prefer `@[simp]` for canonical membership specifications (`*.Spec`) and similar
+  definitional normal forms; avoid promoting algebraic laws (e.g. commutativity/associativity)
+  to global simp rules unless there is a strong, local justification.
 
 ## Implementation Preferences (Core Files)
 
@@ -145,6 +206,9 @@ For objects built from an existence axiom (for example empty set, pair, power se
 - For primitive notations, prefer direct forms that do not introduce extra wrapper layers
   in day-to-day proofs (for example keep `∉` as direct function-style notation) unless there is a
   concrete metaprogramming reason to introduce a named wrapper.
+- For ordered tuples/pairs in section code from `Set/Ch3/S4_Functions.lean` onward, prefer
+  `⟪x, y⟫` notation over `⟨x, y⟩` so ordered pairs are visually distinct from Lean constructor
+  tuples used for `∧`/`∃` witnesses.
 - Avoid frequent `have` blocks when the same effect can be achieved inline by `simp`/`simpa`.
 - Avoid long nested function applications and deeply nested tactical blocks.
 - Prefer plain `exact` for direct closures; do not wrap direct closures in `simpa`.

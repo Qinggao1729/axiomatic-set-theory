@@ -46,6 +46,11 @@ axiom comprehension (P : Set → Prop) (c : Set) :
 axiom union : ∀ A : Set, ∃ B : Set, ∀ x : Set, x ∈ B ↔ ∃ b : Set, b ∈ A ∧ x ∈ b
 
 -- [Enderton Ch4 §Inductive Sets, p.68] Infinity axiom (primitive form)
+-- Modern/enderton-style shorthand:
+--   (∃A)[∅ ∈ A ∧ (∀a ∈ A) a⁺ ∈ A].
+-- In this primitive file we state it using explicit witnesses `e` and `s`
+-- (empty and successor-like sets). `Set/Ch4/S1_InductiveSets.lean` then
+-- derives the shorthand form as `infinity_inductive : ∃ A, Inductive A`.
 axiom infinity :
   ∃ A : Set,
     (∃ e : Set, (∀ x : Set, x ∉ e) ∧ e ∈ A) ∧

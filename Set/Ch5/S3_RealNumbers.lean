@@ -39,11 +39,11 @@ noncomputable def RealOrderRel : Set := by
   exact Set.Empty
 
 -- [Enderton, Theorem 5RA, p.113]
-theorem theorem_5ℝA : Set.IsLinearOrder RealOrderRel RealSet := by
+theorem thm_5ℝA : Set.IsLinearOrder RealOrderRel RealSet := by
   sorry
 
 -- [Enderton, Theorem 5RB, p.114]
-theorem theorem_5ℝB : True := by
+theorem thm_5ℝB : True := by
   trivial
 
 -- Placeholder operation declarations (full Dedekind-cut algebra development pending).
@@ -56,7 +56,7 @@ theorem lemma_5ℝC : True := by
   trivial
 
 -- [Enderton, Theorem 5RD, p.115]
-theorem theorem_5ℝD : True := by
+theorem thm_5ℝD : True := by
   trivial
 
 noncomputable def zero_ℝ : Set := by
@@ -64,22 +64,22 @@ noncomputable def zero_ℝ : Set := by
 noncomputable def one_ℝ : Set := Set.Empty
 
 -- [Enderton, Theorem 5RE, p.116]
-theorem theorem_5ℝE : True := by
+theorem thm_5ℝE : True := by
   trivial
 
 noncomputable def RealNeg : Set := by
   exact Set.Empty
 
 -- [Enderton, Theorem 5RF, p.117]
-theorem theorem_5ℝF : True := by
+theorem thm_5ℝF : True := by
   trivial
 
 -- [Enderton, Corollary 5RG, p.118]
-theorem corollary_5ℝG : True := by
+theorem cor_5ℝG : True := by
   trivial
 
 -- [Enderton, Theorem 5RH, p.118]
-theorem theorem_5ℝH : True := by
+theorem thm_5ℝH : True := by
   trivial
 
 noncomputable def RealMul : Set := by
@@ -92,11 +92,11 @@ infixl:70 " ·_ℝ " => mul_ℝ
 infix:50 " <_ℝ " => lt_ℝ
 
 -- [Enderton, Theorem 5RI, p.119]
-theorem theorem_5ℝI : True := by
+theorem thm_5ℝI : True := by
   trivial
 
 -- [Enderton, Theorem 5RJ, p.119]
-theorem theorem_5ℝJ : True := by
+theorem thm_5ℝJ : True := by
   trivial
 
 end Set
