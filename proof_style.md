@@ -109,6 +109,32 @@ For objects built from an existence axiom (for example empty set, pair, power se
 4. Prove existence-and-uniqueness theorem:
    - Examples: `empty_unique`, `pair_unique`, `power_unique`.
 
+## Conditional Definitions (Textbook-Hypothesis-Carrying)
+
+When the textbook only defines an object *under a hypothesis* (e.g. Enderton
+introduces `A / R` and the natural map only when `R` is an equivalence
+relation on `A`), build the hypothesis into the `def` as a trailing
+explicit proof argument, passed through the notation:
+
+- `def QuotientSet (A R : Set) (_hEq : IsEquivalenceRelation R A) : Set := ...`
+  with notation `A / R ∵ h` (`∵` reads "because"; it marks `h` as a proof,
+  visually distinct from set-valued subscripts like `[x]₍R₎` and from the
+  function-value `'(...)` symbol).
+- No tactic discharge: the hypothesis is usually a named hypothesis in
+  context, so it is simply written. By proof irrelevance the object does not
+  depend on which proof is passed.
+- Theorem statements mentioning such notation must bind the hypothesis
+  *before* the colon (named binder, not `→`-form), so the name is in scope
+  in the statement.
+- In proofs, do not `rcases`/`obtain` away a hypothesis the goal depends on;
+  copy it first and destructure the copy
+  (`have hEq' := hEq; obtain ⟨...⟩ := hEq'`).
+- Spec lemmas take the proof as an implicit binder appearing in the LHS
+  pattern (e.g. `{hEq} : Q ∈ A / R ∵ hEq ↔ ...`), so `simp` unifies it with
+  whatever proof occurs in the goal.
+- Add an `app_unexpander` to print the notation (`A / R ∵ h`) instead of the
+  kernel-style application.
+
 ## Readability Conventions
 
 - Use semantic names for local equivalences:
@@ -116,6 +142,12 @@ For objects built from an existence axiom (for example empty set, pair, power se
 - Use semantic names for hypotheses:
   - `hxA`, `hxP`, `hySingleton`, etc.
 - Prefer short, local transformations over tactic-heavy "magic."
+- After destructuring an equation `h : a = X` where `a` is a local variable,
+  prefer `subst h` over carrying the equation through `simpa [h]`/`calc`
+  shuffling — it removes the variable and lets later steps be `exact`.
+- Make a variable implicit when it is fully determined by the type of an
+  explicit hypothesis argument (e.g. `{R A x y}` in Lemma 3N are forced by
+  `hEq : IsEquivalenceRelation R A`, `hxA : x ∈ A`, `hyA : y ∈ A`).
 - For theorem statements that are naturally membership equivalences, prefer
   textbook-style equational chains (`calc`):
   - e.g. `x ∈ ⋃(Pair A B) ↔ ... ↔ x ∈ A ∪ B`.
@@ -145,20 +177,27 @@ For objects built from an existence axiom (for example empty set, pair, power se
 - **Relation operators:** `dom R`, `ran R`, `fld R`.
 - **Successor/naturals:** `a⁺`, `ω`, `zero_ω`, `one_ω`.
 - **Function-style relation operators:** `F⁻¹`, `F ∘ G`, `F ↾ C`, `F⟦C⟧`.
-- **Quotient/equivalence notation:** `[x]₍R₎`, `A / R`.
+- **Quotient/equivalence notation:** `[x]₍R₎`, `A / R ∵ h` (where `h : IsEquivalenceRelation R A`).
 - **Chapter 5 numeric carriers:** `ℤ`, `ℤ'`, `ℚ`, `ℝ` and their operations (`+_ℤ`, `·_ℤ`, `<_ℤ`, etc.).
 
 ## Textbook Citation Comment Format
 
-- For theorem declarations in chapter files, place a one-line Enderton citation comment
-  immediately above the `theorem` line, using this exact block-comment style:
-  - `/- [Enderton, Theorem 4E, p.72] -/`
-- If the result is a textbook component/derived helper (not a standalone numbered theorem),
-  still include theorem name context and pages:
-  - `/- [Enderton, Theorem 4K (component: commutativity of addition), pp.82-83] -/`
-- Keep citation comments concise:
-  - source (`Enderton`), theorem label/name, page or page range
-  - no extra narrative in the citation line.
+- For every declaration (`def`/`theorem`/`lemma`/`axiom`/`abbrev`) that corresponds to a
+  textbook definition/theorem/lemma/corollary, place a Lean **doc-comment** (`/-- ... -/`,
+  not `/- ... -/`) immediately above the declaration, in this exact form:
+  - `/-- [Enderton ChN §M, p.PP] "literal textbook wording." -/`
+  - The bracket is `[Enderton Ch<chapter> §<section>, p.<page-or-range>]`
+    (e.g. `[Enderton Ch3 §7, p.62]`, `[Enderton Ch4 §1, pp.68-69]`).
+  - Follow the bracket with the relevant textbook statement quoted **literally** in double
+    quotes. Use backtick code spans for symbols inside the prose where it aids readability.
+- Exemplars (study these for the exact look): `Set/Ch3/S7_OrderingRelations.lean`,
+  `Set/Ch4/S1_InductiveSets.lean`.
+- After the literal quote, a short clarifying sentence is allowed (e.g. to record a
+  deviation, a defined-here-because note, or the proof idea when the book gives none), but
+  keep the literal quote first.
+- For a derived helper / component of a numbered result (not a standalone numbered theorem),
+  still cite the parent result and pages, e.g.
+  `/-- [Enderton Ch4 §4, pp.82-83] "Theorem 4K (commutativity of addition)" ... -/`.
 
 ## Numbered Declaration Naming
 
@@ -169,11 +208,12 @@ For objects built from an existence axiom (for example empty set, pair, power se
   - lemma: `lem_<number>_<name>`
   - corollary: `cor_<number>_<name>`
   - axiom: `ax_<number>_<name>`
-  - Examples: `thm_3E_domain_inverse`, `lem_4L_a_natural_succ_mem_iff`,
+  - Examples: `thm_3E_domain_inverse`, `lem_4La_natural_succ_mem_iff`,
     `cor_4P_add_right_cancel`, `ax_2A_no_universal_set`.
 - Number token formatting:
   - keep chapter/theorem letters (for example `3E`, `4K`, `5QF`);
-  - flatten parenthesized parts with underscores (for example `4L(a)` -> `4L_a`).
+  - attach a parenthesized sub-label directly to the number token with no separator
+    (for example `4L(a)` -> `4La`, `3K(b)` -> `3Kb`, `3J(a)` -> `3Ja`).
 - Use this rule only when the numbering is explicitly known from the source/comment.
   Do not guess theorem numbers.
 - For high-churn foundational names used widely across chapters, temporary compatibility
@@ -182,10 +222,31 @@ For objects built from an existence axiom (for example empty set, pair, power se
 
 ## Simp Usage
 
+- `Spec` vs `Spec_full` convention for comprehension-based objects:
+  - If a definition is `Comprehension P carrier`, prefer:
+    - `*.Spec_full`: includes the carrier conjunct (e.g. `x ∈ carrier ∧ ...`).
+    - `*.Spec`: drops the carrier conjunct and keeps the semantic part used in
+      most proofs.
+  - Keep `*.Spec` as the default lemma for rewriting and simp usage; use
+    `*.Spec_full` only when a proof explicitly needs carrier membership.
+  - Naming should mirror existing style:
+    `Product.Spec_full` / `Product.Spec`,
+    `InfiniteProduct.Spec_full` / `InfiniteProduct.Spec`.
+
 - Good candidates for `@[simp]`:
   - canonical spec lemmas like `Empty.Spec`, `Pair.Spec`, `Singleton.Spec`, `Power.Spec`.
 - Use the custom simp set `set_spec_simps` to accumulate `*.Spec` lemmas and simplify
   spec expansions consistently (`simp only [set_spec_simps]`, `simp_all only [set_spec_simps]`).
+- For `f(x)` side-condition automation (`IsFunction f`, `x ∈ dom f`), place only
+  relevant non-`*.Spec` bridge lemmas in `function_eval_sideconds`, and run
+  `simp_all [function_eval_sideconds]` first, then
+  `simp_all [set_spec_simps, function_eval_sideconds]`; if these fail, fall back to
+  controlled `simp_all only [...]` with `prop_simps` for core propositional
+  rewrites.
+- Use `function_eval_auto` for routine discharge of these side conditions; use
+  `function_eval_auto?` when you want `simp?`-style suggestion logs first.
+- If repeated `F⟮x⟯` use leads to `maxHeartbeats` timeouts, see the section
+  "`F⟮x⟯` / `FunctionValue` unification timeouts" below.
 - Avoid `@[simp]` on uniqueness theorems (`*_unique`) or large conditional equality lemmas by default.
 - Also avoid `@[simp]` on bridge/equivalence theorems like
   `bigUnion_pair` / `bigIntersection_pair` by default:
@@ -194,6 +255,91 @@ For objects built from an existence axiom (for example empty set, pair, power se
 - Prefer `@[simp]` for canonical membership specifications (`*.Spec`) and similar
   definitional normal forms; avoid promoting algebraic laws (e.g. commutativity/associativity)
   to global simp rules unless there is a strong, local justification.
+
+## `F⟮x⟯` / `FunctionValue` unification timeouts
+
+This documents a `maxHeartbeats` timeout that can arise from the automatic
+function-application notation. The live example is `Set/Ch3/S6_Equivalence.lean`
+(theorem 3Q, uniqueness branch), which uses the recommended fix below, so the code
+there no longer shows the failure — this note preserves the reasoning.
+
+### Setup
+
+`F⟮x⟯` is notation that expands to
+`FunctionValue F x ⟨by function_eval_auto, by function_eval_auto⟩`. Two facts about
+this expansion drive the problem:
+
+- Each written occurrence carries its own `by function_eval_auto` tactic blocks, so
+  it independently *re-runs* the search that proves the side conditions
+  `IsFunction F` and `x ∈ dom F`. The notation has no cache; nothing is shared
+  between occurrences.
+- `FunctionValue` is defined as `FunctionValue F x h := Classical.choose (h.1.2 x h.2)`,
+  i.e. its value is extracted from the side-condition proof `h` via `Classical.choose`
+  (this is also why it is `noncomputable`).
+
+### What goes wrong
+
+When two independently-written `F⟮x⟯` occurrences must be reconciled — e.g. one is
+fed to a lemma like `function_value_unique` whose argument type forces it to match
+another — the searches typically produce *different* proof terms `h₁` and `h₂`, and
+the unifier is left having to check `FunctionValue F x h₁ = FunctionValue F x h₂`.
+
+For reference, the lemma's signature is:
+
+```lean
+lemma function_value_unique (F x y z : Set) (hF : IsFunction F) :
+    ⟪x, y⟫ ∈ F → ⟪x, z⟫ ∈ F → y = z
+```
+
+The reconciliation happens because the final argument has type `⟪x, z⟫ ∈ F`: when
+you pass a hypothesis whose value already contains one `F⟮x⟯` term, `z` must unify
+with it, so writing a *second* `F⟮x⟯` for `z` forces the comparison of two
+independently-built `FunctionValue` terms.
+
+That equation is *true*, and it is *decidable*: by proof irrelevance `h₁` and `h₂`
+are interchangeable, and `isDefEq` always terminates. The two terms are therefore
+**comparable, not incomparable** — the issue is purely that the cheap route is not
+taken, so it needs far more time than the heartbeat budget allows. Concretely the
+proof-irrelevance shortcut fails to fire because `FunctionValue F x h` unfolds to
+`Classical.choose (h.1.2 x h.2)`, which is:
+
+- **opaque** — `Classical.choose` is irreducible (there is no algorithm that
+  computes its value), so the two terms never reduce to a common normal form that
+  the unifier could compare directly; and
+- **embeds `h`** — once unfolded, the proof `h` is no longer a clean top-level
+  argument of `FunctionValue`; it lives *inside* the argument to `Classical.choose`
+  (as `h.1.2 x h.2`). The cheap "both arguments are proofs ⇒ equal by proof
+  irrelevance" rule applies only at a top-level argument position, so it no longer
+  fires; the unifier instead digs into the buried subterm and reduces the `dom F`
+  comprehension machinery appearing in the proofs' types.
+
+The unifier then delta-unfolds and grinds until it exceeds `maxHeartbeats`. (In
+principle a large enough `maxHeartbeats` would let it finish, confirming this is a
+budget overrun, not an impossibility.)
+
+### Where the error is reported
+
+`maxHeartbeats` is cumulative over a tactic block, so the timeout is frequently
+*blamed* on a later step — `subst`, `exact`, even a `rcases` in the next branch —
+than the term-building step that actually burned the budget. Do not trust the
+reported line; fix the occurrence that builds the heavy term.
+
+### Fixes
+
+1. **Keep both side-condition facts in context** (recommended). Add
+   `have hFfun : IsFunction F := ...` and `have hxDomF : x ∈ dom F := ...` before
+   the `F⟮x⟯` uses. Every `function_eval_auto` then closes by assumption and builds
+   the *same* proof term `⟨hFfun, hxDomF⟩`, so all `F⟮x⟯` occurrences become
+   syntactically identical and unify trivially. This keeps `F⟮x⟯` notation uniform
+   across the proof.
+2. **Pass the argument as `_`.** Instead of writing a second `F⟮x⟯`, pass `_` and
+   let Lean unify the metavariable with an `F⟮x⟯` term already present in a
+   hypothesis (e.g. the membership fact handed to `function_value_unique`). No
+   second term is built, so neither the re-search nor the opaque comparison happens.
+   Leaner, but breaks notation uniformity.
+
+Prefer (1) for readability and uniform notation; use (2) when minimizing extra
+`have`s matters.
 
 ## Implementation Preferences (Core Files)
 

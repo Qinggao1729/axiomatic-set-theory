@@ -37,12 +37,11 @@ Default library target is **`Set`** (see `lakefile.toml`). A full `lake build` t
 
 | Path | Role |
 |------|------|
-| `Set.lean` | **Root import:** pulls in `Set.Axioms`, `Set.Basic`, and aggregators `Set.Ch2` … `Set.Ch5`. |
+| `Set.lean` | **Root import:** pulls in `Set.Axioms` and aggregators `Set.Ch2`, `Set.Ch3`, `Set.Ch4`. |
 | `Set/Axioms.lean` | **Primitive layer:** `Set`, `∈`, `⊆`, and **Ch2 axioms** (extensionality, empty, pairing, union, power, comprehension), plus the primitive witness-form Infinity axiom. |
 | `Set/Ch2/` | Chapter 2: axioms unpacked into definitions, `Comprehension`, unions/intersections, algebra of sets. |
 | `Set/Ch3/` | Chapter 3: ordered pairs, relations, n-ary relations, functions, choice-related products, equivalence, orderings. |
-| `Set/Ch4/` | Chapter 4: inductive sets, `ω`, Peano, recursion on `ω`, arithmetic, ordering on `ω`. |
-| `Set/Ch5/` | Chapter 5: integers, rationals, reals (scaffold; some `sorry` may remain). |
+| `Set/Ch4/` | Chapter 4: inductive sets, the Infinity axiom, `ω`, and induction on `ω` (S1; later sections planned). |
 | `Set/Ch2.lean`, `Ch3.lean`, … | **Chapter aggregators** — each re-exports that chapter’s section files in order. |
 | `Set/Choice.lean` | Single home for the (six) equivalent forms of AC under the `Set.Choice` sub-namespace. Imported from `Set/Ch3/S4_Functions.lean` (Theorem 3J) and `Set/Ch3/S5_InfiniteCartesianProducts.lean` (infinite products). AC predicates state "function" inline so this file only depends on `Set.Ch3.S2_Relations`, breaking what would otherwise be a circular dependency. |
 | `Set/SimpAttrs.lean` | Custom simp attribute `set_spec_simps` for membership specification lemmas. |
@@ -127,7 +126,7 @@ Read **`proof_style.md`** before writing or refactoring proofs. In short:
 
 ## 9. Known limitations / honesty
 
-- **Chapter 5** and parts of later material may still use **`sorry`** or placeholders; `lake build` can succeed with warnings.
+- **Later chapters** (Chapter 4 Section 2 onward, and Chapter 5) are planned but not yet present in the repository.
 - The primitive **infinity axiom** is declared in `Set/Axioms.lean`; `Set/Ch4/S1_InductiveSets.lean` derives Enderton's literal form as `theorem infinity_inductive : ∃ A, Inductive A`. The chosen witness is `noncomputable def Infinity := Classical.choose infinity_inductive`, with spec `lemma Infinity.Inductive`, mirroring the `Empty`/`Pair`/`Power`/… pattern from `Set/Ch2/S1_Axioms.lean`.
 
 ---

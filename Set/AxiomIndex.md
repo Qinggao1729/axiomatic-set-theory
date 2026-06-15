@@ -39,31 +39,37 @@ Derived Enderton-style theorem in: `Set/Ch4/S1_InductiveSets.lean`
 
 ## Choice and AC-Dependent Assumptions
 
-Canonical declarations live in: `Set/Choice.lean`, under the `Set.Choice`
-sub-namespace (so all references go through `open Choice` or full
-qualification, which marks AC usage at the call site). `Set/Choice.lean`
-is the single intended home for all six equivalent forms of AC
-(Chapter 6 will add the remaining four forms and their equivalence
-theorems). To allow downstream files in Chapter 3 to import this file
-without a circular dependency, the AC predicates state "function"
-inline as `IsRelation H ∧ ∀ x ∈ dom H, ∃! y, ⟪x, y⟫ ∈ H` — definitionally
-equal to `IsFunction H`.
+First-form AC is declared in-place in
+`Set/Ch3/S4_Functions.lean`:
 
-`Set/Ch3/S4_Functions.lean` `#check`s the declarations at the point
-Enderton introduces them (p.49) and reopens `namespace Choice` at the
-bottom of the file for Theorem 3J.
-`Set/Ch3/S5_InfiniteCartesianProducts.lean` `open`s `Choice` once at the
-top for the second-form / infinite-product theorem.
+- `Set.ChoiceFirstForm` (AC-free logical form, plain `Set`)
+- `Set.Choice.choice_first_form` (axiom, in a short `namespace Choice` block)
+
+Form II (multiplicative / infinite-product form) is likewise defined in-place
+in `Set/Ch3/S5_InfiniteCartesianProducts.lean` as `Set.ChoiceSecondForm`,
+with the axiom and AC-dependent consequences in `Set.Choice`.
+
+`Set/Choice.lean` keeps shared AC infrastructure and non-local forms
+(III/IV/VI), using inline function predicates
+`IsRelation H ∧ ∀ x ∈ dom H, ∃! y, ⟪x, y⟫ ∈ H`.
+
+`Set/Ch3/S4_Functions.lean` `#check`s first-form declarations at Enderton's
+introduction point (p.49) and reopens `namespace Choice` again at the bottom
+for Theorem 3J(b).
+`Set/Ch3/S5_InfiniteCartesianProducts.lean` defines AC form II in plain
+`Set` (AC-free statement/equivalence), then enters `Set.Choice` for the
+axiom declaration and AC-dependent consequences.
 
 - `Set.Choice.choice_first_form`
   - First appearance: Ch3 §Functions, p.49 (Axiom of Choice, first form)
-- `Set.Choice.ChoiceSecondForm` (definition-level formal form)
+- `Set.ChoiceSecondForm` (defined in
+  `Set/Ch3/S5_InfiniteCartesianProducts.lean`)
   - First appearance: Ch3 §Infinite Cartesian Products, p.55
-- `Set.thm_3J_a_left_inverse_iff_one_to_one` (proved in
+- `Set.thm_3Ja_left_inverse_iff_one_to_one` (proved in
   `Set/Ch3/S4_Functions.lean`; **AC-free** — kept in the plain `Set`
   namespace because its proof does not invoke `choice_first_form`)
   - Enderton: Theorem 3J(a), p.48
-- `Set.Choice.thm_3J_b_right_inverse_iff_onto` (proved in
+- `Set.Choice.thm_3Jb_right_inverse_iff_onto` (proved in
   `Set/Ch3/S4_Functions.lean`; **uses first-form AC** — placed inside
   the `Choice` namespace precisely because the proof invokes
   `choice_first_form`)
@@ -77,9 +83,9 @@ into 3J(a), or removes it from 3J(b), will be flagged in the build output.
 
 Canonical declarations live in: `Set/Ch3/S6_Equivalence.lean`.
 
-- `quotient_function_exists` (proved theorem)
+- `thm_3Q_compatible_exists_unique_quotient_map` (proved theorem)
   - Enderton: Theorem 3Q (existence/uniqueness direction), pp.60–61
-- `quotient_function_not_exists` (proved theorem)
+- `thm_3Q_incompatible_not_exists_quotient_map` (proved theorem)
   - Enderton: Theorem 3Q (non-compatibility direction), pp.60–61
 
 ---

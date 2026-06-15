@@ -25,7 +25,7 @@ _File formerly named `Enderton_Ch1_3_Todos.md`; it tracks the whole textbook thr
 
 # Chapter 2: Axioms and Operations
 
-## Section 1 (pp. 17–22): Core Axioms + Binary/Subset Operations
+## Section 1 (pp. 17–23): Core Axioms + Binary/Subset Operations
 
 Primary file: `Set/Ch2/S1_Axioms.lean`  
 Primitive declarations live in: `Set/Axioms.lean`
@@ -68,7 +68,7 @@ Primitive declarations live in: `Set/Axioms.lean`
   - **Lean:** `noncomputable def Singleton (x : Set) : Set := Classical.choose (pairing x x)`
 - [x] **Specification (Singleton.Spec):**
   - **Set theory:** $\forall y(y \in \{x\} \Leftrightarrow y = x)$
-  - **Lean:** `lemma Singleton.Spec (x : Set) : ∀ y : Set, y ∈ Singleton x ↔ y = x`
+  - **Lean:** `lemma Singleton.Spec {x y : Set} : y ∈ Singleton x ↔ y = x`
 
 ### Power Set
 
@@ -146,7 +146,7 @@ Primitive declarations live in: `Set/Axioms.lean`
 
 - [x] **No universal set:**
   - **Set theory:** $\neg \exists A\forall x(x \in A)$
-  - **Lean:** `theorem no_universal_set : ¬ ∃ (A : Set), ∀ (x : Set), x ∈ A`
+  - **Lean:** `theorem thm_2A_no_universal_set : ¬ ∃ (A : Set), ∀ (x : Set), x ∈ A`
 
 ## Section 2 (pp. 23–26): Arbitrary Unions and Intersections
 
@@ -177,7 +177,7 @@ Primary file: `Set/Ch2/S2_ArbitraryUnionsIntersections.lean`
   - **Lean:** `noncomputable def BigIntersection (A : Set) (hA : A.Nonempty) : Set := Classical.choose (intersection A hA)`
 - [x] **Uniqueness (Theorem 2B):**
   - **Set theory:** $A \neq \varnothing \Rightarrow \exists! B\forall x\big(x \in B \Leftrightarrow \forall a(a \in A \Rightarrow x \in a)\big)$
-  - **Lean:** `theorem intersection (A : Set) (h : A.Nonempty) : ∃! (B : Set), ∀ (x : Set), x ∈ B ↔ (∀ (a : Set), a ∈ A → x ∈ a)`
+  - **Lean:** `theorem thm_2B_intersection (A : Set) (h : A.Nonempty) : ∃! (B : Set), ∀ (x : Set), x ∈ B ↔ (∀ (a : Set), a ∈ A → x ∈ a)`
 
 ### Derived Properties
 
@@ -266,7 +266,7 @@ Primary file: `Set/Ch2/S3_AlgebraOfSets.lean`
   - **Lean:** `noncomputable def FamilyUnion (A ℬ : Set) : Set := ...`
 - [x] **Specification (FamilyUnion.Spec):**
   - **Set theory:** $t \in \{A \cup X \mid X \in \mathscr{B}\} \Leftrightarrow t \in \mathcal{P}(A \cup \bigcup\mathscr{B}) \land \exists X(X \in \mathscr{B} \land t = A \cup X)$
-  - **Lean:** `lemma FamilyUnion.Spec (A ℬ : Set) : ∀ t : Set, t ∈ FamilyUnion A ℬ ↔ t ∈ 𝒫 (A ∪ ⋃ℬ) ∧ ∃ X : Set, X ∈ ℬ ∧ t = A ∪ X`
+  - **Lean:** `lemma FamilyUnion.Spec {A ℬ t : Set} : t ∈ FamilyUnion A ℬ ↔ t ∈ 𝒫 (A ∪ ⋃ℬ) ∧ ∃ X : Set, X ∈ ℬ ∧ t = A ∪ X`
 - [x] **Nonempty (FamilyUnion):**
   - **Set theory:** $\mathscr{B}\neq\varnothing \Rightarrow \{A \cup X \mid X \in \mathscr{B}\}\neq\varnothing$
   - **Lean:** `theorem FamilyUnion.nonempty (A ℬ : Set) (hℬ : ℬ.Nonempty) : (FamilyUnion A ℬ).Nonempty`
@@ -275,13 +275,13 @@ Primary file: `Set/Ch2/S3_AlgebraOfSets.lean`
   - **Lean:** `noncomputable def FamilyInter (A ℬ : Set) : Set := ...`
 - [x] **Specification (FamilyInter.Spec):**
   - **Set theory:** $t \in \{A \cap X \mid X \in \mathscr{B}\} \Leftrightarrow t \in \mathcal{P}(A) \land \exists X(X \in \mathscr{B} \land t = A \cap X)$
-  - **Lean:** `lemma FamilyInter.Spec (A ℬ : Set) : ∀ t : Set, t ∈ FamilyInter A ℬ ↔ t ∈ 𝒫 A ∧ ∃ X : Set, X ∈ ℬ ∧ t = A ∩ X`
+  - **Lean:** `lemma FamilyInter.Spec {A ℬ t : Set} : t ∈ FamilyInter A ℬ ↔ t ∈ 𝒫 A ∧ ∃ X : Set, X ∈ ℬ ∧ t = A ∩ X`
 - [x] **Definition (FamilyDiff):**
   - **Set theory:** $\{C - X \mid X \in \mathscr{A}\}$
   - **Lean:** `noncomputable def FamilyDiff (C 𝒜 : Set) : Set := ...`
 - [x] **Specification (FamilyDiff.Spec):**
   - **Set theory:** $t \in \{C - X \mid X \in \mathscr{A}\} \Leftrightarrow t \in \mathcal{P}(C) \land \exists X(X \in \mathscr{A} \land t = C - X)$
-  - **Lean:** `lemma FamilyDiff.Spec (C 𝒜 : Set) : ∀ t : Set, t ∈ FamilyDiff C 𝒜 ↔ t ∈ 𝒫 C ∧ ∃ X : Set, X ∈ 𝒜 ∧ t = C - X`
+  - **Lean:** `lemma FamilyDiff.Spec {C 𝒜 t : Set} : t ∈ FamilyDiff C 𝒜 ↔ t ∈ 𝒫 C ∧ ∃ X : Set, X ∈ 𝒜 ∧ t = C - X`
 - [x] **Nonempty (FamilyDiff):**
   - **Set theory:** $\mathscr{A}\neq\varnothing \Rightarrow \{C - X \mid X \in \mathscr{A}\}\neq\varnothing$
   - **Lean:** `theorem FamilyDiff.nonempty (C 𝒜 : Set) (h𝒜 : 𝒜.Nonempty) : (FamilyDiff C 𝒜).Nonempty`
@@ -302,7 +302,7 @@ Primary file: `Set/Ch2/S3_AlgebraOfSets.lean`
 
 # Chapter 3: Relations and Functions
 
-## Ordered Pairs (pp. 35–38)
+## Ordered Pairs (pp. 35–39)
 
 Primary file: `Set/Ch3/S1_OrderedPairs.lean`
 Note: internal helper lemmas are intentionally omitted from this checklist.
@@ -312,16 +312,16 @@ Note: internal helper lemmas are intentionally omitted from this checklist.
   - **Lean:** `noncomputable def OrderedPair (x y : Set) : Set := Pair (Singleton x) (Pair x y)`
 - [x] **Specification (OrderedPair.Spec):**
   - **Set theory:** $\forall w\,(w \in \langle x, y\rangle \Leftrightarrow w = \{x\} \lor w = \{x,y\})$
-  - **Lean:** `lemma OrderedPair.Spec (x y : Set) : ∀ w, w ∈ OrderedPair x y ↔ w = Singleton x ∨ w = Pair x y`
+  - **Lean:** `lemma OrderedPair.Spec {x y w : Set} : w ∈ OrderedPair x y ↔ w = Singleton x ∨ w = Pair x y`
 - [x] **Notation (preferred ordered pair syntax):**
   - **Set theory:** Use $\langle x, y \rangle$ as textbook notation.
   - **Lean:** `notation:90 "⟪" x ", " y "⟫" => OrderedPair x y`
 - [x] **Theorem 3A (uniqueness):**
   - **Set theory:** $\langle u, v \rangle = \langle x, y \rangle \Leftrightarrow (u = x \land v = y)$
-  - **Lean:** `theorem OrderedPair.uniqueness (u v x y : Set) : ⟪u, v⟫ = ⟪x, y⟫ ↔ u = x ∧ v = y`
+  - **Lean:** `theorem thm_3A_ordered_pair_uniqueness (u v x y : Set) : ⟪u, v⟫ = ⟪x, y⟫ ↔ u = x ∧ v = y`
 - [x] **Lemma 3B:**
   - **Set theory:** $x \in C \land y \in C \Rightarrow \langle x, y \rangle \in \mathcal{P}\mathcal{P}C$
-  - **Lean:** `lemma OrderedPair.in_power_power (x y C : Set) : x ∈ C → y ∈ C → OrderedPair x y ∈ Power (Power C)`
+  - **Lean:** `lemma lem_3B_ordered_pair_in_power_power (x y C : Set) : x ∈ C → y ∈ C → OrderedPair x y ∈ Power (Power C)`
 - [x] **Corollary 3C (existence of product carrier):**
   - **Set theory:** $\exists C\,\forall w\,(w \in C \Leftrightarrow w \in \mathcal{P}\mathcal{P}(A \cup B) \land \exists x\exists y\,(x \in A \land y \in B \land w=\langle x,y\rangle))$
   - **Lean:** `lemma OrderedPair.product (A B : Set) : ∃ C, ∀ w, w ∈ C ↔ w ∈ 𝒫 𝒫 (A ∪ B) ∧ ∃ x y, x ∈ A ∧ y ∈ B ∧ w = ⟪x, y⟫`
@@ -330,7 +330,7 @@ Note: internal helper lemmas are intentionally omitted from this checklist.
   - **Lean:** `noncomputable def Product (A B : Set) : Set := Classical.choose (OrderedPair.product A B)`
 - [x] **Specification (Product.Spec):**
   - **Set theory:** $\forall w\,(w \in A \times B \Leftrightarrow \exists x\exists y\,(x \in A \land y \in B \land w=\langle x,y\rangle))$
-  - **Lean:** `lemma Product.Spec (A B : Set) : ∀ w, w ∈ Product A B ↔ ∃ x y, x ∈ A ∧ y ∈ B ∧ w = ⟪x, y⟫`
+  - **Lean:** `lemma Product.Spec {A B w : Set} : w ∈ Product A B ↔ ∃ x y, x ∈ A ∧ y ∈ B ∧ w = ⟪x, y⟫`
 
 ## Relations (pp. 39–41)
 
@@ -338,37 +338,37 @@ Primary file: `Set/Ch3/S2_Relations.lean`
 
 - [x] **Lemma 3D:**
   - **Set theory:** $\langle x, y \rangle \in A \Rightarrow x \in \bigcup\bigcup A \land y \in \bigcup\bigcup A$
-  - **Lean:** `lemma OrderedPair.in_union_union (x y A : Set) : ⟨x, y⟩ ∈ A → x ∈ ⋃⋃A ∧ y ∈ ⋃⋃A`
+  - **Lean:** `lemma lem_3D_ordered_pair_in_union_union (x y A : Set) : ⟪x, y⟫ ∈ A → x ∈ ⋃⋃A ∧ y ∈ ⋃⋃A`
 - [x] **Definition (Relation):**
   - **Set theory:** $R$ is a relation iff $\forall w \in R\exists x\exists y(w = \langle x, y \rangle)$
   - **Lean:** `def IsRelation (R : Set) : Prop := ∀ w, w ∈ R → ∃ x y, w = ⟪x, y⟫`
 - [x] **Definition (Domain):**
   - **Set theory:** $\operatorname{dom}(R)=\{x \mid \exists y\,\langle x,y\rangle\in R\}$
-  - **Lean:** `noncomputable def Relation.Domain (R : Set) : Set := ...`
+  - **Lean:** `noncomputable def Domain (R : Set) : Set := ...`
 - [x] **Specification (Domain.Spec):**
   - **Set theory:** $x \in \operatorname{dom}(R) \Leftrightarrow \exists y\,\langle x,y\rangle\in R$
-  - **Lean:** `lemma Relation.Domain.Spec (R : Set) : ∀ x, x ∈ Relation.Domain R ↔ ∃ y, ⟪x, y⟫ ∈ R`
+  - **Lean:** `lemma Domain.Spec {R x : Set} : x ∈ Domain R ↔ ∃ y, ⟪x, y⟫ ∈ R`
 - [x] **Notation (Domain):**
   - **Set theory:** $\operatorname{dom}(R)$
-  - **Lean:** `notation:90 "dom " R => Relation.Domain R`
+  - **Lean:** `notation:90 "dom " R => Domain R`
 - [x] **Definition (Range):**
   - **Set theory:** $\operatorname{ran}(R)=\{y \mid \exists x\,\langle x,y\rangle\in R\}$
-  - **Lean:** `noncomputable def Relation.Range (R : Set) : Set := ...`
+  - **Lean:** `noncomputable def Range (R : Set) : Set := ...`
 - [x] **Specification (Range.Spec):**
   - **Set theory:** $y \in \operatorname{ran}(R) \Leftrightarrow \exists x\,\langle x,y\rangle\in R$
-  - **Lean:** `lemma Relation.Range.Spec (R : Set) : ∀ y, y ∈ Relation.Range R ↔ ∃ x, ⟪x, y⟫ ∈ R`
+  - **Lean:** `lemma Range.Spec {R y : Set} : y ∈ Range R ↔ ∃ x, ⟪x, y⟫ ∈ R`
 - [x] **Notation (Range):**
   - **Set theory:** $\operatorname{ran}(R)$
-  - **Lean:** `notation:90 "ran " R => Relation.Range R`
+  - **Lean:** `notation:90 "ran " R => Range R`
 - [x] **Definition (Field):**
   - **Set theory:** $\operatorname{fld}(R)=\operatorname{dom}(R)\cup\operatorname{ran}(R)$
-  - **Lean:** `noncomputable def Relation.Field (R : Set) : Set := (dom R) ∪ (ran R)`
+  - **Lean:** `noncomputable def Field (R : Set) : Set := (dom R) ∪ (ran R)`
 - [x] **Specification (Field.Spec):**
   - **Set theory:** $z\in \operatorname{fld}(R)\Leftrightarrow z\in\operatorname{dom}(R)\lor z\in\operatorname{ran}(R)$
-  - **Lean:** `lemma Relation.Field.Spec (R : Set) : ∀ z, z ∈ Relation.Field R ↔ z ∈ (dom R) ∨ z ∈ (ran R)`
+  - **Lean:** `lemma Field.Spec {R z : Set} : z ∈ Field R ↔ z ∈ (dom R) ∨ z ∈ (ran R)`
 - [x] **Notation (Field):**
   - **Set theory:** $\operatorname{fld}(R)$
-  - **Lean:** `notation:90 "fld " R => Relation.Field R`
+  - **Lean:** `notation:90 "fld " R => Field R`
 ## n-Ary Relations (pp. 41–42)
 
 Primary file: `Set/Ch3/S3_NAryRelations.lean`
@@ -392,20 +392,20 @@ _Checklist audit policy (manual): items through **`Set/Ch3/S4_Functions.lean`** 
 
 Primary files:
 - `Set/Ch3/S4_Functions.lean` — AC-free core (3E–3I, 3K, 3L, indexed families, function space) **plus** Theorem 3J(a)/(b) at the bottom inside a reopened `namespace Choice`
-- `Set/Choice.lean` — the single home for the (six) equivalent forms of AC (`Set.Choice.ChoiceFirstForm`, `Set.Choice.choice_first_form`, `Set.Choice.ChoiceSecondForm`; with predicates inlined to break the import cycle into `S4_Functions`)
+- `Set/Choice.lean` — shared AC infrastructure and non-local forms (with predicates inlined to break the import cycle into `S4_Functions`)
 
 - [x] **Definition (Function):**
   - **Set theory:** $F$ is a relation and for each $x \in \operatorname{dom}(F)$ there exists a unique $y$ with $\langle x, y \rangle \in F$
-  - **Lean:** `def IsFunction (F : Set) : Prop := IsRelation F ∧ ∀ x, x ∈ (dom F) → ∃! y, ⟨x, y⟩ ∈ F`
+  - **Lean:** `def IsFunction (F : Set) : Prop := IsRelation F ∧ ∀ x, x ∈ (dom F) → ∃! y, ⟪x, y⟫ ∈ F`
 - [x] **Definition (Maps into):**
   - **Set theory:** $F : A \to B$ iff `IsFunction F`, `dom F = A`, and `ran F ⊆ B`
-  - **Lean:** `def MapsInto (F A B : Set) : Prop := IsFunction F ∧ (dom F) = A ∧ SubsetOf (ran F) B`
+  - **Lean:** `def MapsInto (F A B : Set) : Prop := IsFunction F ∧ (dom F) = A ∧ (ran F) ⊆ B`
 - [x] **Definition (Maps onto):**
   - **Set theory:** $F$ maps $A$ onto $B$ iff $F : A \to B$ and `ran F = B`
   - **Lean:** `def MapsOnto (F A B : Set) : Prop := MapsInto F A B ∧ (ran F) = B`
 - [x] **Definition (Single-rooted / one-to-one wrapper):**
   - **Set theory:** single-rooted means uniqueness of preimage for each element of the range
-  - **Lean:** `def IsSingleRooted (R : Set) : Prop := ∀ y, y ∈ (ran R) → ∃! x, ⟨x, y⟩ ∈ R`; `def IsOneToOne (F : Set) : Prop := IsFunction F ∧ IsSingleRooted F`
+  - **Lean:** `def IsSingleRooted (R : Set) : Prop := ∀ (y : Set), y ∈ (ran R) → ∃! (x : Set), ⟪x, y⟫ ∈ R`; `def IsOneToOne (F : Set) : Prop := IsFunction F ∧ IsSingleRooted F`
 - [x] **Definition (Identity on $A$):**
   - **Set theory:** $I_A = \{\langle x, x \rangle \mid x \in A\}$
   - **Lean:** `noncomputable def Identity (A : Set) : Set`; `lemma Identity.Spec ...`; `lemma Identity.Pair.Spec ...`
@@ -423,7 +423,7 @@ Primary files:
   - **Lean:** `noncomputable def Image (F C : Set) := ran (Restriction F C)`; `lemma Image.Spec ...`
 - [x] **Basic helper lemmas for ordered pairs/functions:**
   - **Set theory:** direct elimination/introduction facts for `dom`, `ran`, and products
-  - **Lean:** `lemma Pair.mem_dom ...`; `lemma Pair.mem_ran ...`; `lemma Pair.mem_product ...`; `lemma Pair.mem_product_elim ...`; `lemma function_value_unique ...`
+  - **Lean:** `lemma Relation.Pair.mem_dom ...`; `lemma Relation.Pair.mem_ran ...`; `lemma Product.Pair.Spec ...`; `lemma function_value_unique ...`
 - [x] **Theorem 3E (inverse swaps domain/range, double inverse):**
   - **Set theory:** `dom(F⁻¹)=ran(F)`, `ran(F⁻¹)=dom(F)`, and for relations `(F⁻¹)⁻¹=F`
   - **Lean:** `theorem thm_3E_domain_inverse ...`; `theorem thm_3E_range_inverse ...`; `theorem thm_3E_relation_inverse_inverse ...`
@@ -465,13 +465,13 @@ Primary files:
   - **Lean:** `noncomputable def IndexedUnion ...`; `noncomputable def IndexedIntersection ...`; `noncomputable def FunctionSpace ...`; `lemma FunctionSpace.Spec ...`
 - [x] **Theorem 3J(a) (left inverse iff one-to-one, AC-free):**
   - **Set theory:** for `F : A → B` with `A` nonempty, `∃ G : B → A, G ∘ F = I_A` iff `F` is one-to-one
-  - **Lean:** `theorem Set.thm_3J_a_left_inverse_iff_one_to_one ...` at the bottom of `Set/Ch3/S4_Functions.lean` in the plain `Set` namespace (the `Choice` namespace is reserved for declarations whose proofs *actually* use AC). The (⇒) direction uses the helper construction `noncomputable def LeftInverseRelation (F B a₀ : Set) : Set := F⁻¹ ∪ ((B - ran F) ⨯ Singleton a₀)` (also AC-free) and proves it is a function directly, plus `lemma one_to_one_preimage_unique ...`. A `#print axioms` check at the bottom of the file enforces AC-freeness.
+  - **Lean:** `theorem Set.thm_3Ja_left_inverse_iff_one_to_one ...` at the bottom of `Set/Ch3/S4_Functions.lean` in the plain `Set` namespace (the `Choice` namespace is reserved for declarations whose proofs *actually* use AC). The (⇒) direction uses the helper construction `noncomputable def LeftInverseRelation (F B a₀ : Set) : Set := F⁻¹ ∪ ((B - ran F) ⨯ Singleton a₀)` (also AC-free) and proves it is a function directly, plus `lemma one_to_one_preimage_unique ...`. A `#print axioms` check at the bottom of the file enforces AC-freeness.
 - [x] **Theorem 3J(b) (right inverse iff onto, uses first-form AC):**
   - **Set theory:** for `F : A → B` with `A` nonempty, `∃ H : B → A, F ∘ H = I_B` iff `F` maps `A` onto `B`
-  - **Lean:** `theorem Set.Choice.thm_3J_b_right_inverse_iff_onto ...` at the bottom of `Set/Ch3/S4_Functions.lean`, inside a reopened `namespace Choice` block. This is the *only* declaration in `S4_Functions.lean` that lives in `Choice`, because it is the only one whose proof invokes `choice_first_form`. A `#print axioms` check at the bottom of the file enforces AC-dependence.
+  - **Lean:** `theorem Set.Choice.thm_3Jb_right_inverse_iff_onto ...` at the bottom of `Set/Ch3/S4_Functions.lean`, inside a reopened `namespace Choice` block. The file keeps textbook order while entering/exiting `Choice` only when needed: AC-free supporting results stay in plain `Set`, and only AC-invoking declarations are in `Choice`. A `#print axioms` check at the bottom enforces AC-dependence.
 - [x] **Axiom of Choice (first form):**
   - **Set theory:** for any relation `R` there is a function `H ⊆ R` with `dom H = dom R` (Enderton p.49)
-  - **Lean:** `def Set.Choice.ChoiceFirstForm` and `axiom Set.Choice.choice_first_form` in `Set/Choice.lean` (wrapped in the `Choice` sub-namespace so every use site must `open Choice` or qualify, making the AC dependency visible). The "function" conjunct is inlined as `IsRelation H ∧ ∀ x ∈ dom H, ∃! y, ⟪x, y⟫ ∈ H` so `Set/Choice.lean` need only import `Set.Ch3.S2_Relations`; this lets `Set/Ch3/S4_Functions.lean` import `Set.Choice` without a cycle. `S4_Functions.lean` `#check`s the declarations at Enderton's introduction point (p.49).
+  - **Lean:** in-place in `Set/Ch3/S4_Functions.lean` as `def Set.ChoiceFirstForm` (AC-free statement in plain `Set`) plus `axiom Set.Choice.choice_first_form` (inside a short `namespace Choice` block). The file `#check`s these at Enderton's introduction point (p.49).
 
 ## Infinite Cartesian Products (pp. 54–55)
 
@@ -479,94 +479,112 @@ Primary files:
 - `Set/Ch3/S5_InfiniteCartesianProducts.lean`
 - `Set/Choice.lean`
 
-- [ ] **Definition (Infinite Cartesian product):**
+- [x] **Definition (Infinite Cartesian product):**
   - **Set theory:** $\prod_{i \in I} H(i)=\{f \in {}^I(\bigcup \operatorname{ran}(H)) \mid \forall i \in I,\ f(i)\in H(i)\}$.
-  - **Lean:** `noncomputable def InfiniteProduct (I H : Set) : Set := ...`
-- [ ] **Specification (InfiniteProduct.Spec):**
+  - **Lean:** `noncomputable def InfiniteProduct (I H : Set) (hH : IsFunction H) (hIH : I ⊆ dom H) : Set := ...`
+- [x] **Specification (InfiniteProduct.Spec):**
   - **Set theory:** $f \in \prod_{i \in I}H(i)$ iff $f$ is a function with domain $I$, codomain inside $\bigcup\operatorname{ran}(H)$, and each selected value belongs to the corresponding fiber.
-  - **Lean:** `lemma InfiniteProduct.Spec {I H f : Set} : f ∈ InfiniteProduct I H ↔ ...`
-- [ ] **Axiom of Choice (second form):**
+  - **Lean:** `lemma InfiniteProduct.Spec {I H f : Set} (hH : IsFunction H) (hIH : I ⊆ dom H) : f ∈ InfiniteProduct I H hH hIH ↔ ...`
+- [x] **Empty fiber implies empty product:**
+  - **Set theory:** if some $H(i)=\varnothing$ with $i\in I$, then $\prod_{i\in I}H(i)=\varnothing$.
+  - **Lean:** `theorem infiniteProduct_empty_of_empty_fiber ...`
+- [x] **Axiom of Choice (second form):**
   - **Set theory:** For any set $I$ and function $H$ with $\operatorname{dom}(H)=I$, if every $H(i)$ is nonempty, then $\prod_{i \in I}H(i)\neq\varnothing$.
-  - **Lean:** `def Set.Choice.ChoiceSecondForm : Prop := ...` (in `Set/Choice.lean`, with the "function" conjuncts inlined for the same reason as the first form; surfaced in `Set/Ch3/S5_InfiniteCartesianProducts.lean` via `open Choice`)
-- [ ] **Derived theorem (ChoiceSecondForm gives nonempty product):**
+  - **Lean:** `def Set.ChoiceSecondForm : Prop := ...` (AC-free statement in `Set`), plus `axiom Set.Choice.choice_second_form : Set.ChoiceSecondForm` (in-place in `Set/Ch3/S5_InfiniteCartesianProducts.lean`)
+- [x] **Derived theorem (ChoiceSecondForm gives nonempty product):**
   - **Set theory:** $\text{ChoiceSecondForm} \Rightarrow \forall I,H,\big((\forall i\in I,\ H(i)\neq\varnothing)\Rightarrow \prod_{i\in I}H(i)\neq\varnothing\big)$.
-  - **Lean:** `theorem infiniteProduct_nonempty_of_choice_second_form (hChoice₂ : ChoiceSecondForm) : ...`
+  - **Lean:** `theorem Set.choice_second_form_iff_infiniteProduct_nonempty : ...` (AC-free equivalence) and `theorem Set.Choice.infiniteProduct_nonempty_of_nonempty_fibers : ...` (AC-dependent consequence).
+- [x] **Ch6S5 choice-form statement layer in `Set/Choice.lean`:**
+  - **Set theory:** Theorem 6M forms (1), (2), (3), (4), and (6) as formal statements.
+  - **Lean:** `ChoiceThirdForm`, `ChoiceFourthForm`, `ChoiceSixthForm` in `Set/Choice.lean`; `ChoiceFirstForm` and `ChoiceSecondForm` are now in-place in `Set/Ch3/S4_Functions.lean` and `Set/Ch3/S5_InfiniteCartesianProducts.lean` respectively (with Form (5), cardinal comparability, deferred to the future cardinal-comparison layer).
 
 ## Equivalence Relations (pp. 55–62)
 
 Primary file: `Set/Ch3/S6_Equivalence.lean`
 
-- [ ] **Definition (Reflexive on a carrier):**
+- [x] **Definition (Reflexive on a carrier):**
   - **Set theory:** $R$ is reflexive on $A$ iff $\forall x \in A,\ xRx$.
-  - **Lean:** `def IsReflexiveOn (R A : Set) : Prop := ∀ x, x ∈ A → ⟨x, x⟩ ∈ R`
-- [ ] **Definition (Symmetric):**
+  - **Lean:** `def IsReflexiveOn (R A : Set) : Prop := ∀ {x}, x ∈ A → ⟪x, x⟫ ∈ R`
+- [x] **Definition (Symmetric):**
   - **Set theory:** $\forall x\forall y,\ xRy \Rightarrow yRx$.
-  - **Lean:** `def IsSymmetric (R : Set) : Prop := ∀ x y, ⟨x, y⟩ ∈ R → ⟨y, x⟩ ∈ R`
-- [ ] **Definition (Transitive relation):**
+  - **Lean:** `def IsSymmetric (R : Set) : Prop := ∀ {x y}, ⟪x, y⟫ ∈ R → ⟪y, x⟫ ∈ R`
+- [x] **Definition (Transitive relation):**
   - **Set theory:** $\forall x\forall y\forall z,\ (xRy \land yRz) \Rightarrow xRz$.
-  - **Lean:** `def IsTransitiveRel (R : Set) : Prop := ∀ x y z, ⟨x, y⟩ ∈ R → ⟨y, z⟩ ∈ R → ⟨x, z⟩ ∈ R`
-- [ ] **Definition (Binary relation on a carrier):**
+  - **Lean:** `def IsTransitiveRel (R : Set) : Prop := ∀ {x y z}, ⟪x, y⟫ ∈ R → ⟪y, z⟫ ∈ R → ⟪x, z⟫ ∈ R`
+- [x] **Definition (Binary relation on a carrier):**
   - **Set theory:** $R$ is a relation and $R \subseteq A \times A$.
   - **Lean:** `def IsBinaryRelationOn (R A : Set) : Prop := IsRelation R ∧ R ⊆ (A ⨯ A)`
-- [ ] **Definition (Equivalence relation):**
+- [x] **Definition (Equivalence relation):**
   - **Set theory:** binary on $A$, reflexive on $A$, symmetric, transitive.
   - **Lean:** `def IsEquivalenceRelation (R A : Set) : Prop := IsBinaryRelationOn R A ∧ IsReflexiveOn R A ∧ IsSymmetric R ∧ IsTransitiveRel R`
-- [ ] **Theorem 3M (field-level equivalence):**
+- [x] **Theorem 3M (field-level equivalence):**
   - **Set theory:** if $R$ is a relation that is symmetric and transitive, then $R$ is an equivalence relation on $\operatorname{fld}(R)$.
-  - **Lean:** `theorem symm_trans_is_equiv (R : Set) : IsRelation R → IsSymmetric R → IsTransitiveRel R → IsEquivalenceRelation R (fld R)`
-- [ ] **Definition (Equivalence class):**
+  - **Lean:** `theorem thm_3M_symm_trans_is_equiv (R : Set) : IsRelation R → IsSymmetric R → IsTransitiveRel R → IsEquivalenceRelation R (fld R)`
+- [x] **Definition (Equivalence class):**
   - **Set theory:** $[x]_R = \{t \in \operatorname{ran}(R) \mid xRt\}$.
   - **Lean:** `noncomputable def EquivalenceClass (x R : Set) : Set := ...`
-- [ ] **Specification (EquivalenceClass.Spec):**
-  - **Set theory:** $t \in [x]_R \Leftrightarrow t \in \operatorname{ran}(R) \land xRt$.
-  - **Lean:** `lemma EquivalenceClass.Spec {x R t : Set} : t ∈ [x]₍R₎ ↔ t ∈ (ran R) ∧ ⟨x, t⟩ ∈ R`
-- [ ] **Lemma 3N (class equality criterion):**
+- [x] **Specification (EquivalenceClass.Spec):**
+  - **Set theory:** $t \in [x]_R \Leftrightarrow xRt$.
+  - **Lean:** `lemma EquivalenceClass.Spec {x R t : Set} : t ∈ [x]₍R₎ ↔ ⟪x, t⟫ ∈ R`
+- [x] **Lemma 3N (class equality criterion):**
   - **Set theory:** for $x,y \in A$, $[x]_R = [y]_R \Leftrightarrow xRy$.
-  - **Lean:** `theorem equiv_class_eq_iff (R A x y : Set) : IsEquivalenceRelation R A → x ∈ A → y ∈ A → ([x]₍R₎ = [y]₍R₎ ↔ ⟨x, y⟩ ∈ R)`
-- [ ] **Definition (Quotient set):**
+  - **Lean:** `theorem lem_3N_equiv_class_eq_iff {R A x y : Set} (hEq : IsEquivalenceRelation R A) (hxA : x ∈ A) (hyA : y ∈ A) : [x]₍R₎ = [y]₍R₎ ↔ ⟪x, y⟫ ∈ R`
+- [x] **Definition (Quotient set):**
   - **Set theory:** $A/R = \{[x]_R \mid x \in A\}$.
-  - **Lean:** `noncomputable def QuotientSet (A R : Set) : Set := ...`
-- [ ] **Specification (QuotientSet.Spec):**
+  - **Lean:** `noncomputable def QuotientSet (A R : Set) (_hEq : IsEquivalenceRelation R A) : Set := ...`, notation `A / R ∵ h` (the textbook's equivalence-relation hypothesis is built in as an explicit proof argument)
+- [x] **Specification (QuotientSet.Spec):**
   - **Set theory:** $Q \in A/R \Leftrightarrow Q \in \mathcal P(\operatorname{ran}(R)) \land \exists x \in A,\ Q=[x]_R$.
-  - **Lean:** `lemma QuotientSet.Spec {A R Q : Set} : Q ∈ A / R ↔ Q ∈ 𝒫 (ran R) ∧ ∃ x, x ∈ A ∧ Q = [x]₍R₎`
-- [ ] **Definition (Compatibility):**
+  - **Lean:** `lemma QuotientSet.Spec_full {A R Q : Set} {hEq : IsEquivalenceRelation R A} : Q ∈ A / R ∵ hEq ↔ Q ∈ 𝒫 (ran R) ∧ ∃ x, x ∈ A ∧ Q = [x]₍R₎`
+- [x] **Specification (QuotientSet.Spec, reduced form):**
+  - **Set theory:** $Q \in A/R \Leftrightarrow \exists x \in A,\ Q=[x]_R$.
+  - **Lean:** `lemma QuotientSet.Spec {A R Q : Set} {hEq : IsEquivalenceRelation R A} : Q ∈ A / R ∵ hEq ↔ ∃ x, x ∈ A ∧ Q = [x]₍R₎`
+- [x] **Definition (Natural map):**
+  - **Set theory:** $\varphi:A\to A/R$ is defined by $\varphi(x)=[x]_R$ for $x\in A$.
+  - **Lean:** `noncomputable def NaturalMap (A R : Set) (hEq : IsEquivalenceRelation R A) : Set := ...` (the textbook's equivalence-relation hypothesis is built in as an explicit proof argument)
+- [x] **Definition (Compatibility):**
   - **Set theory:** if $xRy$ then $F(x)RF(y)$ (under map hypotheses on $A$).
   - **Lean:** `def IsCompatible (F R A : Set) : Prop := ...`
-- [ ] **Definition (Quotient lift graph):**
+- [x] **Definition (Quotient lift graph):**
   - **Set theory:** relation induced by $x \mapsto y$ on classes $[x]_R \mapsto [y]_R$.
   - **Lean:** `noncomputable def QuotientLift (R A F : Set) : Set := ...`
-- [ ] **Specifications for quotient lift:**
+- [x] **Specifications for quotient lift:**
   - **Set theory:** membership and pair-wise membership characterizations for the induced relation on $A/R$.
   - **Lean:** `lemma QuotientLift.Spec ...`; `lemma QuotientLift.Pair.Spec ...`
-- [ ] **Theorem 3Q (existence/uniqueness of quotient map):**
+- [x] **Theorem 3Q (existence/uniqueness of quotient map):**
   - **Set theory:** if $F : A \to A$ is compatible with $R$, there is a unique induced map $\hat F : A/R \to A/R$.
-  - **Lean:** `theorem quotient_function_exists (R A F : Set) : IsEquivalenceRelation R A → IsCompatible F R A → ∃! Fq, MapsInto Fq (A / R) (A / R) ∧ (∀ x y, x ∈ A → ⟨x, y⟩ ∈ F → ⟨[x]₍R₎, [y]₍R₎⟩ ∈ Fq)`
-- [ ] **Theorem 3Q (non-compatibility obstruction):**
+  - **Lean:** `theorem thm_3Q_compatible_exists_unique_quotient_map (R A F : Set) (hEqRel : IsEquivalenceRelation R A) (hCompat : IsCompatible F R A) : ∃! Fq, MapsInto Fq (A / R ∵ hEqRel) (A / R ∵ hEqRel) ∧ (∀ x (hxA : x ∈ A), ⟪[x]₍R₎, [F⟮x⟯]₍R₎⟫ ∈ Fq)`
+- [x] **Theorem 3Q (non-compatibility obstruction):**
   - **Set theory:** if $F$ is not compatible with $R$, no such induced quotient map exists.
-  - **Lean:** `theorem quotient_function_not_exists (R A F : Set) : IsEquivalenceRelation R A → MapsInto F A A → ¬ IsCompatible F R A → ¬ ∃ Fq, MapsInto Fq (A / R) (A / R) ∧ (∀ x y, x ∈ A → ⟨x, y⟩ ∈ F → ⟨[x]₍R₎, [y]₍R₎⟩ ∈ Fq)`
-- [ ] **Definition (Partition):**
+  - **Lean:** `theorem thm_3Q_incompatible_not_exists_quotient_map (R A F : Set) (hEqRel : IsEquivalenceRelation R A) (hMap : MapsInto F A A) (hNot : ¬ IsCompatible F R A) : ¬ ∃ Fq, MapsInto Fq (A / R ∵ hEqRel) (A / R ∵ hEqRel) ∧ (∀ x (hxA : x ∈ A), ⟪[x]₍R₎, [F⟮x⟯]₍R₎⟫ ∈ Fq)`
+- [x] **Definition (Partition):**
   - **Set theory:** nonempty blocks, pairwise disjoint unless equal, and exhaustive over $A$.
-  - **Lean:** `def IsPartition (Part A : Set) : Prop := ...`
-- [ ] **Theorem 3P (equivalence classes form a partition):**
+  - **Lean:** `def IsPartition (Pi A : Set) : Prop := ...`
+- [x] **Theorem 3P (equivalence classes form a partition):**
   - **Set theory:** if $R$ is an equivalence relation on $A$, then $A/R$ is a partition of $A$.
-  - **Lean:** `theorem equiv_classes_partition (R A : Set) : IsEquivalenceRelation R A → IsPartition (A / R) A`
+  - **Lean:** `theorem thm_3P_equiv_classes_partition (R A : Set) (hEq : IsEquivalenceRelation R A) : IsPartition (A / R ∵ hEq) A`
 
-## Ordering Relations (pp. 62–65)
+## Ordering Relations (pp. 62–64)
 
 Primary file: `Set/Ch3/S7_OrderingRelations.lean`
 
-- [ ] **Definition (Trichotomy on a carrier):**
+- [x] **Definition (Trichotomy on a carrier):**
   - **Set theory:** for any $x,y \in A$, exactly one of $xRy$, $x=y$, $yRx$ holds (encoded with exclusivity clauses).
   - **Lean:** `def TrichotomyOn (R A : Set) : Prop := ...`
-- [ ] **Definition (Linear ordering / total ordering):**
+- [x] **Definition (Linear ordering / total ordering):**
   - **Set theory:** a binary relation on $A$ that is transitive and satisfies trichotomy on $A$.
   - **Lean:** `def IsLinearOrder (R A : Set) : Prop := IsBinaryRelationOn R A ∧ IsTransitiveRel R ∧ TrichotomyOn R A`
-- [ ] **Theorem 3R(i) (irreflexivity):**
-  - **Set theory:** if $R$ linearly orders $A$, then no $x \in A$ satisfies $xRx$.
-  - **Lean:** `theorem linear_order_irreflexive (R A : Set) : IsLinearOrder R A → ∀ x, x ∈ A → ⟨x, x⟩ ∉ R`
-- [ ] **Theorem 3R(ii) (connectedness for distinct points):**
+- [x] **Definition (Irreflexive — name for Theorem 3R condition (i)):**
+  - **Set theory:** there is no $x$ for which $xRx$.
+  - **Lean:** `def IsIrreflexive (R : Set) : Prop := ∀ x, ⟪x, x⟫ ∉ R`
+- [x] **Definition (Connected on $A$ — name for Theorem 3R condition (ii)):**
+  - **Set theory:** for distinct $x,y \in A$, either $xRy$ or $yRx$.
+  - **Lean:** `def IsConnectedOn (R A : Set) : Prop := ∀ x y, x ∈ A → y ∈ A → x ≠ y → (⟪x, y⟫ ∈ R ∨ ⟪y, x⟫ ∈ R)`
+- [x] **Theorem 3R(i) (irreflexivity):**
+  - **Set theory:** if $R$ linearly orders $A$, then there is no $x$ for which $xRx$.
+  - **Lean:** `theorem thm_3R_i_linear_order_irreflexive (R A : Set) : IsLinearOrder R A → IsIrreflexive R`
+- [x] **Theorem 3R(ii) (connectedness for distinct points):**
   - **Set theory:** if $R$ linearly orders $A$ and $x,y \in A$ with $x \ne y$, then $xRy \lor yRx$.
-  - **Lean:** `theorem linear_order_connected (R A : Set) : IsLinearOrder R A → ∀ x y, x ∈ A → y ∈ A → x ≠ y → (⟨x, y⟩ ∈ R ∨ ⟨y, x⟩ ∈ R)`
+  - **Lean:** `theorem thm_3R_ii_linear_order_connected (R A : Set) : IsLinearOrder R A → IsConnectedOn R A`
 
 ---
 
@@ -577,7 +595,7 @@ Primary file: `Set/Ch3/S7_OrderingRelations.lean`
 - Primary file: `Set/Ch4/S1_InductiveSets.lean`
 - [x] **Definition (Successor):**
   - **Set theory:** $a^+ = a \cup \{a\}$
-  - **Lean:** `noncomputable def Successor (a : Set) : Set := a ∪ Singleton a`
+  - **Lean:** `noncomputable def Successor (a : Set) : Set := a ∪ {a}`
 - [x] **Definition (Inductive set):**
   - **Set theory:** $\text{Inductive}(A) \Leftrightarrow 0 \in A \land (\forall a \in A)\, a^+ \in A$
   - **Lean:** `def Inductive (A : Set) : Prop := ∅ ∈ A ∧ ∀ a, a ∈ A → a⁺ ∈ A`
@@ -604,7 +622,7 @@ Primary file: `Set/Ch3/S7_OrderingRelations.lean`
   - **Lean:** `lemma ω_induction (P : Set → Prop) (hBase : P Set.Empty) (hStep : ∀ k, k ∈ ω → P k → P (k⁺)) : ∀ n, n ∈ ω → P n`
 - [x] **Theorem 4C (nonzero naturals are successors):**
   - **Set theory:** $n \neq 0 \land \text{Natural}(n) \Rightarrow \exists m \in \omega\, (n = m^+)$
-  - **Lean:** `theorem thm_4C_omega_exists_successor (n : Set) : n ≠ ∅ → Natural n → ∃ (m : Set), m ∈ ω ∧ n = m⁺`
+  - **Lean:** `theorem thm_4C_nonzero_natural_is_successor (n : Set) : n ≠ ∅ → Natural n → ∃ (m : Set), m ∈ ω ∧ n = m⁺`
 
 ## Peano's Postulates (pp. 70–73)
 

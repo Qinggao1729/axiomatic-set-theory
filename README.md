@@ -22,7 +22,7 @@ From the project writeup in `Writeups/CS263 Project Report.md`:
 - Chapter 3 Sections 1–4
 - Chapter 4 Section 1
 
-The repository contains additional material through Chapter 5, but not all of it is at the same audit maturity yet.
+The repository also implements Chapter 3 Sections 5–7 (infinite Cartesian products, equivalence relations, ordering relations), which are not yet at the same audit maturity. Later chapters (Chapter 4 Section 2 onward, and Chapter 5) are planned but not yet in the repository.
 
 ## Quick Start
 
@@ -47,8 +47,7 @@ Default target is the `Set` library.
 - `Set/Axioms.lean` — primitive layer: `Set`, `∈`, `⊆`, core axioms (Ch2 + primitive infinity).
 - `Set/Ch2/` — axioms unpacked into concrete constructions, arbitrary unions/intersections, algebra of sets.
 - `Set/Ch3/` — ordered pairs, relations, n-ary relations, functions, infinite products/choice, equivalence, orderings.
-- `Set/Ch4/` — `ω` construction, Peano system, recursion, arithmetic, order on `ω`.
-- `Set/Ch5/` — integer/rational/real scaffolding and summaries (some placeholders remain).
+- `Set/Ch4/` — inductive sets, the Infinity axiom, `ω`, and induction on `ω` (S1; later sections planned).
 - `Set/Choice.lean` — central home for AC forms in `Set.Choice` namespace.
 - `Set/SimpAttrs.lean` — custom simp attribute `set_spec_simps`.
 - `docs/textbook-transcriptions/` — section-by-section textbook extraction notes.
@@ -127,5 +126,5 @@ Use `TODO.md` for:
 
 ## Known Limitations
 
-- Later chapters (especially Chapter 5) may include scaffolds/placeholders (`sorry`) while development is in progress.
+- Later chapters (Chapter 4 Section 2 onward, and Chapter 5) are planned but not yet present in the repository.
 - Some prose docs can lag code after refactors; when in doubt, trust `.lean` files and `lake build`.

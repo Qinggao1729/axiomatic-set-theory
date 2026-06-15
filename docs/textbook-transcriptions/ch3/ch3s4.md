@@ -1,300 +1,428 @@
-# Ch3 Section 4 (Functions) — Textbook Extraction
+# Chapter 3 Section 4 (Functions)
 
-Source: Enderton, *Elements of Set Theory*, Chapter 3 "Relations and Functions",
-"Functions" subsection, pp. 42–54 (`Enderton_Textbook.pdf`).
+Source: Enderton, *Elements of Set Theory*, pp. 42-54.
 
-This transcription tracks the set-theoretic content used to formalize the
-section in `Set/Ch3/S4_Functions.lean`. Theorem statements are reproduced
-verbatim (with light typographic normalization); proofs are sketched in the
-order Enderton gives them. Cross-file links are mentioned where the textbook
-content is split between this section and a neighbouring one.
+**page 42**
 
-## 1. Definitions (pp. 42–45)
+## FUNCTIONS
 
-- **Function.** A function is a relation `F` such that for each `x ∈ dom F`
-  there is only one `y` such that `xFy`.
-- For a function `F` and `x ∈ dom F`, the unique `y` with `xFy` is the value
-  of `F` at `x`, written `F(x)`. (Enderton resolves to use `F(x)` only when
-  `F` is a function and `x ∈ dom F`.)
-- **Maps into / onto.** `F : A → B` iff `F` is a function, `dom F = A`,
-  and `ran F ⊆ B`. `F` maps `A` onto `B` if additionally `ran F = B`.
-- **Single-rooted / one-to-one.** A set `R` is *single-rooted* iff for each
-  `y ∈ ran R` there is only one `x` with `xRy`. A function is one-to-one
-  iff it is single-rooted.
-- **Operations on relations.**
-  - Inverse: `F⁻¹ = {⟨u, v⟩ | vFu}`
-  - Composition: `F ∘ G = {⟨u, v⟩ | ∃ t (uGt ∧ tFv)}`
-  - Restriction: `F ↾ A = {⟨u, v⟩ ∈ F | u ∈ A}`
-  - Image: `F[A] = ran(F ↾ A) = {v | ∃ u ∈ A, uFv}`. When `F` is a function
-    and `A ⊆ dom F`, also `F[A] = {F(u) | u ∈ A}`.
+Calculus books often describe a function as a rule that assigns to each object in a certain set (its domain) a unique object in a possibly different set (its range). A typical example is the squaring function, which assigns to each real number $x$ its square $x^2$. The action of this function on a particular number can be described by writing
 
-## 2. Theorems 3E–3I (pp. 45–47)
+$$3 \mapsto 9, \quad -2 \mapsto 4, \quad 1 \mapsto 1, \quad \tfrac{1}{2} \mapsto \tfrac{1}{4}, \quad \text{etc.}$$
 
-These theorems are already transcribed in earlier project notes; we restate
-them only briefly for reference.
+Each individual action can be represented by an ordered pair:
 
-- **Theorem 3E.** For any set `F`: `dom(F⁻¹) = ran F` and `ran(F⁻¹) = dom F`.
-  For a relation `F`: `(F⁻¹)⁻¹ = F`.
-- **Theorem 3F.** For any set `F`: `F⁻¹` is a function iff `F` is single-rooted.
-  Dually, a relation `F` is a function iff `F⁻¹` is single-rooted.
-- **Theorem 3G.** If `F` is one-to-one, then for `x ∈ dom F` we have
-  `F⁻¹(F(x)) = x`, and for `y ∈ ran F` we have `F(F⁻¹(y)) = y`.
-- **Theorem 3H.** If `F` and `G` are functions, then `F ∘ G` is a function,
-  with `dom(F ∘ G) = {x ∈ dom G | G(x) ∈ dom F}` and
-  `(F ∘ G)(x) = F(G(x))` for every `x ∈ dom(F ∘ G)`.
-- **Theorem 3I.** `(F ∘ G)⁻¹ = G⁻¹ ∘ F⁻¹` for arbitrary sets `F`, `G`.
+$$\langle 3, 9 \rangle, \quad \langle -2, 4 \rangle, \quad \langle 1, 1 \rangle, \quad \langle \tfrac{1}{2}, \tfrac{1}{4} \rangle, \quad \text{etc.}$$
 
-## 3. Theorem 3J — left/right inverses (pp. 48–49)
+The set of all these pairs (one for each real number) adequately represents the squaring function. The set of pairs has at times been called the *graph* of the function; it is a subset of the coordinate plane $\mathbb{R} \times \mathbb{R}$. But the simplest procedure is to take this set of ordered pairs to *be* the function.
 
-> **Theorem 3J.** Assume that `F : A → B`, and that `A` is nonempty.
->
-> **(a)** There exists a function `G : B → A` (a "left inverse") such that
-> `G ∘ F` is the identity function `I_A` on `A` iff `F` is one-to-one.
->
-> **(b)** There exists a function `H : B → A` (a "right inverse") such that
-> `F ∘ H` is the identity function `I_B` on `B` iff `F` maps `A` onto `B`.
+Thus a function is a set of ordered pairs (i.e., a relation). But it has a special property: It is "single-valued," i.e., for each $x$ in its domain there is a unique $y$ such that $x \mapsto y$. We build these ideas into the following definition.
 
-**Proof (Enderton).**
+**Definition** A *function* is a relation $F$ such that for each $x$ in dom $F$ there is only one $y$ such that $xFy$.
 
-- *(a, ⇐)* Assume `G ∘ F = I_A`. If `F(x) = F(y)`, apply `G` to both sides:
-  `x = G(F(x)) = G(F(y)) = y`, so `F` is one-to-one.
-- *(a, ⇒)* Assume `F` is one-to-one. Then `F⁻¹` is a function from `ran F`
-  onto `A` (Theorems 3E and 3F). Pick a fixed `a ∈ A` and extend `F⁻¹` to
-  all of `B` by sending every point of `B - ran F` to `a`:
-  $$
-    G(x) = \begin{cases} F^{-1}(x) & \text{if } x \in \mathrm{ran}\, F,\\
-                         a          & \text{if } x \in B - \mathrm{ran}\, F. \end{cases}
-  $$
-  In one line, `G = F⁻¹ ∪ (B - ran F) × {a}` (see Fig. 10(a)). This `G`
-  maps `B → A`, has `dom(G ∘ F) = A`, and `G(F(x)) = F⁻¹(F(x)) = x` for
-  every `x ∈ A`, so `G ∘ F = I_A`. **No AC is used:** the extension is
-  completely determined by the choice of `a`.
-- *(b, ⇐)* Assume `F ∘ H = I_B`. For any `y ∈ B`, `y = F(H(y))`, so
-  `y ∈ ran F`. Therefore `ran F = B`, i.e. `F` is onto.
-- *(b, ⇒)* Assume `F` maps `A` onto `B`. We cannot just take `H = F⁻¹`
-  because `F` is in general not one-to-one and `F⁻¹` is then not a
-  function. For each `y ∈ B` we *must choose* some `x` with `F(x) = y`
-  and let `H(y)` be that chosen `x` (see Fig. 10(b)). The existence of
-  such an `x` is guaranteed by `ran F = B`, but selecting one for every
-  `y` simultaneously requires the Axiom of Choice.
+**page 43**
 
-> **Axiom of Choice (first form).** For any relation `R` there is a
-> function `H ⊆ R` with `dom H = dom R`.
+For a function $F$ and a point $x$ in dom $F$, the unique $y$ such that $xFy$ is called the *value* of $F$ at $x$ and is denoted $F(x)$. Thus $\langle x, F(x) \rangle \in F$. The "$F(x)$" notation was introduced by Euler in the 1700s. We hereby resolve to use this notation *only* when $F$ is a function and $x \in \text{dom } F$. There are, however, some artificial ways of defining $F(x)$ that are meaningful for any $F$ and $x$. For example, the set
 
-With this axiom, taking `H ⊆ F⁻¹` with `dom H = dom F⁻¹ = ran F = B`
-gives the right inverse: for any `y ∈ B`, `⟨y, H(y)⟩ ∈ F⁻¹`, hence
-`⟨H(y), y⟩ ∈ F`, hence `F(H(y)) = y`.
+$$\bigcup\{y \mid \langle x, y \rangle \in F\}$$
 
-**Figure 10 (transcription).**
+is equal to $F(x)$ whenever $F$ is a function and $x \in \text{dom } F$.
 
-- (a) `G` extends `F⁻¹` by collapsing the "leftover" elements
-  `B - ran F` to the fixed witness `a ∈ A`. The diagram shows `B`
-  partitioned into `ran F` and `B - ran F`, with horizontal arrows
-  carrying `ran F` back to `A` via `F⁻¹` and all of `B - ran F` to the
-  same point `a ∈ A`.
-- (b) `H` selects, for each `y ∈ B`, one preimage from the (possibly
-  many) `x`'s satisfying `F(x) = y`. The diagram shows three preimages
-  `x', x'', H(y) = x` of a single `y`, with `H` picking the one labelled
-  `H(y) = x`.
+Functions are basic objects appearing in all parts of mathematics.¹ As a result, there is a good deal of terminology used in connection with functions. Unfortunately, no terminology has become uniformly standardized. We collect below some of this terminology.
 
-## 4. Theorem 3K — image and set operations (pp. 50–51)
+We say that $F$ is a function *from $A$ into $B$* or that $F$ *maps $A$ into $B$* (written $F: A \to B$) iff $F$ is a function, dom $F = A$, and ran $F \subseteq B$. Note the unequal treatment of $A$ and $B$ here; we demand only that ran $F \subseteq B$. If, in addition, ran $F = B$, then $F$ is a function *from $A$ onto $B$*. (Thus any function $F$ maps its domain onto its range. And it maps its domain into any set $B$ that includes ran $F$. The applicability of the word "onto" depends both on $F$ and on the set $B$, not just on $F$. The word "onto" must never be used as an adjective.)
 
-> **Theorem 3K.** The following hold for any sets. (`F` need not be a function.)
->
-> **(a)** The image of a union is the union of the images:
->
-> $$F[A \cup B] = F[A] \cup F[B] \qquad \text{and} \qquad F\bigl[\textstyle\bigcup \mathscr{A}\bigr] = \bigcup\{F[A] \mid A \in \mathscr{A}\}.$$
->
-> **(b)** The image of an intersection is included in the intersection of the images:
->
-> $$F[A \cap B] \subseteq F[A] \cap F[B] \qquad \text{and} \qquad F\bigl[\textstyle\bigcap \mathscr{A}\bigr] \subseteq \bigcap\{F[A] \mid A \in \mathscr{A}\}$$
->
-> for nonempty `𝒜`. **Equality holds if `F` is single-rooted.**
->
-> **(c)** The image of a difference includes the difference of the images:
->
-> $$F[A] - F[B] \subseteq F[A - B].$$
->
-> **Equality holds if `F` is single-rooted.**
+A function $F$ is *one-to-one* iff for each $y \in \text{ran } F$ there is only one $x$ such that $xFy$. For example, the function defined by
 
-**Example (Enderton).** `F : ℝ → ℝ`, `F(x) = x²`, `A = [-2, 0]`, `B = [1, 2]`.
-Then `F[A] = [0, 4]`, `F[B] = [1, 4]`, so
+$$f(x) = x^3 \qquad \text{for each real number } x$$
 
-- `F[A ∩ B] = F[∅] = ∅`, but `F[A] ∩ F[B] = [1, 4]`,
-- `F[A] - F[B] = [0, 1)`, but `F[A - B] = F[A] = [0, 4]`.
+is one-to-one, whereas the squaring function is not, since $(-3)^2 = 3^2$. One-to-one functions are sometimes called *injections*.
 
-This example shows that the subsets in (b) and (c) are in general strict.
+It will occasionally be useful to apply the concept of "one-to-one" to relations that are not functions. Since the phrase "one-to-one" seems inappropriate in such cases, we will use the phrase "single-rooted," in analogy to "single-valued."
 
-**Proof (Enderton).**
-- Part (a), binary form, is a direct membership calculation:
-  `y ∈ F[A ∪ B] ↔ (∃ x ∈ A ∪ B) xFy ↔ (∃ x ∈ A) xFy ∨ (∃ x ∈ B) xFy ↔ y ∈ F[A] ∨ y ∈ F[B]`.
-- Part (b), binary form, follows from the same calculation up to the middle
-  step `(∃ x ∈ A ∩ B) xFy ⇒ (∃ x ∈ A) xFy ∧ (∃ x ∈ B) xFy`, which is not in
-  general reversible. If `F` is single-rooted, the two witnesses `x₁, x₂`
-  collapse to a common `x ∈ A ∩ B`, so equality holds.
-- Part (c) is the calculation
-  `y ∈ F[A] - F[B] ↔ (∃ x ∈ A) xFy ∧ ¬ (∃ t ∈ B) tFy ⇒ (∃ x ∈ A - B) xFy ↔ y ∈ F[A - B]`.
-  Again single-rootedness reverses the middle step.
-- The arbitrary forms generalize the binary ones along the same outline;
-  Enderton defers their details to Exercise 26.
+**Definition** A set $R$ is *single-rooted* iff for each $y \in \text{ran } R$ there is only one $x$ such that $xRy$.
 
-**Remark.** The second halves of (a) and (b) require speaking of the set
-`{F[A] | A ∈ 𝒜}`, i.e. the image-family of `𝒜` under `F`. We formalize this
-explicitly as `ImageFamily F 𝒜` in the Lean development (see §6 below).
+Thus for a function, it is single-rooted iff it is one-to-one.
 
-## 5. Corollary 3L — inverse image is well-behaved (p. 51)
+It is entirely possible to have the domain of a function $F$ consist of ordered pairs or $n$-tuples. For example, addition is a function $+: \mathbb{R} \times \mathbb{R} \to \mathbb{R}$. Thus the domain of addition consists of pairs of numbers, and the addition function itself consists of triples of numbers. In place of $+(\langle x, y \rangle)$ we write either $+(x, y)$ or $x + y$.
 
-> **Corollary 3L.** For any function `G` and sets `A`, `B`, and `𝒜`:
->
-> $$G^{-1}\bigl[\textstyle\bigcup \mathscr{A}\bigr] = \bigcup\{G^{-1}[A] \mid A \in \mathscr{A}\},$$
-> $$G^{-1}\bigl[\textstyle\bigcap \mathscr{A}\bigr] = \bigcap\{G^{-1}[A] \mid A \in \mathscr{A}\} \qquad \text{for } \mathscr{A} \neq \varnothing,$$
-> $$G^{-1}[A - B] = G^{-1}[A] - G^{-1}[B].$$
+**page 44**
 
-**Justification (Enderton, narrative).** The inverse of a function is always
-single-rooted (Theorem 3F applied to `G`); the three equalities are then the
-equality cases of Theorem 3K specialized to `G⁻¹`.
+The following operations are most commonly applied to functions, sometimes are applied to relations, but can actually be defined for arbitrary sets $A$, $F$, and $G$.
 
-> Note. Enderton's 3L only mentions the *arbitrary* union and intersection
-> equalities together with the *binary* difference equality. The
-> corresponding *binary* union/intersection equalities for `G⁻¹` follow as
-> immediate corollaries (and have been recorded separately as
-> `inverse_image_union`, `inverse_image_inter`, `inverse_image_diff`).
+**Definition** (a) The *inverse* of $F$ is the set
 
-## 6. Indexed families and function space (pp. 51–52)
+$$F^{-1} = \{\langle u, v \rangle \mid vFu\}.$$
 
-After 3L, Enderton introduces convenience notation. Let `I` be a set and
-`F` a function whose domain includes `I`. Define
+(b) The *composition* of $F$ and $G$ is the set
 
-$$\bigcup_{i \in I} F(i) = \bigcup \{F(i) \mid i \in I\} = \{x \mid x \in F(i) \text{ for some } i \in I\}$$
+$$F \circ G = \{\langle u, v \rangle \mid \exists t (uGt\ \&\ tFv)\}.$$
 
-and, for `I ≠ ∅`,
+(c) The *restriction* of $F$ to $A$ is the set
 
-$$\bigcap_{i \in I} F(i) = \bigcap \{F(i) \mid i \in I\} = \{x \mid x \in F(i) \text{ for every } i \in I\}.$$
+$$F \restriction A = \{\langle u, v \rangle \mid uFv\ \&\ u \in A\}.$$
 
-The alternative notation `F_i = F(i)` is also introduced.
+(d) The *image* of $A$ under $F$ is the set
 
-For sets `A` and `B`, the *function space* `ᴬB` is
+$$F[\![A]\!] = \text{ran}(F \restriction A)$$
+$$= \{v \mid (\exists u \in A) uFv\}.$$
 
-$$^{A}B = \{F \mid F \text{ is a function from } A \text{ into } B\}.$$
+$F[\![A]\!]$ can be characterized more simply when $F$ is a function and $A \subseteq \text{dom } F$; in this case
 
-A subset axiom on `𝒫(A × B)` justifies it as a set.
+$$F[\![A]\!] = \{F(u) \mid u \in A\}.$$
 
-## 7. Lean mapping
+In each case we can easily apply a subset axiom to establish the existence of the desired set. Specifically, $F^{-1} \subseteq \text{ran } F \times \text{dom } F$, $F \circ G \subseteq \text{dom } G \times \text{ran } F$, $F \restriction A \subseteq F$, and $F[\![A]\!] \subseteq \text{ran } F$. (A more detailed justification of the definition of $F^{-1}$ would go as follows: By a subset axiom there is a set $B$ such that for any $x$,
 
-Spec layer:
+$$x \in B \quad \Leftrightarrow \quad x \in \text{ran } F \times \text{dom } F\ \&\ \exists u\ \exists v(x = \langle u, v \rangle\ \&\ vFu).$$
 
-- `def IsFunction`, `def MapsInto`, `def MapsOnto`, `def IsSingleRooted`,
-  `def IsOneToOne`, `def IsValueAt` (helper predicate for §5+).
-- `FunctionValue` / `FunctionValueAuto` / `FunctionValueWithProof` with
-  `F⟮x⟯` and `F⟮x⟯'(...)` notation; see `DESIGN_CHOICE.md` for the rationale.
-- `Identity`, `Inverse`, `Composition`, `Restriction`, `Image` with their
-  `.Spec` / `.Pair.Spec` lemmas.
+It then follows that
 
-Numbered theorems:
+$$x \in B \quad \Leftrightarrow \quad \exists u\ \exists v(x = \langle u, v \rangle\ \&\ vFu).$$
 
-- 3E: `thm_3E_domain_inverse`, `thm_3E_range_inverse`,
-  `thm_3E_relation_inverse_inverse`.
-- 3F: `thm_3F_inverse_single_rooted`,
-  `thm_3F_relation_function_single_rooted`.
-- 3G: `thm_3G_one_to_one_inverse`, `thm_3G_one_to_one_inverse_ran`,
-  plus helpers `inv_is_function`, `preimage_dom`, `preimage_mem_dom`,
-  `image_mem_dom_inverse`.
-- 3H: `thm_3H_composition_is_function`,
-  `def CompositionDomain` + `CompositionDomain.Spec`,
-  `thm_3H_composition_domain`, `thm_3H_composition_value_equal`
-  (with helpers `comp_dom_mem_inner_dom`, `comp_value_mem_outer_dom`).
-- 3I: `thm_3I_inverse_composition`.
+This unique set $B$ we denote as $F^{-1}$.)
 
-3J lives at the bottom of `Set/Ch3/S4_Functions.lean`. The
-`Set.Choice` sub-namespace there contains **only** declarations whose
-proofs actually invoke an AC axiom — so 3J(b) is in `Choice`, but 3J(a)
-and all of its AC-free helpers stay in the plain `Set` namespace. The
-file's bottom enforces this split with two `#print axioms` checks.
+*Example* Let $F: \mathbb{R} \to \mathbb{R}$ be defined by the equation $F(x) = x^2$. Let $A$ be the set $\{x \in \mathbb{R} \mid -1 \leq x \leq 2\}$, i.e., the closed interval $[-1, 2]$. Then $F[\![A]\!] = [0, 4]$; see Fig. 9. And $F^{-1}[\![A]\!] = [-\sqrt{2}, \sqrt{2}]$. Notice that although $F$ here is a function, $F^{-1}$ is *not* a function, because both $\langle 9, 3 \rangle$ and $\langle 9, -3 \rangle$ are in $F^{-1}$. The so-called "multiple-valued functions" are relations, not functions. People write "$F^{-1}(9) = \pm 3$," but it would be preferable to write: $F^{-1}[\![\{9\}]\!] = \{-3, 3\}$.
 
-- AC declarations: `Set.Choice.ChoiceFirstForm` and
-  `Set.Choice.choice_first_form` (canonical home: `Set/Choice.lean`,
-  which is also where the remaining four equivalent forms of AC will
-  live, alongside the second-form `Set.Choice.ChoiceSecondForm`). To
-  avoid a circular import, the AC predicates state "function" inline as
-  `IsRelation H ∧ ∀ x ∈ dom H, ∃! y, ⟪x, y⟫ ∈ H` — definitionally equal
-  to `IsFunction H`, so consumers in `S4_Functions.lean` and downstream
-  destructure it directly as an `IsFunction`.
-- Visibility marker: `S4_Functions.lean` `#check`s
-  `@Choice.ChoiceFirstForm` and `@Choice.choice_first_form` at the top
-  (right where Enderton introduces them on p.49), and the bottom of the
-  file reopens `namespace Choice` so the axiom is in scope **only**
-  inside the 3J(b) proof.
-- AC-free helpers (plain `Set` namespace):
-  - `LeftInverseRelation F B a₀ := F⁻¹ ∪ (B - ran F) ⨯ {a₀}` plus
-    `LeftInverseRelation.Spec`. This is the set named `G` in
-    Enderton's Fig. 10(a); when `F` is one-to-one it is *already* a
-    function, so no AC is needed.
-  - `one_to_one_preimage_unique` — single-rootedness on the entire
-    range.
-- AC-free theorem (plain `Set` namespace):
-  - `thm_3J_a_left_inverse_iff_one_to_one`. The (⇒) direction proves
-    `LeftInverseRelation F B a₀` is a function by case-analysis on
-    membership (`ran F` vs. `B - ran F`), using
-    `one_to_one_preimage_unique` for the `ran F` half.
-- AC-dependent theorem (inside `Set.Choice`):
-  - `Set.Choice.thm_3J_b_right_inverse_iff_onto`. The (⇒) direction is the
-    textbook's first appeal to AC: take `R = F⁻¹` and apply
-    `choice_first_form` to extract the right inverse `H`.
+**page 45**
 
-3K and 3L (full coverage; the previously missing arbitrary-family and
-single-rooted equality items are now in place):
+*Fig. 9.* $F[\![A]\!]$ is the image of the set $A$ under $F$.
 
-- Family construction: `ImageFamily F 𝒜 := {F⟦A⟧ | A ∈ 𝒜}` with
-  `ImageFamily.Spec` and `ImageFamily.Nonempty`.
-- 3K(a): `thm_3Ka_image_union` (binary), `thm_3Ka_image_bigUnion` (arbitrary).
-- 3K(b): `thm_3Kb_image_inter_subset` (binary, subset),
-  `thm_3Kb_image_bigInter_subset` (arbitrary, subset),
-  `thm_3Kb_image_inter_eq_of_single_rooted` (binary, equality),
-  `thm_3Kb_image_bigInter_eq_of_single_rooted` (arbitrary, equality).
-- 3K(c): `thm_3Kc_image_diff_subset` (subset),
-  `thm_3Kc_image_diff_eq_of_single_rooted` (equality).
-- 3L: `cor_3La_inverse_image_bigUnion`,
-  `cor_3Lb_inverse_image_bigInter`,
-  `cor_3Lc_inverse_image_diff`.
-- Binary convenience corollaries (not part of 3L proper):
-  `inverse_image_union`, `inverse_image_inter`, `inverse_image_diff`.
+*Example* In mathematical analysis it is often necessary to consider the "inverse image" of a set $A$ under a function $F$, i.e., the set $F^{-1}[\![A]\!]$. For a function $F$,
 
-Auxiliary items used in later sections:
+$$F^{-1}[\![A]\!] = \{x \in \text{dom } F \mid F(x) \in A\}$$
 
-- `IndexedUnion` (no preconditions) and `IndexedIntersection`
-  (`hI : I.Nonempty` plus `hDom : I ⊆ dom F`, matching Enderton's
-  "provided that I is nonempty" once F is a function with `dom F ⊇ I`),
-  together with the helper `restriction_range_nonempty`.
-- `FunctionSpace` and `FunctionSpace.Spec` (the set `ᴬB`).
+(Exercise 24). In general, $F^{-1}$ will not be a function.
 
-Items not part of Enderton's Ch 3.4 (moved out of this file):
+*Example* Let $g$ be the sine function of trigonometry. Then $g^{-1}$ is not a function. (Why not?) But the restriction of $g$ to the closed interval $[-\pi/2, \pi/2]$ is one-to-one, and its inverse
 
-- `GraphOn` and its lemmas (`GraphOn.Spec`, `GraphOn.Pair.Spec`,
-  `GraphOn.mapsInto`) packaged a Lean meta-function `f : Set → Set` as a
-  set-theoretic graph `{⟪x, f x⟫ | x ∈ A}`. They are pure scaffolding for
-  Chapter 4 (the Peano-isomorphism proof in `Set/Ch4/S3_RecursionOnOmega.lean`
-  and the arithmetic recurrences in `Set/Ch4/S4_Arithmetic.lean`), so they
-  now live at the top of `Set/Ch4/S3_RecursionOnOmega.lean` rather than
-  cluttering the Enderton-aligned Ch 3.4 file.
+$$(g \restriction [-\pi/2, \pi/2])^{-1}$$
 
-## 8. Cross-file linkage
+is the arc sine function.
 
-- The first-form Axiom of Choice (`Set.Choice.choice_first_form`) is
-  declared in `Set/Choice.lean` (the single home for all six equivalent
-  AC forms, by project convention) and `#check`'d at the introduction
-  point inside `Set/Ch3/S4_Functions.lean`. The reopened
-  `namespace Choice` at the bottom of `S4_Functions.lean` is the only
-  scope in that file where the axiom is accessible.
-- The infinite Cartesian product `Π_{i ∈ I} H(i)` and the second-form AC
-  application live in `Set/Ch3/S5_InfiniteCartesianProducts.lean`
-  (Enderton §3.5).
-- Exercise 26 (the second halves of 3K(a) and 3K(b)) is now discharged by
-  the arbitrary-form theorems above; we use those rather than leaving the
-  arbitrary forms as user-facing exercises.
+*Example* Assume that we have the set of all people (!) in mind, and we define $P$ to be the relation of parenthood, i.e.,
 
-## Workflow note
+$$P = \{\langle x, y \rangle \mid x \text{ is a parent of } y\}.$$
 
-When editing this section, keep `TODO.md` (Functions block) and the Lean
-file aligned with the numbered list above. The transcription doubles as a
-checklist: any 3K/3L item present here that lacks a corresponding Lean
-theorem indicates the work is incomplete.
+Then
+
+$$P^{-1} = \{\langle x, y \rangle \mid x \text{ is a son or daughter of } y\}$$
+
+and
+
+$$P \circ P = \{\langle x, y \rangle \mid x \text{ is a grandparent of } y\}.$$
+
+If $A$ is the set of people born in Poland, then
+
+$$(P \circ P)[\![A]\!] = \{t \mid \text{a grandparent of } t \text{ was born in Poland}\}.$$
+
+**page 46**
+
+To further complicate matters, let $S$ be the relation that holds between siblings:
+
+$$S = \{\langle x, y \rangle \mid x \text{ is a brother or sister of } y\}$$
+
+Then $S^{-1} = S$. To find out what $P \circ S$ is, we can calculate:
+
+$$\langle x, y \rangle \in P \circ S \quad \Leftrightarrow \quad xSt\ \&\ tPy \quad \text{for some } t$$
+$$\Leftrightarrow \quad x \text{ is a sibling of a parent of } y$$
+$$\Leftrightarrow \quad x \text{ is an aunt or uncle of } y.$$
+
+None of the relations in this example are functions.
+
+*Example* Let
+
+$$F = \{\langle \varnothing, a \rangle, \langle \{\varnothing\}, b \rangle\}.$$
+
+Observe that $F$ is a function. We have
+
+$$F^{-1} = \{\langle a, \varnothing \rangle, \langle b, \{\varnothing\} \rangle\}.$$
+
+$F^{-1}$ is a function iff $a \neq b$. The restriction of $F$ to $\varnothing$ is $\varnothing$, but
+
+$$F \restriction \{\varnothing\} = \{\langle \varnothing, a \rangle\}.$$
+
+Consequently, $F[\![\{\varnothing\}]\!] = \{a\}$, in contrast to the fact that $F(\{\varnothing\}) = b$.
+
+The following facts about inverses are not difficult to show; the proofs of some of them are left as exercises.
+
+**Theorem 3E** For a set $F$, dom $F^{-1} = \text{ran } F$ and ran $F^{-1} = \text{dom } F$. For a relation $F$, $(F^{-1})^{-1} = F$.
+
+**Theorem 3F** For a set $F$, $F^{-1}$ is a function iff $F$ is single-rooted. A relation $F$ is a function iff $F^{-1}$ is single-rooted.
+
+**Theorem 3G** Assume that $F$ is a one-to-one function. If $x \in \text{dom } F$, then $F^{-1}(F(x)) = x$. If $y \in \text{ran } F$, then $F(F^{-1}(y)) = y$.
+
+*Proof* Suppose that $x \in \text{dom } F$; then $\langle x, F(x) \rangle \in F$ and $\langle F(x), x \rangle \in F^{-1}$. Thus $F(x) \in \text{dom } F^{-1}$. $F^{-1}$ is a function by Theorem 3F, so $x = F^{-1}(F(x))$.
+
+If $y \in \text{ran } F$, then by applying the first part of the theorem to $F^{-1}$ we obtain the equation $(F^{-1})^{-1}(F^{-1}(y)) = y$. But $(F^{-1})^{-1} = F$. $\dashv$
+
+In place of Theorem 3G, we could have *defined* $F^{-1}$ (for a one-to-one function $F$) to be that function whose value at $F(x)$ is $x$ (and whose domain is ran $F$). But this would be too restrictive; $F^{-1}$ can be a useful relation even when it is not a function. Hence we prefer a definition of $F^{-1}$ that is applicable to any set.
+
+**page 47**
+
+**Theorem 3H** Assume that $F$ and $G$ are functions. Then $F \circ G$ is a function, its domain is
+
+$$\{x \in \text{dom } G \mid G(x) \in \text{dom } F\},$$
+
+and for $x$ in its domain, $(F \circ G)(x) = F(G(x))$.
+
+*Proof* To see that $F \circ G$ is a function, assume that $x(F \circ G)y$ and $x(F \circ G)y'$. Then for some $t$ and $t'$,
+
+$$xGt\ \&\ tFy \qquad \text{and} \qquad xGt'\ \&\ t'Fy'.$$
+
+Since $G$ is a function, $t = t'$. Since $F$ is a function, $y = y'$. Hence $F \circ G$ is a function.
+
+Now suppose that $x \in \text{dom } G$ and $G(x) \in \text{dom } F$. We must show that $x \in \text{dom}(F \circ G)$ and that $(F \circ G)(x) = F(G(x))$. We have $\langle x, G(x) \rangle \in G$ and $\langle G(x), F(G(x)) \rangle \in F$. Hence $\langle x, F(G(x)) \rangle \in F \circ G$, and this yields the desired facts.
+
+Conversely, if $x \in \text{dom } F \circ G$, then we know that for some $y$ and $t$, $xGt$ and $tFy$. Hence $x \in \text{dom } G$ and $t = G(x) \in \text{dom } F$. $\dashv$
+
+Again we could have *defined* $F \circ G$ (for functions $F$ and $G$) as the function with the properties stated in the above theorem. But we prefer to use a definition applicable to nonfunctions as well. For example, in Exercise 32, we will want $R \circ R$ for an arbitrary relation $R$.
+
+*Example* Assume that $G$ is some one-to-one function. Then by Theorem 3H, $G^{-1} \circ G$ is a function, its domain is
+
+$$\{x \in \text{dom } G \mid G(x) \in \text{dom } G^{-1}\} = \text{dom } G,$$
+
+and for $x$ in its domain,
+
+$$(G^{-1} \circ G)(x) = G^{-1}(G(x))$$
+$$= x \qquad \text{by Theorem 3G.}$$
+
+Thus $G^{-1} \circ G$ is $I_{\text{dom } G}$, the identity function on dom $G$, by Exercise 11. Similarly one can show that $G \circ G^{-1}$ is $I_{\text{ran } G}$ (Exercise 25).
+
+**Theorem 3I** For any sets $F$ and $G$,
+
+$$(F \circ G)^{-1} = G^{-1} \circ F^{-1}.$$
+
+*Proof* Both $(F \circ G)^{-1}$ and $G^{-1} \circ F^{-1}$ are relations. We calculate:
+
+$$\langle x, y \rangle \in (F \circ G)^{-1} \quad \Leftrightarrow \quad \langle y, x \rangle \in F \circ G$$
+$$\Leftrightarrow \quad yGt\ \&\ tFx \qquad \text{for some } t$$
+$$\Leftrightarrow \quad xF^{-1}t\ \&\ tG^{-1}y \qquad \text{for some } t$$
+$$\Leftrightarrow \quad \langle x, y \rangle \in G^{-1} \circ F^{-1}.$$
+
+$\dashv$
+
+**page 48**
+
+In a less abstract form, Theorem 3I expresses common knowledge. In getting dressed, one first puts on socks and then shoes. But in the inverse process of getting undressed, one first removes shoes and then socks.
+
+**Theorem 3J** Assume that $F: A \to B$, and that $A$ is nonempty.
+
+(a) There exists a function $G: B \to A$ (a "left inverse") such that $G \circ F$ is the identity function $I_A$ on $A$ iff $F$ is one-to-one.
+
+(b) There exists a function $H: B \to A$ (a "right inverse") such that $F \circ H$ is the identity function $I_B$ on $B$ iff $F$ maps $A$ onto $B$.
+
+*Proof* (a) First assume that there is a function $G$ for which $G \circ F = I_A$. If $F(x) = F(y)$, then by applying $G$ to both sides of the equation we have
+
+$$x = G(F(x)) = G(F(y)) = y,$$
+
+and hence $F$ is one-to-one.
+
+For the converse, assume that $F$ is one-to-one. Then $F^{-1}$ is a function from ran $F$ onto $A$ (by Theorems 3E and 3F). The idea is to extend $F^{-1}$ to a function $G$ defined on all of $B$. By assumption $A$ is nonempty, so we can fix some $a$ in $A$. Then we define $G$ so that it assigns $a$ to every point in $B - \text{ran } F$:
+
+$$G(x) = \begin{cases} F^{-1}(x) & \text{if } x \in \text{ran } F \\ a & \text{if } x \in B - \text{ran } F. \end{cases}$$
+
+In one line,
+
+$$G = F^{-1} \cup (B - \text{ran } F) \times \{a\}$$
+
+(see Fig. 10a). This choice for $G$ does what we want: $G$ is a function mapping $B$ into $A$, dom$(G \circ F) = A$, and $G(F(x)) = F^{-1}(F(x)) = x$ for each $x$ in $A$. Hence $G \circ F = I_A$.
+
+(b) Next assume that there is a function $H$ for which $F \circ H = I_B$. Then for any $y$ in $B$ we have $y = F(H(y))$, so that $y \in \text{ran } F$. Thus ran $F$ is all of $B$.
+
+The converse poses a difficulty. We cannot take $H = F^{-1}$, because in general $F$ will not be one-to-one and so $F^{-1}$ will not be a function. Assume that $F$ maps $A$ onto $B$, so that ran $F = B$. The idea is that for each $y \in B$ we must *choose* some $x$ for which $F(x) = y$ and then let $H(y)$ be the chosen $x$. Since $y \in \text{ran } F$ we know that such $x$'s exist, so there is no problem (see Fig. 10b).
+
+Or is there? For any *one* $y$ we know there exists an appropriate $x$. But that is not by itself enough to let us form a function $H$. We have in general no way of defining any one particular choice of $x$. What is needed here is the axiom of choice.
+
+**page 49**
+
+*Fig. 10.* The proof of Theorem 3J. In part (a), make $G(x) = a$ for $x \in B - \text{ran } F$. In part (b), $H(y)$ is the chosen $x$ for which $F(x) = y$.
+
+**Axiom of Choice** (first form) For any relation $R$ there is a function $H \subseteq R$ with dom $H = \text{dom } R$.
+
+With this axiom we can now proceed with the proof of Theorem 3J(b); take $H$ to be a function with $H \subseteq F^{-1}$ and dom $H = \text{dom } F^{-1} = \text{ran } F = B$. Then $H$ does what we want: Given any $y$ in $B$, we have $\langle y, H(y) \rangle \in F^{-1}$; hence $\langle H(y), y \rangle \in F$, and so $F(H(y)) = y$. $\dashv$
+
+In Chapter 6 we will give a systematic discussion of the axiom of choice. It is the only axiom that we discuss without using the marginal stripe.
+
+**page 50**
+
+**Theorem 3K** The following hold for any sets. ($F$ need not be a function.)
+
+(a) The image of a union is the union of the images:
+
+$$F[\![A \cup B]\!] = F[\![A]\!] \cup F[\![B]\!] \qquad \text{and} \qquad F[\![\textstyle\bigcup \mathscr{A}]\!] = \bigcup\{F[\![A]\!] \mid A \in \mathscr{A}\}.$$
+
+(b) The image of an intersection is included in the intersection of the images:
+
+$$F[\![A \cap B]\!] \subseteq F[\![A]\!] \cap F[\![B]\!] \qquad \text{and} \qquad F[\![\textstyle\bigcap \mathscr{A}]\!] \subseteq \bigcap\{F[\![A]\!] \mid A \in \mathscr{A}\}$$
+
+for nonempty $\mathscr{A}$. Equality holds if $F$ is single-rooted.
+
+(c) The image of a difference includes the difference of the images:
+
+$$F[\![A]\!] - F[\![B]\!] \subseteq F[\![A - B]\!].$$
+
+Equality holds if $F$ is single-rooted.
+
+*Example* Let $F: \mathbb{R} \to \mathbb{R}$ be defined by $F(x) = x^2$. Let $A$ and $B$ be the closed intervals $[-2, 0]$ and $[1, 2]$:
+
+$$A = \{x \mid -2 \leq x \leq 0\} \qquad \text{and} \qquad B = \{x \mid 1 \leq x \leq 2\}.$$
+
+Then $F[\![A]\!] = [0, 4]$ and $F[\![B]\!] = [1, 4]$. This example shows that equality does not always hold in parts (b) and (c) of Theorem 3K, for $F[\![A \cap B]\!] = F[\![\varnothing]\!] = \varnothing$, whereas $F[\![A]\!] \cap F[\![B]\!] = [1, 4]$. And $F[\![A]\!] - F[\![B]\!] = [0, 1)$, whereas $F[\![A - B]\!] = F[\![A]\!] = [0, 4]$.
+
+*Proof* To prove Theorem 3K we calculate
+
+$$y \in F[\![A \cup B]\!] \quad \Leftrightarrow \quad (\exists x \in A \cup B) xFy$$
+$$\Leftrightarrow \quad (\exists x \in A) xFy \text{ or } (\exists x \in B) xFy$$
+$$\Leftrightarrow \quad y \in F[\![A]\!] \text{ or } y \in F[\![B]\!].$$
+
+This proves the first half of (a). For intersections we have the corresponding calculation, except that the middle step
+
+$$(\exists x \in A \cap B) xFy \quad \Rightarrow \quad (\exists x \in A) xFy\ \&\ (\exists x \in B) xFy$$
+
+is not always reversible. It is possible that both $x_1 \in A$ with $x_1 Fy$ and $x_2 \in B$ with $x_2 Fy$, and yet there might be no $x$ in $A \cap B$ with $xFy$. But if $F$ is single-rooted, then $x_1 = x_2$ and so it is in $A \cap B$. Thus we obtain the first half of (b).
+
+The second halves of (a) and (b) generalize the first halves. The proofs follow the same outlines as the first halves, but we leave the details to Exercise 26.
+
+**page 51**
+
+For part (c) we also calculate:
+
+$$y \in F[\![A]\!] - F[\![B]\!] \quad \Leftrightarrow \quad (\exists x \in A) xFy\ \&\ \neg (\exists t \in B) tFy$$
+$$\Rightarrow \quad (\exists x \in A - B) xFy$$
+$$\Leftrightarrow \quad y \in F[\![A - B]\!].$$
+
+Again if $F$ is single-rooted, then there is only one $x$ such that $xFy$. In this case the middle step can be reversed. $\dashv$
+
+Since the inverse of a function is always single-rooted, we have as an immediate consequence of Theorem 3K that unions, intersections, and relative complements are always preserved under inverse images.
+
+**Corollary 3L** For any function $G$ and sets $A$, $B$, and $\mathscr{A}$:
+
+$$G^{-1}[\![\textstyle\bigcup \mathscr{A}]\!] = \bigcup\{G^{-1}[\![A]\!] \mid A \in \mathscr{A}\},$$
+$$G^{-1}[\![\textstyle\bigcap \mathscr{A}]\!] = \bigcap\{G^{-1}[\![A]\!] \mid A \in \mathscr{A}\} \qquad \text{for } \mathscr{A} \neq \varnothing,$$
+$$G^{-1}[\![A - B]\!] = G^{-1}[\![A]\!] - G^{-1}[\![B]\!].$$
+
+We conclude our discussion of functions with some definitions that may be useful later. Our intent is to build a large working vocabulary of set-theoretic notations.
+
+An infinite union is often "indexed," as when we write $\bigcup_{i \in I} A_i$. We can give a formal definition to such a union as follows. Let $I$ be a set, called the *index* set. Let $F$ be a function whose domain includes $I$. Then we define
+
+$$\bigcup_{i \in I} F(i) = \bigcup\{F(i) \mid i \in I\}$$
+$$= \{x \mid x \in F(i) \text{ for some } i \text{ in } I\}.$$
+
+For example, if $I = \{0, 1, 2, 3\}$, then
+
+$$\bigcup_{i \in I} F(i) = \bigcup\{F(0), F(1), F(2), F(3)\}$$
+$$= F(0) \cup F(1) \cup F(2) \cup F(3).$$
+
+Similar remarks apply to intersections (provided that $I$ is nonempty):
+
+$$\bigcap_{i \in I} F(i) = \bigcap\{F(i) \mid i \in I\}$$
+$$= \{x \mid x \in F(i) \text{ for every } i \text{ in } I\}.$$
+
+If we use the alternative notation
+
+$$F_i = F(i),$$
+
+**page 52**
+
+then we can rewrite the above equations as
+
+$$\bigcup_{i \in I} F_i = \bigcup\{F_i \mid i \in I\}$$
+$$= \{x \mid x \in F_i \text{ for some } i \text{ in } I\}$$
+
+and
+
+$$\bigcap_{i \in I} F_i = \bigcap\{F_i \mid i \in I\}$$
+$$= \{x \mid x \in F_i \text{ for every } i \text{ in } I\}.$$
+
+For sets $A$ and $B$ we can form the collection of functions $F$ from $A$ into $B$. Call the set of all such functions $^A B$:
+
+$$^A B = \{F \mid F \text{ is a function from } A \text{ into } B\}.$$
+
+If $F: A \to B$, then $F \subseteq A \times B$, and so $F \in \mathscr{P}(A \times B)$. Consequently we can apply a subset axiom to $\mathscr{P}(A \times B)$ to construct the set of all functions from $A$ into $B$.
+
+The notation $^A B$ is read "$B$-pre-$A$." Some authors write $B^A$ instead; this notation is derived from the fact that if $A$ and $B$ are finite sets and the number of elements in $A$ and $B$ is $a$ and $b$, respectively, then $^A B$ has $b^a$ members. (To see this, note that for each of the $a$ elements of $A$, we can choose among $b$ points in $B$ into which it could be mapped. The number of ways of making all $a$ such choices is $b \cdot b \cdots b$, $a$ times.) We will return to this point in Chapter 6.
+
+*Example* Let $\omega = \{0, 1, 2, \ldots\}$. Then $^\omega \{0, 1\}$ is the set of all possible functions $f: \omega \to \{0, 1\}$. Such an $f$ can be thought of as an infinite sequence $f(0), f(1), f(2), \ldots$ of 0's and 1's.
+
+*Example* For a nonempty set $A$, we have $^A \varnothing = \varnothing$. This is because no function could have a nonempty domain and an empty range. On the other hand, $^\varnothing A = \{\varnothing\}$ for any set $A$, because $\varnothing: \varnothing \to A$, but $\varnothing$ is the only function with empty domain. As a special case, we have $^\varnothing \varnothing = \{\varnothing\}$.
+
+---
+
+¹ Despite this ubiquity, the general concept of "a function" emerged slowly over a period of time. There was a reluctance to separate the concept of a function itself from the idea of a written formula defining the function. There still is.
+
+## Exercises
+
+**11.** Prove the following version (for functions) of the extensionality principle: Assume that $F$ and $G$ are functions, dom $F = \text{dom } G$, and $F(x) = G(x)$ for all $x$ in the common domain. Then $F = G$.
+
+**12.** Assume that $f$ and $g$ are functions and show that
+
+$$f \subseteq g \quad \Leftrightarrow \quad \text{dom } f \subseteq \text{dom } g\ \&\ (\forall x \in \text{dom } f) f(x) = g(x).$$
+
+**page 53**
+
+**13.** Assume that $f$ and $g$ are functions with $f \subseteq g$ and dom $g \subseteq \text{dom } f$. Show that $f = g$.
+
+**14.** Assume that $f$ and $g$ are functions.
+   (a) Show that $f \cap g$ is a function.
+   (b) Show that $f \cup g$ is a function iff $f(x) = g(x)$ for every $x$ in $(\text{dom } f) \cap (\text{dom } g)$.
+
+**15.** Let $\mathscr{A}$ be a set of functions such that for any $f$ and $g$ in $\mathscr{A}$, either $f \subseteq g$ or $g \subseteq f$. Show that $\bigcup \mathscr{A}$ is a function.
+
+**16.** Show that there is no set to which every function belongs.
+
+**17.** Show that the composition of two single-rooted sets is again single-rooted. Conclude that the composition of two one-to-one functions is again one-to-one.
+
+**18.** Let $R$ be the set
+
+$$\{\langle 0, 1 \rangle, \langle 0, 2 \rangle, \langle 0, 3 \rangle, \langle 1, 2 \rangle, \langle 1, 3 \rangle, \langle 2, 3 \rangle\}.$$
+
+Evaluate the following: $R \circ R$, $R \restriction \{1\}$, $R^{-1} \restriction \{1\}$, $R[\![\{1\}]\!]$, and $R^{-1}[\![\{1\}]\!]$.
+
+**19.** Let
+
+$$A = \{\langle \varnothing, \{\varnothing, \{\varnothing\}\} \rangle, \langle \{\varnothing\}, \varnothing \rangle\}.$$
+
+Evaluate each of the following: $A(\varnothing)$, $A[\![\varnothing]\!]$, $A[\![\{\varnothing\}]\!]$, $A[\![\{\varnothing, \{\varnothing\}\}]\!]$, $A^{-1}$, $A \circ A$, $A \restriction \varnothing$, $A \restriction \{\varnothing\}$, $A \restriction \{\varnothing, \{\varnothing\}\}$, $\bigcup\bigcup A$.
+
+**20.** Show that $F \restriction A = F \cap (A \times \text{ran } F)$.
+
+**21.** Show that $(R \circ S) \circ T = R \circ (S \circ T)$ for any sets $R$, $S$, and $T$.
+
+**22.** Show that the following are correct for any sets.
+   (a) $A \subseteq B \Rightarrow F[\![A]\!] \subseteq F[\![B]\!]$.
+   (b) $(F \circ G)[\![A]\!] = F[\![G[\![A]\!]]\!]$.
+   (c) $Q \restriction (A \cup B) = (Q \restriction A) \cup (Q \restriction B)$.
+
+**23.** Let $I_A$ be the identity function on the set $A$. Show that for any sets $B$ and $C$,
+
+$$B \circ I_A = B \restriction A \qquad \text{and} \qquad I_A[\![C]\!] = A \cap C.$$
+
+**24.** Show that for a function $F$, $F^{-1}[\![A]\!] = \{x \in \text{dom } F \mid F(x) \in A\}$.
+
+**25.** (a) Assume that $G$ is a one-to-one function. Show that $G \circ G^{-1}$ is $I_{\text{ran } G}$, the identity function on ran $G$.
+   (b) Show that the result of part (a) holds for any function $G$, not necessarily one-to-one.
+
+**26.** Prove the second halves of parts (a) and (b) of Theorem 3K.
+
+**27.** Show that dom$(F \circ G) = G^{-1}[\![\text{dom } F]\!]$ for any sets $F$ and $G$. ($F$ and $G$ need not be functions.)
+
+**page 54**
+
+**28.** Assume that $f$ is a one-to-one function from $A$ into $B$, and that $G$ is the function with dom $G = \mathscr{P}A$ defined by the equation $G(X) = f[\![X]\!]$. Show that $G$ maps $\mathscr{P}A$ one-to-one into $\mathscr{P}B$.
+
+**29.** Assume that $f: A \to B$ and define a function $G: B \to \mathscr{P}A$ by
+
+$$G(b) = \{x \in A \mid f(x) = b\}.$$
+
+Show that if $f$ maps $A$ onto $B$, then $G$ is one-to-one. Does the converse hold?
+
+**30.** Assume that $F: \mathscr{P}A \to \mathscr{P}A$ and that $F$ has the monotonicity property:
+
+$$X \subseteq Y \subseteq A \quad \Rightarrow \quad F(X) \subseteq F(Y).$$
+
+Define
+
+$$B = \bigcap\{X \subseteq A \mid F(X) \subseteq X\} \qquad \text{and} \qquad C = \bigcup\{X \subseteq A \mid X \subseteq F(X)\}.$$
+
+   (a) Show that $F(B) = B$ and $F(C) = C$.
+   (b) Show that if $F(X) = X$, then $B \subseteq X \subseteq C$.

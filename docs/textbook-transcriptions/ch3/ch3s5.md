@@ -1,38 +1,49 @@
-# Ch3 Section 5 (Infinite Cartesian Products) - Textbook Extraction Draft
+# Chapter 3 Section 5 (Infinite Cartesian Products)
 
-Source: Enderton, Chapter 3, pp. 54-55.
+Source: Enderton, *Elements of Set Theory*, pp. 54-55.
 
-## Core Definitions
+**page 54**
 
-1. Infinite Cartesian product over index set `I` and family `H`:
-   - Set-theoretic form:
-     - `∏_{i ∈ I} H(i) = { f | f is a function, dom(f)=I, and for every i∈I, f(i)∈H(i) }`.
-   - In this repo (`Set`-as-family encoding):
-     - `H` is a relation-like graph of index-to-fiber witnesses.
-     - Value-membership condition is encoded by:
-       - if `⟨i, y⟩ ∈ f`, then there exists `hi` with `⟨i, hi⟩ ∈ H` and `y ∈ hi`.
+## INFINITE CARTESIAN PRODUCTS[^1]
 
-2. Axiom of Choice (second form):
-   - If `H` is a function with domain `I` and each `H(i)` is nonempty, then a selector function exists.
-   - Textbook consequence: the product `∏_{i∈I} H(i)` is nonempty.
+We can form something like the Cartesian product of infinitely many sets, provided that the sets are suitably indexed. More specifically, let $I$ be a set (which we will refer to as the *index set*) and let $H$ be a function whose domain includes $I$. Then for each $i$ in $I$ we have the set $H(i)$; we want the product of the $H(i)$'s for all $i \in I$. We define:
 
-## Formal Statements to Keep Aligned
+$$
+⨉_{i \in I} H(i) = \{f \mid f \text{ is a function with domain } I \text{ and } (\forall i \in I)\, f(i) \in H(i)\}.
+$$
 
-- `noncomputable def InfiniteProduct (I H : Set) : Set := ...`
-- `lemma InfiniteProduct.Spec {I H f : Set} : ...`
-- `def ChoiceSecondForm : Prop := ...` (in `Set/Choice.lean`)
-- `theorem infiniteProduct_nonempty_of_choice_second_form (hChoice₂ : ChoiceSecondForm) : ...`
+Thus the members of $⨉_{i \in I} H(i)$ are "$I$-tuples" (i.e., functions with domain $I$) for which the "$i$th coordinate" (i.e., the value at $i$) is in $H(i)$.
 
-## Proof Sketch: `ChoiceSecondForm -> (InfiniteProduct I H).Nonempty`
+The members of $⨉_{i \in I} H(i)$ are all functions from $I$ into $\bigcup_{i \in I} H(i)$ and hence are members of ${}^{I}(\bigcup_{i \in I} H(i))$. Thus the set $⨉_{i \in I} H(i)$ can be formed by applying a subset axiom to ${}^{I}(\bigcup_{i \in I} H(i))$.
 
-1. Use `ChoiceSecondForm` to obtain a selector relation `f` with:
-   - `IsFunction f`
-   - `dom f = I`
-   - local selection property: each pair `⟨i,y⟩ ∈ f` picks from some fiber attached to `i` in `H`.
-2. Show `f ∈ 𝒫 (I ⨯ ⋃ (ran H))`:
-   - for `w ∈ f`, unpack `w = ⟨i,y⟩` via relation witness.
-   - prove `i ∈ I` from `dom f = I`.
-   - from selector property get `y ∈ hi` and `hi ∈ ran H`, so `y ∈ ⋃ (ran H)`.
-   - conclude `⟨i,y⟩ ∈ I ⨯ ⋃ (ran H)` and thus `w` is in the product carrier.
-3. Apply `InfiniteProduct.Spec` backward to conclude `f ∈ InfiniteProduct I H`.
-4. Conclude nonemptiness by witness `f`.
+*Example* If for every $i \in I$ we have $H(i) = A$ for some one fixed $A$, then
+
+$$
+⨉_{i \in I} H(i) = {}^{I}A.
+$$
+
+*Example* Assume that the index set is the set $\omega = \{0, 1, 2, \ldots\}$. Then $⨉_{i \in \omega} H(i)$ consists of "$\omega$-sequences" (i.e., functions with domain $\omega$) that have for their $i$th term some member of $H(i)$. If we picture the sets $H(i)$ as shown in Fig. 11, then a typical member of $⨉_{i \in \omega} H(i)$ is a "thread" that selects a point from each set.
+
+**page 55**
+
+If any one $H(i)$ is empty, then clearly the product $⨉_{i \in I} H(i)$ is empty. Conversely, suppose that $H(i) \neq \varnothing$ for every $i$ in $I$. Does it follow that
+
+$$
+⨉_{i \in I} H(i) \neq \varnothing
+$$
+
+? To obtain a member $f$ of the product, we need to select some member from each $H(i)$, and put $f(i)$ equal to that selected member. This requires the axiom of choice, and in fact this is one of the many equivalent ways of stating the axiom.
+
+**Axiom of Choice** (second form) For any set $I$ and any function $H$ with domain $I$, if $H(i) \neq \varnothing$ for all $i$ in $I$, then
+
+$$
+⨉_{i \in I} H(i) \neq \varnothing.
+$$
+
+*Fig. 11.* The thread is a member of the Cartesian product.
+
+## Exercise
+
+**31.** Show that from the first form of the axiom of choice we can prove the second form, and conversely.
+
+[^1]: This section may be omitted if certain obvious adjustments are made in Theorem 6M.

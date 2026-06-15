@@ -17,35 +17,33 @@ axiom ElementOf : Set → Set → Prop
 infix:50 " ∈ " => ElementOf
 infix:40 " ∉ " => fun x y => ¬ ElementOf x y
 
-def Nonempty (A : Set) : Prop := ∃ x : Set, x ∈ A
-
 @[simp] def SubsetOf (x a : Set) : Prop := ∀ t : Set, t ∈ x → t ∈ a
 infix:50 " ⊆ " => SubsetOf
 
 
--- [Enderton Ch2 §Axioms, p.17] Extensionality axiom
+-- [Enderton Ch2 §1, p.17] Extensionality axiom
 axiom extensionality : ∀ A B : Set, (∀ x : Set, x ∈ A ↔ x ∈ B) → A = B
 
--- [Enderton Ch2 §Axioms, p.18] Empty set axiom
+-- [Enderton Ch2 §1, p.18] Empty set axiom
 axiom empty : ∃ B : Set, ∀ x : Set, x ∉ B
 
--- [Enderton Ch2 §Axioms, p.18] Pairing axiom
+-- [Enderton Ch2 §1, p.18] Pairing axiom
 axiom pairing : ∀ u v : Set, ∃ B : Set, ∀ x : Set, x ∈ B ↔ x = u ∨ x = v
 
--- [Enderton Ch2 §Axioms, p.18] Union axiom (preliminary binary form)
+-- [Enderton Ch2 §1, p.18] Union axiom (preliminary binary form)
 axiom union_preliminary : ∀ a b : Set, ∃ B : Set, ∀ x : Set, x ∈ B ↔ x ∈ a ∨ x ∈ b
 
--- [Enderton Ch2 §Axioms, p.18] Power set axiom
+-- [Enderton Ch2 §1, p.18] Power set axiom
 axiom power : ∀ a : Set, ∃ B : Set, ∀ x : Set, x ∈ B ↔ x ⊆ a
 
--- [Enderton Ch2 §Axioms, p.21] Subset/Comprehension schema
+-- [Enderton Ch2 §1, p.21] Subset/Comprehension schema
 axiom comprehension (P : Set → Prop) (c : Set) :
   ∃ B : Set, ∀ x : Set, x ∈ B ↔ x ∈ c ∧ P x
 
--- [Enderton Ch2 §Arbitrary Unions and Intersections, p.24] Full union axiom
+-- [Enderton Ch2 §2, p.24] Full union axiom
 axiom union : ∀ A : Set, ∃ B : Set, ∀ x : Set, x ∈ B ↔ ∃ b : Set, b ∈ A ∧ x ∈ b
 
--- [Enderton Ch4 §Inductive Sets, p.68] Infinity axiom (primitive form)
+-- [Enderton Ch4 §1, p.68] Infinity axiom (primitive form)
 -- Modern/enderton-style shorthand:
 --   (∃A)[∅ ∈ A ∧ (∀a ∈ A) a⁺ ∈ A].
 -- In this primitive file we state it using explicit witnesses `e` and `s`

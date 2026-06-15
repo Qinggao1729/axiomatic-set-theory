@@ -9,12 +9,12 @@ Relation definitions and basic lemmas (domain/range/field, 3D, etc).
 namespace Set
 
 
--- Relation [Enderton, p.40]
+/-- [Enderton Ch3 §2, p.40] "A *relation* is a set of ordered pairs." -/
 def IsRelation (R : Set) : Prop :=
   ∀ w, w ∈ R → ∃ x y, w = ⟪x, y⟫
 
-/- [Enderton, Lemma 3D, p.41] -/
-lemma lemma_3D_ordered_pair_in_union_union (x y A : Set) :
+/-- [Enderton Ch3 §2, p.41] "Lemma 3D If `⟨x, y⟩ ∈ A`, then `x` and `y` belong to `⋃⋃A`." -/
+lemma lem_3D_ordered_pair_in_union_union (x y A : Set) :
   ⟪x, y⟫ ∈ A → x ∈ ⋃⋃A ∧ y ∈ ⋃⋃A := by
   intro hxyA
   have hPairMemUnionA : {x, y} ∈ ⋃ A := by
@@ -29,19 +29,22 @@ lemma lemma_3D_ordered_pair_in_union_union (x y A : Set) :
     refine ⟨{x, y}, hPairMemUnionA, ?_⟩
     simp [Pair.Spec]
 
+/-- [Enderton Ch3 §2, p.41] "Lemma 3D If `⟨x, y⟩ ∈ A`, then `x` and `y` belong to `⋃⋃A`."
+(Compatibility alias of `lem_3D_ordered_pair_in_union_union`.) -/
 lemma OrderedPair.in_union_union (x y A : Set) :
   ⟪x, y⟫ ∈ A → x ∈ ⋃⋃A ∧ y ∈ ⋃⋃A :=
-  lemma_3D_ordered_pair_in_union_union x y A
+  lem_3D_ordered_pair_in_union_union x y A
 
 
 -- Note: Enderton defines domain, range, and field on any sets, not just relations.
 -- So if you apply Enderton's formula for dom A to a set that contains a mix of ordered pairs and other random elements,
 -- the formula simply ignores the non-pair elements, because they cannot satisfy the condition ∃ y, ⟨x,y⟩ ∈ A.
-/- Domain [Enderton, p.40] -/
+/-- [Enderton Ch3 §2, p.40] "We define the *domain* of `R` (dom `R`) ... by
+`x ∈ dom R ⇔ ∃y ⟨x, y⟩ ∈ R`." -/
 noncomputable def Domain (R : Set) : Set :=
   Comprehension (fun x ↦ ∃ (y : Set), ⟪x, y⟫ ∈ R) (⋃⋃R)
 
-/- [Enderton, p.41] -/
+/-- [Enderton Ch3 §2, pp.40-41] "`x ∈ dom R ⇔ ∃y ⟨x, y⟩ ∈ R`." -/
 @[simp]
 lemma Domain.Spec {R x : Set} : x ∈ Domain R ↔ ∃ y, ⟪x, y⟫ ∈ R := by
   rw [Domain, Comprehension.Spec]
@@ -50,7 +53,7 @@ lemma Domain.Spec {R x : Set} : x ∈ Domain R ↔ ∃ y, ⟪x, y⟫ ∈ R := by
     exact hx.2
   · intro hx
     rcases hx with ⟨y, hxyR⟩
-    have hxUnion : x ∈ ⋃⋃R := (lemma_3D_ordered_pair_in_union_union x y R hxyR).1
+    have hxUnion : x ∈ ⋃⋃R := (lem_3D_ordered_pair_in_union_union x y R hxyR).1
     exact ⟨hxUnion, ⟨y, hxyR⟩⟩
 attribute [set_spec_simps] Domain.Spec
 notation:90 "dom " R => Domain R
@@ -59,11 +62,12 @@ lemma Relation.Pair.mem_dom (R x y : Set) : ⟪x, y⟫ ∈ R → x ∈ dom R := 
   intro h
   exact (Domain.Spec).2 ⟨y, h⟩
 
-/- Domain [Enderton, p.40] -/
+/-- [Enderton Ch3 §2, p.40] "We define ... the *range* of `R` (ran `R`) ... by
+`x ∈ ran R ⇔ ∃t ⟨t, x⟩ ∈ R`." -/
 noncomputable def Range (R : Set) : Set :=
   Comprehension (fun y ↦ ∃ (x : Set), ⟪x, y⟫ ∈ R) (⋃⋃R)
 
-/- [Enderton, p.41] -/
+/-- [Enderton Ch3 §2, pp.40-41] "`x ∈ ran R ⇔ ∃t ⟨t, x⟩ ∈ R`." -/
 @[simp]
 lemma Range.Spec {R y : Set} : y ∈ Range R ↔ ∃ x, ⟪x, y⟫ ∈ R := by
   rw [Range, Comprehension.Spec]
@@ -72,7 +76,7 @@ lemma Range.Spec {R y : Set} : y ∈ Range R ↔ ∃ x, ⟪x, y⟫ ∈ R := by
     exact hy.2
   · intro hy
     rcases hy with ⟨x, hxyR⟩
-    have hyUnion : y ∈ ⋃⋃R := (lemma_3D_ordered_pair_in_union_union x y R hxyR).2
+    have hyUnion : y ∈ ⋃⋃R := (lem_3D_ordered_pair_in_union_union x y R hxyR).2
     exact ⟨hyUnion, ⟨x, hxyR⟩⟩
 attribute [set_spec_simps] Range.Spec
 notation:90 "ran " R => Range R
@@ -81,7 +85,8 @@ lemma Relation.Pair.mem_ran (R x y : Set) : ⟪x, y⟫ ∈ R → y ∈ ran R := 
   intro h
   exact (Range.Spec).2 ⟨x, h⟩
 
-/- Field [Enderton, p.40] -/
+/-- [Enderton Ch3 §2, p.40] "We define ... the *field* of `R` (fld `R`) by
+`fld R = dom R ∪ ran R`." -/
 noncomputable def Field (R : Set) : Set := (dom R) ∪ (ran R)
 
 @[simp]

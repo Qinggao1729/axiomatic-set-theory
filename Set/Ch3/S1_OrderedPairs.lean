@@ -9,7 +9,7 @@ Ordered pair definitions and theorems (including 3A, 3B, 3C).
 
 namespace Set
 
-/- Ordered Pair [Enderton, p. 36] -/
+/-- [Enderton Ch3 §1, p.36] "`⟨x, y⟩` is defined to be `{{x}, {x, y}}`." -/
 noncomputable def OrderedPair (x y : Set) : Set := Pair (Singleton x) (Pair x y)
 @[simp]
 lemma OrderedPair.Spec {x y w : Set} : w ∈ OrderedPair x y ↔ w = Singleton x ∨ w = Pair x y := by
@@ -60,7 +60,7 @@ lemma Pair.eq_pair_right_or {a b c d : Set} : Pair a b = Pair c d → b = c ∨ 
   exact Pair.eq_pair_left_or h
 
 
-/- [Enderton, Theorem 3A, p. 36] -/
+/-- [Enderton Ch3 §1, p.36] "Theorem 3A `⟨u, v⟩ = ⟨x, y⟩` iff `u = x` and `v = y`." -/
 theorem thm_3A_ordered_pair_uniqueness (u v x y : Set) :
   ⟪u, v⟫ = ⟪x, y⟫ ↔ u = x ∧ v = y := by
   constructor
@@ -69,12 +69,12 @@ theorem thm_3A_ordered_pair_uniqueness (u v x y : Set) :
       have huMem : Singleton u ∈ OrderedPair x y := by
         rw [← h]
         simp []
-      simpa only [set_spec_simps] using huMem
+      simpa only [set_spec_simps, prop_simps] using huMem
     have h₂ : Pair u v = Singleton x ∨ Pair u v = Pair x y := by
       have huvMem : Pair u v ∈ OrderedPair x y := by
         rw [← h]
         simp []
-      simpa only [set_spec_simps] using huvMem
+      simpa only [set_spec_simps, prop_simps] using huvMem
 
     cases h₁ with
     | inl hux =>
@@ -132,13 +132,15 @@ theorem thm_3A_ordered_pair_uniqueness (u v x y : Set) :
     obtain ⟨hux, hvy⟩ := h
     rw [hux, hvy]
 
+/-- [Enderton Ch3 §1, p.36] "Theorem 3A `⟨u, v⟩ = ⟨x, y⟩` iff `u = x` and `v = y`."
+(Compatibility alias of `thm_3A_ordered_pair_uniqueness`.) -/
 theorem OrderedPair.uniqueness (u v x y : Set) :
   ⟪u, v⟫ = ⟪x, y⟫ ↔ u = x ∧ v = y :=
   thm_3A_ordered_pair_uniqueness u v x y
 
 
-/- [Enderton, Lemma 3B, p.37] -/
-lemma lemma_3B_ordered_pair_in_power_power (x y C : Set) :
+/-- [Enderton Ch3 §1, p.37] "Lemma 3B If `x ∈ C` and `y ∈ C`, then `⟨x, y⟩ ∈ 𝒫𝒫C`." -/
+lemma lem_3B_ordered_pair_in_power_power (x y C : Set) :
   x ∈ C → y ∈ C → OrderedPair x y ∈ Power (Power C) := by
   intro hx hy
   simp only [Power.Spec]
@@ -147,15 +149,19 @@ lemma lemma_3B_ordered_pair_in_power_power (x y C : Set) :
   simp []
   exact And.intro hx hy
 
+/-- [Enderton Ch3 §1, p.37] "Lemma 3B If `x ∈ C` and `y ∈ C`, then `⟨x, y⟩ ∈ 𝒫𝒫C`."
+(Compatibility alias of `lem_3B_ordered_pair_in_power_power`.) -/
 lemma OrderedPair.in_power_power (x y C : Set) :
   x ∈ C → y ∈ C → OrderedPair x y ∈ Power (Power C) :=
-  lemma_3B_ordered_pair_in_power_power x y C
+  lem_3B_ordered_pair_in_power_power x y C
 
 lemma OrderedPair.product (A B : Set) :
   ∃ (C : Set), ∀ (w : Set), w ∈ C ↔ w ∈ 𝒫 𝒫 (A ∪ B) ∧ ∃ (x y : Set), x ∈ A ∧ y ∈ B ∧ w = ⟪x, y⟫ := by
   obtain ⟨C, hC⟩ := comprehension (λ w ↦ ∃ (x y : Set), x ∈ A ∧ y ∈ B ∧ w = ⟪x, y⟫) (𝒫 𝒫 (A ∪ B))
   exact ⟨C, hC⟩
 
+/-- [Enderton Ch3 §1, p.37] "The collection of all such pairs is called the
+*Cartesian product* `A × B` of `A` and `B`: `A × B = {⟨x, y⟩ | x ∈ A & y ∈ B}`." -/
 noncomputable def Product (A B : Set) : Set := Classical.choose (OrderedPair.product A B)
 
 @[simp]
@@ -164,7 +170,8 @@ lemma Product.Spec_full (A B : Set) : ∀ (w : Set), w ∈ Product A B ↔ w ∈
   rw [Product]
   exact h
 
-/- [Enderton, Corollary 3C, p.38] -/
+/-- [Enderton Ch3 §1, p.38] "Corollary 3C For any sets `A` and `B`, there is a set
+whose members are exactly the pairs `⟨x, y⟩` with `x ∈ A` and `y ∈ B`." -/
 @[simp]
 lemma cor_3C_product_spec {A B w : Set} : w ∈ Product A B ↔ ∃ (x y : Set), x ∈ A ∧ y ∈ B ∧ w = ⟪x, y⟫ := by
   constructor
@@ -175,7 +182,7 @@ lemma cor_3C_product_spec {A B w : Set} : w ∈ Product A B ↔ ∃ (x y : Set),
     rcases hw with ⟨x, y, hxA, hyB, hEq⟩
     subst hEq
     have hxyPow : ⟪x, y⟫ ∈ 𝒫 𝒫 (A ∪ B) := by
-      refine lemma_3B_ordered_pair_in_power_power x y (A ∪ B) ?_ ?_
+      refine lem_3B_ordered_pair_in_power_power x y (A ∪ B) ?_ ?_
       · simp [hxA]
       · simp [hyB]
     apply (Product.Spec_full A B (⟪x, y⟫)).2

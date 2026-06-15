@@ -14,6 +14,7 @@ For each new section:
 
 0. Use the textbook as the primary source:
    - A **local** PDF (standard filename is gitignored) and/or the section transcription under `docs/textbook-transcriptions/`.
+   - Section page images under `textbook-pages-by-sections/` (e.g. Chapter 3 Section 6 is in `textbook-pages-by-sections/chapter_03_relations_and_functions/section_06_equivalence_relations/`).
    - Extract statements/proof flow before writing Lean or TODO items.
 1. Read the textbook section fully before coding.
 2. Identify:

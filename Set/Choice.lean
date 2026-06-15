@@ -1,9 +1,10 @@
+import Set.Ch2.S2_ArbitraryUnionsIntersections
 import Set.Ch3.S2_Relations
 
 /-!
 # Choice Axiom Declarations
 
-Canonical home for the Axiom of Choice and its equivalent forms.
+Canonical home for shared AC infrastructure and selected AC forms.
 
 ## Why this file exists
 
@@ -13,24 +14,21 @@ project (see also `Set/Axioms.lean`). This is especially important for AC:
 because of its non-constructive nature, we want a single place that
 collects all forms together, distinct from the ordinary theorem files.
 
-## Why this file only imports `Set.Ch3.S2_Relations`
+## Why function predicates are inlined
 
-We want `Set/Ch3/S4_Functions.lean` to be able to `import Set.Choice` so
-that Enderton's Theorem 3J(b) (the first textbook application of AC) can
-be stated and proved *inside* `S4_Functions.lean`. To avoid a circular
-import, the AC declarations cannot mention `IsFunction` (which is defined
-in `S4_Functions.lean`). We therefore state each form with the function
-predicate inlined — the inlined conjunction `IsRelation H ∧ ∀ x ∈ dom H,
-∃! y, ⟪x, y⟫ ∈ H` is *definitionally* equal to `IsFunction H`, so callers
-in `S4_Functions.lean` and downstream can destructure it as `IsFunction`
-without any conversion lemma.
+This file intentionally avoids importing `Set/Ch3/S4_Functions.lean`, so
+it keeps a local function predicate:
+`IsRelation F ∧ ∀ x ∈ dom F, ∃! y, ⟪x, y⟫ ∈ F`.
 
 ## Roadmap (six equivalent forms)
 
-`ChoiceFirstForm` and `ChoiceSecondForm` below are the only ones Enderton
-introduces in Chapter 3 (§Functions and §Infinite Cartesian Products,
-respectively). The remaining four equivalent forms (Chapter 6) and their
-inter-equivalences will be added here so all six live side-by-side.
+Enderton Theorem 6M (p.151) lists six equivalent forms. We keep forms
+that are not being introduced locally in chapter files. Currently this file
+contains forms III/IV/VI directly. Form I is defined in
+`Set/Ch3/S4_Functions.lean`, form II is defined in
+`Set/Ch3/S5_InfiniteCartesianProducts.lean`, and form V (cardinal
+comparability) is intentionally deferred until the cardinal-comparison
+layer is formalized.
 
 Each form is wrapped in the `Set.Choice` sub-namespace; every consumer
 must `open Choice` (or fully qualify) to access them, which makes every
@@ -40,44 +38,53 @@ AC dependency visible at the use site.
 namespace Set
 namespace Choice
 
-/--
-[Enderton Ch3 §Functions, p. 49] **Axiom of Choice (first form).**
-For any relation `R` there is a function `H ⊆ R` with `dom H = dom R`.
-
-The "function" conjunct is inlined as `IsRelation H ∧ ∀ x ∈ dom H, ∃! y,
-⟪x, y⟫ ∈ H` to keep this file independent of `Set/Ch3/S4_Functions.lean`;
-the inlined form is definitionally equal to `IsFunction H`, so callers in
-`S4_Functions.lean` use it as such.
--/
-def ChoiceFirstForm : Prop :=
-  ∀ (R : Set), IsRelation R →
-    ∃ (H : Set), H ⊆ R ∧
-      (IsRelation H ∧ ∀ x, x ∈ (dom H) → ∃! y, ⟪x, y⟫ ∈ H) ∧
-      (dom H) = (dom R)
-
-/-- The first-form Axiom of Choice itself. -/
-axiom choice_first_form : ChoiceFirstForm
+/-- Inlined "function on relations" predicate used in Choice forms. -/
+def IsFunction' (F : Set) : Prop :=
+  IsRelation F ∧ ∀ x, x ∈ (dom F) → ∃! y, ⟪x, y⟫ ∈ F
 
 /--
-[Enderton Ch3 §Infinite Cartesian Products, p. 55] **Axiom of Choice
-(second / selector-function form).** For any indexed family `H` whose
-fibers are nonempty, there is a selector function on `I`.
-
-The "function" conjunct on `f` is inlined for the same reason as above.
+[Enderton Ch6 §Axiom of Choice, Theorem 6M(3), p.151]
+For any set `A`, there is a choice function on the nonempty subsets of `A`.
 -/
-def ChoiceSecondForm : Prop :=
-  ∀ (I H : Set),
-    (IsRelation H ∧ ∀ x, x ∈ (dom H) → ∃! y, ⟪x, y⟫ ∈ H) →
-    (dom H) = I →
-    (∀ i, i ∈ I → ∃ hi, ⟪i, hi⟫ ∈ H ∧ hi.Nonempty) →
-    ∃ f,
-      (IsRelation f ∧ ∀ x, x ∈ (dom f) → ∃! y, ⟪x, y⟫ ∈ f) ∧
-      (dom f) = I ∧
-      ∀ i y, ⟪i, y⟫ ∈ f → ∃ hi, ⟪i, hi⟫ ∈ H ∧ y ∈ hi
+def ChoiceThirdForm : Prop :=
+  ∀ (A : Set),
+    ∃ (F : Set),
+      IsFunction' F ∧
+      (∀ B, B ∈ (dom F) ↔ B ⊆ A ∧ B.Nonempty) ∧
+      (∀ B x, ⟪B, x⟫ ∈ F → x ∈ B)
 
--- TODO: The remaining four equivalent forms (Chapter 6) and their pairwise
--- equivalence theorems will be added below as the formalization
--- progresses.
+/--
+[Enderton Ch6 §Axiom of Choice, Theorem 6M(4), p.151]
+If `𝒜` is a set of pairwise disjoint nonempty sets, there is a set `C`
+containing exactly one element from each member of `𝒜`.
+-/
+def ChoiceFourthForm : Prop :=
+  ∀ (𝒜 : Set),
+    (∀ B, B ∈ 𝒜 → B.Nonempty) →
+    (∀ B B', B ∈ 𝒜 → B' ∈ 𝒜 → B ≠ B' → B ∩ B' = Set.Empty) →
+    ∃ (C : Set), ∀ B, B ∈ 𝒜 → ∃! x, x ∈ (C ∩ B)
+
+/-
+[Enderton Ch6 §Axiom of Choice, Theorem 6M(5), p.151]
+Cardinal comparability (`C ≼ D ∨ D ≼ C`) is intentionally deferred.
+
+Reason: in this project, the cardinal-comparison notation and supporting
+injection/equinumerosity layer is planned for dedicated Chapter 6 cardinal
+files, not yet part of the current retained Lean subset.
+-/
+
+/-- A chain in `𝒜` under subset ordering. -/
+def IsSubsetChain (ℬ 𝒜 : Set) : Prop :=
+  ℬ ⊆ 𝒜 ∧ ∀ C D, C ∈ ℬ → D ∈ ℬ → C ⊆ D ∨ D ⊆ C
+
+/--
+[Enderton Ch6 §Axiom of Choice, Theorem 6M(6), p.151]
+Zorn's lemma (subset-order formulation).
+-/
+def ChoiceSixthForm : Prop :=
+  ∀ (𝒜 : Set),
+    (∀ (ℬ : Set), IsSubsetChain ℬ 𝒜 → (⋃ ℬ) ∈ 𝒜) →
+    ∃ (M : Set), M ∈ 𝒜 ∧ ∀ N, N ∈ 𝒜 → M ⊆ N → N = M
 
 end Choice
 end Set

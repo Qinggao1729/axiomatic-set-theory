@@ -1,6 +1,10 @@
 import Lean
 
-open Lean Meta
+/-- Set `*.Spec` simp lemmas. -/
+register_simp_attr set_spec_simps
 
-initialize setSpecSimpExt : SimpExtension ←
-  registerSimpAttr `set_spec_simps "Set `*.Spec` simp lemmas"
+/-- Basic propositional simplification lemmas used in controlled `simp only`. -/
+register_simp_attr prop_simps
+
+/-- Non-`*.Spec` bridge lemmas for function-evaluation side conditions. -/
+register_simp_attr function_eval_sideconds
