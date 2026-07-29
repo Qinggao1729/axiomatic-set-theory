@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# A newer push to the same branch or PR supersedes any run still in flight.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: lake build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Lean, fetch Mathlib cache, and build
+        uses: leanprover/lean-action@v1
+        with:
+          use-mathlib-cache: true
+          # --wfail turns any warning into a build failure, which is what makes
+          # the "no sorry" and "builds clean" claims in README.md enforceable.
+          build-args: "--wfail"
+
+      - name: Check for sorry / admit
+        run: |
+          if grep -rnE '\b(sorry|admit)\b' --include='*.lean' Set.lean Set/; then
+            echo "::error::Found sorry or admit in the Lean sources"
+            exit 1
+          fi
+          echo "No sorry or admit in the Lean sources."
