@@ -63,6 +63,19 @@ theorem bigUnion_pair (A B : Set) : ⋃ (Pair A B) = A ∪ B := by
     _ ↔ x ∈ A ∨ x ∈ B := by simp []
     _ ↔ x ∈ A ∪ B := Union.Spec.symm
 
+/-- The union of a singleton recovers its element: `⋃{a} = a`. (The only member of `{a}` is `a`,
+so the members of members of `{a}` are exactly the members of `a`. Used by Theorem 4E.) -/
+theorem bigUnion_singleton (a : Set) : ⋃ (Singleton a) = a := by
+  apply extensionality
+  intro x
+  constructor
+  · intro hx
+    rcases (BigUnion.Spec).mp hx with ⟨b, hb, hxb⟩
+    rw [Singleton.Spec] at hb
+    rwa [hb] at hxb
+  · intro hx
+    exact (BigUnion.Spec).mpr ⟨a, (Singleton.Spec).mpr rfl, hx⟩
+
 /-- [Enderton Ch2 §2, p.24] "An extreme case is `⋃∅ = ∅`." -/
 theorem union_of_empty_set : ⋃ Empty = Empty := by
   apply extensionality

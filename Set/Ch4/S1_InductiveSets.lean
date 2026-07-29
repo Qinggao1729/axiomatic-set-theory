@@ -18,6 +18,16 @@ defined by `a⁺ = a ∪ {a}`." -/
 noncomputable def Successor (a : Set) : Set := a ∪ {a}
 postfix:90 "⁺" => Successor
 
+/-- [Enderton Ch4 §1, p.68] "For each set `a`, `a⁺ = a ∪ {a}`."
+Membership expansion: `x ∈ a⁺ ↔ x ∈ a ∨ x = a`. -/
+@[simp]
+lemma mem_successor_iff (x a : Set) : x ∈ a⁺ ↔ x ∈ a ∨ x = a := by
+  rw [Successor, Union.Spec, Singleton.Spec]
+
+/-- A set belongs to its own successor: `a ∈ a⁺`. -/
+lemma self_mem_successor (a : Set) : a ∈ a⁺ :=
+  (mem_successor_iff a a).2 (Or.inr rfl)
+
 /-- [Enderton Ch4 §1, p.68] "A set `A` is said to be inductive iff `∅ ∈ A` and it
 is closed under successor, i.e., `(∀ a ∈ A) a⁺ ∈ A`." -/
 def Inductive (A : Set) : Prop := ∅ ∈ A ∧ ∀ a, a ∈ A → a⁺ ∈ A
@@ -50,12 +60,9 @@ theorem infinity_inductive : ∃ (A : Set), Inductive A := by
       intro x
       constructor
       · intro hx
-        have hxa : x ∈ a ∨ x = a := (hsSpec x).1 hx
-        simpa [Successor, Union.Spec, Singleton.Spec] using hxa
+        exact (mem_successor_iff x a).2 ((hsSpec x).1 hx)
       · intro hx
-        have hxa : x ∈ a ∨ x = a := by
-          simpa [Successor, Union.Spec, Singleton.Spec] using hx
-        exact (hsSpec x).2 hxa
+        exact (hsSpec x).2 ((mem_successor_iff x a).1 hx)
     simpa [hsEq] using hsA
 
 /-- A fixed inductive set chosen from `infinity_inductive`, analogous to `Empty`,
@@ -138,12 +145,23 @@ theorem thm_4B_ω_subset_of_inductive : ∀ (A : Set), Inductive A → ω ⊆ A 
   exact hn A hA
 
 /-- [Enderton Ch4 §1, p.69] "Induction Principle for `ω`: Any inductive subset of
-`ω` coincides with `ω`."
+`ω` coincides with `ω`." Set form, immediate from Theorem 4B: an inductive `A`
+satisfies `ω ⊆ A`, and `A ⊆ ω` is the hypothesis, so `A = ω`. -/
+theorem eq_ω_of_inductive_subset (A : Set) (hAω : A ⊆ ω) (hAind : Inductive A) :
+    A = ω := by
+  have hωA : ω ⊆ A := thm_4B_ω_subset_of_inductive A hAind
+  apply extensionality
+  intro x
+  constructor
+  · intro hx
+    exact hAω x hx
+  · intro hx
+    exact hωA x hx
 
-Predicate form: given a base case `P ∅` and a successor step `P k → P (k⁺)` on `ω`,
-the conclusion `P n` holds for all `n ∈ ω`. The proof builds `T = {n ∈ ω | P n}`,
-shows it is inductive, hence `ω ⊆ T` by minimality, hence `P n` for every
-`n ∈ ω`. -/
+/-- [Enderton Ch4 §1, p.69] "Induction Principle for `ω`" (predicate form): given a
+base case `P ∅` and a successor step `P k → P (k⁺)` on `ω`, the conclusion `P n`
+holds for all `n ∈ ω`. The proof builds `T = {n ∈ ω | P n}`, shows it is inductive,
+hence `ω ⊆ T` by minimality (Theorem 4B), hence `P n` for every `n ∈ ω`. -/
 lemma ω_induction (P : Set → Prop)
     (hBase : P Set.Empty)
     (hStep : ∀ k, k ∈ ω → P k → P (k⁺)) :

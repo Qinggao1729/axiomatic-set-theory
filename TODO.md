@@ -629,13 +629,31 @@ Primary file: `Set/Ch3/S7_OrderingRelations.lean`
 - Primary file: `Set/Ch4/S2_PeanosPostulates.lean` (proof order in file: 4E, 4F, 4G, then 4D; items below follow textbook order)
 - [ ] **Definition (Peano system, Lean packaging):**
   - **Set theory:** triple $\langle N, S, e \rangle$ with $e \in N$, $S$ maps $N$ into $N$, $e \notin \operatorname{ran}(S)$ (no successor equals $e$), $S$ injective on $N$, and Peano induction on subsets of $N$
-  - **Lean:** `def IsPeanoSystem (N : Set) (S : Set → Set) (e : Set) : Prop := e ∈ N ∧ (∀ n, n ∈ N → S n ∈ N) ∧ (∀ n, n ∈ N → S n ≠ e) ∧ (∀ m n, m ∈ N → n ∈ N → S m = S n → m = n) ∧ (∀ A : Set, A ⊆ N → e ∈ A → (∀ x, x ∈ A → S x ∈ A) → A = N)`
+  - **Lean:** `def IsPeanoSystem (N : Set) (S : Set → Set) (e : Set) : Prop := e ∈ N ∧ IsClosedUnder S N ∧ (∀ n, n ∈ N → S n ≠ e) ∧ (∀ m n, m ∈ N → n ∈ N → S m = S n → m = n) ∧ (∀ A : Set, A ⊆ N → e ∈ A → (∀ x, x ∈ A → S x ∈ A) → A = N)`
+- [ ] **Definition (closed under a function):**
+  - **Set theory:** if $S$ is a function and $A \subseteq \operatorname{dom}(S)$, then "$A$ is closed under $S$" means $x \in A \Rightarrow S(x) \in A$
+  - **Lean:** `def IsClosedUnder (S : Set → Set) (A : Set) : Prop := ∀ x, x ∈ A → S x ∈ A`
+- [ ] **Definition ($\sigma$ as successor restricted to $\omega$):**
+  - **Set theory:** $\sigma = \{\langle n, n^+ \rangle \mid n \in \omega\}$
+  - **Lean:** `noncomputable def σ : Set := Classical.choose (comprehension (fun p => ∃ n, n ∈ ω ∧ p = ⟪n, n⁺⟫) (𝒫 𝒫 ω))`
+- [ ] **Lemma ($\sigma$ pair-membership form):**
+  - **Set theory:** $\langle m,n\rangle \in \sigma \iff (m \in \omega \land n = m^+)$
+  - **Lean:** `lemma σ.Pair.Spec {m n : Set} : ⟪m, n⟫ ∈ σ ↔ m ∈ ω ∧ n = m⁺`
 - [ ] **Lemma (successor is nonempty):**
   - **Set theory:** $a^+ \neq \varnothing$
   - **Lean:** `lemma successor_ne_empty (a : Set) : a⁺ ≠ ∅`
 - [ ] **Definition (Transitive set):**
   - **Set theory:** $x \in a \land a \in A \Rightarrow x \in A$
   - **Lean:** `def IsTransitiveSet (A : Set) : Prop := ∀ (x a : Set), x ∈ a → a ∈ A → x ∈ A`
+- [ ] **Equivalent form of transitive set (`\bigcup A \subseteq A`):**
+  - **Set theory:** $A$ transitive $\iff \bigcup A \subseteq A$
+  - **Lean:** `theorem IsTransitiveSet.iff_bigunion_subset (A : Set) : IsTransitiveSet A ↔ ⋃A ⊆ A`
+- [ ] **Equivalent form of transitive set (`a \in A \Rightarrow a \subseteq A`):**
+  - **Set theory:** $A$ transitive $\iff (\forall a \in A)\, a \subseteq A$
+  - **Lean:** `theorem IsTransitiveSet.iff_mem_subset (A : Set) : IsTransitiveSet A ↔ ∀ a, a ∈ A → a ⊆ A`
+- [ ] **Equivalent form of transitive set (`A \subseteq \mathcal P(A)`):**
+  - **Set theory:** $A$ transitive $\iff A \subseteq \mathcal P(A)$
+  - **Lean:** `theorem IsTransitiveSet.iff_subset_power (A : Set) : IsTransitiveSet A ↔ A ⊆ 𝒫 A`
 - [ ] **Theorem 4E ($\bigcup(a^+)$ for transitive $a$):**
   - **Set theory:** $a$ transitive $\Rightarrow \bigcup(a^+) = a$
   - **Lean:** `theorem thm_4E_bigunion_successor_of_transitive (a : Set) : IsTransitiveSet a → ⋃(a⁺) = a`
@@ -656,6 +674,9 @@ Textbook extraction: `docs/textbook-transcriptions/ch4/ch4s3.md`
 
 - [ ] **Definition (recursion solution, as a function-graph on $\omega$):** $h \subseteq \omega \times A$ is a total function from $\omega$ to $A$, sends $0 \mapsto a$, and satisfies the successor clause against $F : A \to A$.
   - **Lean:** `def RecursionSolution (h A a F : Set) : Prop := …`
+- [ ] **Definition (acceptable function in the recursion-theorem proof):**
+  - **Set theory:** in the proof, a function $v$ is acceptable iff $\operatorname{dom}(v) \subseteq \omega$, $\operatorname{ran}(v) \subseteq A$, and conditions (i)/(ii) hold for $v(0)$ and the successor step
+  - **Lean:** `def IsAcceptableRecursor (v A a F : Set) : Prop := IsFunction v ∧ Domain v ⊆ ω ∧ Range v ⊆ A ∧ (∅ ∈ Domain v → ⟪∅, a⟫ ∈ v) ∧ (∀ n, n ∈ ω → n⁺ ∈ Domain v → n ∈ Domain v) ∧ (∀ n x y, n ∈ ω → ⟪n, x⟫ ∈ v → (⟪n⁺, y⟫ ∈ v ↔ ⟪x, y⟫ ∈ F))`
 - [ ] **Recursion theorem — existence:** Given $a \in A$ and $F : A \to A$ a function (encoded as `MapsInto F A A`), some $h$ satisfies `RecursionSolution`.
   - **Lean:** `theorem recursion_exists_on_ω (A a F : Set) : a ∈ A → MapsInto F A A → ∃ h, RecursionSolution h A a F`
 - [ ] **Recursion theorem — uniqueness:** Any two solutions are equal as sets (hence the same function).
@@ -699,21 +720,30 @@ Textbook extraction: `docs/textbook-transcriptions/ch4/ch4s3.md`
 - [ ] **Definition (order on $\omega$):** $m < n \Leftrightarrow m \in n$ and $m \le n \Leftrightarrow (m \in n \lor m=n)$.
   - **Set theory:** ordering is membership-based for von Neumann naturals.
   - **Lean:** `def NatLt (m n : Set) : Prop := m ∈ n`; `def NatLe (m n : Set) : Prop := m ∈ n ∨ m = n`
+- [ ] **Definition (ordering relation on $\omega$):** $\in_\omega = \{\langle m,n\rangle \in \omega \times \omega \mid m \in n\}$.
+  - **Set theory:** the Chapter 3 relation object induced by membership-order on naturals.
+  - **Lean:** `def epsilon_omega : Set := Comprehension (fun p => ∃ m n, m ∈ ω ∧ n ∈ ω ∧ p = ⟪m, n⟫ ∧ m ∈ n) (ω ⨯ ω)`
+- [ ] **Observed equivalence:** $p \in k^+ \Leftrightarrow p \le k$.
+  - **Set theory:** successor-membership restatement of the non-strict order definition.
+  - **Lean:** `theorem natle_iff_mem_successor (p k : Set) : NatLe p k ↔ p ∈ k⁺`
 - [ ] **Lemma 4L(a):** $m \in n \Leftrightarrow m^+ \in n^+$.
   - **Set theory:** successor preserves and reflects strict order on naturals.
-  - **Lean:** `theorem thm_4L_a_natural_succ_mem_iff (m n : Set) : m ∈ ω → n ∈ ω → (m ∈ n ↔ m⁺ ∈ n⁺)`
+  - **Lean:** `theorem lem_4La_natural_succ_mem_iff (m n : Set) : m ∈ ω → n ∈ ω → (m ∈ n ↔ m⁺ ∈ n⁺)`
 - [ ] **Lemma 4L(b):** no natural number is a member of itself.
   - **Set theory:** irreflexivity of `<` on $\omega$.
-  - **Lean:** `theorem thm_4L_b_natural_not_mem_self (n : Set) : n ∈ ω → n ∉ n` (in `Set/Ch4/S5_OrderingOnOmega.lean`, reusing foundational theorem from S2)
+  - **Lean:** `theorem lem_4Lb_natural_not_mem_self (n : Set) : n ∈ ω → n ∉ n` (in `Set/Ch4/S5_OrderingOnOmega.lean`, reusing foundational theorem from S2)
 - [ ] **Trichotomy law for $\omega$:** exactly one of $m \in n$, $m=n$, $n \in m$.
   - **Set theory:** any two naturals are linearly comparable under membership.
-  - **Lean:** `theorem natural_trichotomy (m n : Set) : m ∈ ω → n ∈ ω → (m ∈ n ∨ m = n ∨ n ∈ m) ∧ ¬(m ∈ n ∧ m = n) ∧ ¬(m ∈ n ∧ n ∈ m) ∧ ¬(m = n ∧ n ∈ m)`
+  - **Lean:** `theorem thm_4L_trichotomy_law_omega (m n : Set) : m ∈ ω → n ∈ ω → (m ∈ n ∨ m = n ∨ n ∈ m) ∧ ¬(m ∈ n ∧ m = n) ∧ ¬(m ∈ n ∧ n ∈ m) ∧ ¬(m = n ∧ n ∈ m)`
+- [ ] **Definition (proper subset):** $A \subset B \Leftrightarrow (A \subseteq B \land A \ne B)$.
+  - **Set theory:** proper inclusion definition used in Corollary 4M.
+  - **Lean:** `def IsProperSubset (A B : Set) : Prop := A ⊆ B ∧ A ≠ B`
 - [ ] **Corollary 4M:** for naturals, $m \in n \Leftrightarrow m \subset n$, and $m \le n \Leftrightarrow m \subseteq n$.
   - **Set theory:** strict/non-strict order corresponds to proper/non-proper inclusion.
   - **Lean:** `theorem cor_4M_mem_iff_proper_subset ...`; `theorem cor_4M_le_iff_subset ...`
 - [ ] **Theorem 4N:** order preserved by addition, and by multiplication with nonzero factor.
   - **Set theory:** monotonicity of $+$ and $\cdot$ on $\omega$ (for nonzero multiplier in the multiplicative case).
-  - **Lean:** `theorem thm_4N_order_preservation ...`
+  - **Lean:** `theorem thm_4N_add_mem_iff ...`; `theorem thm_4N_mul_mem_iff_of_nonzero ...`; `theorem thm_4N_order_preservation ...`
 - [ ] **Corollary 4P:** cancellation laws for addition/multiplication on $\omega$.
   - **Set theory:** if $a+k=b+k$ then $a=b$; if $k\neq 0$ and $a\cdot k=b\cdot k$ then $a=b$.
   - **Lean:** `theorem cor_4P_cancellation ...`
@@ -844,12 +874,12 @@ Enderton’s labels (5ZA, 5QA, 5RA, …) correspond to Lean names with Unicode s
 
 ## Summary of Proven Items
 
-Current checklist coverage: **Ch. 2, Ch. 3 through Functions (`S4`), and Ch. 4 § Inductive Sets (`S1`)** are marked checked from your human verification. From **Ch. 3 § Infinite Cartesian Products (`S5`)** and **Ch. 4 § Peano (`S2`) onward**, boxes are unchecked until explicitly re-verified.
+Current checklist coverage: **Ch. 2, Ch. 3 through Functions (`S4`), and Ch. 4 § Inductive Sets (`S1`)** are marked checked from your human verification. From **Ch. 3 § Infinite Cartesian Products (`S5`)** and **Ch. 4 § Peano's Postulates (`S2`) onward**, boxes are unchecked until explicitly re-verified.
 
 | Chapter   | Total items | Checked |
 | --------- | ----------- | ------- |
 | Ch. 2     | 74          | 74      |
 | Ch. 3     | 75          | 49      |
-| Ch. 4     | 39          | 10      |
+| Ch. 4     | 46          | 10      |
 | Ch. 5     | 44          | 0       |
-| **Total** | **232**     | **133** |
+| **Total** | **239**     | **133** |

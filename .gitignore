@@ -9,9 +9,11 @@
 
 # Editor / agent (local)
 .cursor/
-Unused/
-Writeups/
 
-# Textbook PDF (copyrighted; keep a local copy only)
+# Copyrighted textbook material (keep local copies only; do not publish)
 Enderton_Textbook.pdf
 textbook-pages-by-sections/
+docs/textbook-transcriptions/
+
+Unused/
+Writeups/

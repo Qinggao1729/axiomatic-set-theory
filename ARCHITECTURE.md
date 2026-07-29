@@ -27,11 +27,17 @@ The implementation is now physically split by textbook sections:
     derives Enderton's shorthand Infinity statement
     `infinity_inductive : ∃ A, Inductive A` from the primitive axiom, and
     defines the chosen witness `Infinity := Classical.choose infinity_inductive`)
+  - `Set/Ch4/S2_PeanosPostulates.lean` (Peano-system packaging, transitive sets,
+    4E/4F/4G, bridge lemmas for later sections, and 4D)
+  - `Set/Ch4/S3_RecursionOnOmega.lean` (recursion theorem on `ω`, solution
+    existence/uniqueness, and Theorem 4H Peano-system isomorphism)
+  - `Set/Ch4/S4_Arithmetic.lean` (recursive definitions of addition,
+    multiplication, exponentiation, and Theorem 4K arithmetic laws)
+  - `Set/Ch4/S5_OrderingOnOmega.lean` (ordering on `ω`)
   - Note: the primitive Infinity axiom now lives in `Set/Axioms.lean` in
     witness-expanded form; `Set/Ch4/S1_InductiveSets.lean` derives the
     Enderton literal shorthand `∃ A, Inductive A` as a theorem.
-  - Chapter 4 Sections 2 onward (Peano postulates, recursion on `ω`, arithmetic,
-    ordering on `ω`) are planned but not yet in the repository.
+  - Chapter 5 onward is planned but not yet in the repository.
 
 Use the chapter aggregators (`Set/Ch2.lean`, `Set/Ch3.lean`, …) and section
 files directly. Older one-line re-export shims under `Set/*.lean` have been
@@ -57,11 +63,15 @@ Refactored to chapter/section aggregator files matching textbook flow:
 - `Set/Ch3.lean` (aggregator)
 
 - `Set/Ch4/S1_InductiveSets.lean`
+- `Set/Ch4/S2_PeanosPostulates.lean`
+- `Set/Ch4/S3_RecursionOnOmega.lean`
+- `Set/Ch4/S4_Arithmetic.lean`
+- `Set/Ch4/S5_OrderingOnOmega.lean`
 - `Set/Ch4.lean` (aggregator)
 
 And top-level:
 
-- `Set.lean` imports `Set.Ch2`, `Set.Ch3`, and `Set.Ch4`.
+- `Set.lean` imports `Set.Axioms`, `Set.Ch2`, `Set.Ch3`, `Set.Ch4`, and `Set.Choice`.
 
 ## 2) Why AC Is Structured This Way
 

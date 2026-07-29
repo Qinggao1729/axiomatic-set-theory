@@ -479,4 +479,17 @@ theorem deMorgan_biginter (C 𝒜 : Set) (h𝒜 : 𝒜.Nonempty) :
         simpa only [set_spec_simps, prop_simps] using hxI
       exact hxt.2 (hxAll X hX)
 
+/-- [Enderton Ch2 §3, p.32, Exercise 21] "Show that `⋃(A ∪ B) = ⋃A ∪ ⋃B`." -/
+theorem ex_2_21_bigUnion_union (A B : Set) : ⋃(A ∪ B) = ⋃A ∪ ⋃B := by
+  apply extensionality
+  intro x
+  calc
+    x ∈ ⋃(A ∪ B)
+      ↔ ∃ b : Set, b ∈ A ∪ B ∧ x ∈ b := BigUnion.Spec
+    _ ↔ ∃ b : Set, (b ∈ A ∨ b ∈ B) ∧ x ∈ b := by simp only [Union.Spec]
+    _ ↔ (∃ b : Set, b ∈ A ∧ x ∈ b) ∨ (∃ b : Set, b ∈ B ∧ x ∈ b) := by
+        simp only [or_and_right, exists_or]
+    _ ↔ x ∈ ⋃A ∨ x ∈ ⋃B := by simp only [BigUnion.Spec]
+    _ ↔ x ∈ ⋃A ∪ ⋃B := Union.Spec.symm
+
 end Set

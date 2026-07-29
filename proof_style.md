@@ -135,6 +135,53 @@ explicit proof argument, passed through the notation:
 - Add an `app_unexpander` to print the notation (`A / R ∵ h`) instead of the
   kernel-style application.
 
+## Set-Theoretic Functions: Represent as Function-Sets (Ch2 onward)
+
+From Chapter 2 onward, a set-theoretic *function* is an object of the
+universe (a set of ordered pairs), not a type-theoretic arrow. Do **not**
+model it as `Set → Set`.
+
+- Take the function as a `Set` parameter and carry its function-hood as a
+  hypothesis: `IsFunction S`, or the stronger `MapsInto S A B` /
+  `MapsOnto S A B` / `IsOneToOne S` as the textbook requires.
+- State value conditions via pair membership `⟪x, y⟫ ∈ S` (read "`S(x) = y`")
+  when no value-level computation is needed; this keeps statements free of
+  `FunctionValue` side conditions. When the textbook wording is itself in
+  value form ("then `S(x) ∈ A`"), carry the well-definedness hypotheses
+  (`IsFunction S`, `x ∈ dom S`) as dependent binders so the value operator
+  `S⟮x⟯'(…)` is well-formed, and write the clause as `S⟮x⟯ ∈ A`.
+- Example: a Peano system's successor is `MapsInto S N N ∧ IsOneToOne S`
+  (`def IsPeanoSystem`), and "closed under `S`" keeps the textbook's standing
+  assumptions as conjuncts together with the image form: `IsFunction S ∧
+  A ⊆ (dom S) ∧ S⟦A⟧ ⊆ A` (`def IsClosedUnder`). For such an `S` the clause
+  `S⟦A⟧ ⊆ A` says exactly `S(x) ∈ A` for every `x ∈ A`, but it avoids
+  `FunctionValue` proof obligations and the dependent `∃ (h : …)`/`∀ (h : …)`
+  binders that the value form `S⟮x⟯'(⟨…⟩) ∈ A` would require. Note `dom S` must
+  be parenthesized inside `⊆` (`A ⊆ (dom S)`) to avoid the prefix-notation
+  overload error.
+
+- To build a function-set from a rule, prefer the relation-based builder
+  `FunFromRel (A B : Set) (φ : Set → Set → Prop)`, which separates
+  `{⟪a, b⟫ ∈ A ⨯ B | φ a b}` from a *meta-relation* and an explicit codomain
+  `B`. Single-valuedness and totality are then discharged as hypotheses
+  (`FunFromRel.mapsInto`) rather than borrowed from a Lean `Set → Set` arrow,
+  so the reduction to set theory stays honest. It is defined where first used,
+  in `Set/Ch4/S2_PeanosPostulates.lean`.
+
+`Set → Set` (and `Set → Prop`) remain legitimate **only** for genuinely
+meta-level roles that are not function-objects:
+
+- axiom schemas / property quantification: `comprehension (P : Set → Prop)`,
+  `ω_induction (P : Set → Prop)`;
+- the primitive relation `ElementOf : Set → Set → Prop`;
+- meta-indexed families (e.g. arity-indexed `NTupleCarrier : Nat → Set → Set`);
+- the value rule `φ : Set → Set → Prop` consumed by `FunFromRel`, confined to
+  proofs/constructions and never appearing in an Enderton-facing statement.
+
+For the rationale behind `FunFromRel` vs `GraphOn`, shallow vs deep embeddings,
+and why dependent types do not compromise the axiomatic approach, see
+`design_choices.md`.
+
 ## Readability Conventions
 
 - Use semantic names for local equivalences:
@@ -255,91 +302,6 @@ explicit proof argument, passed through the notation:
 - Prefer `@[simp]` for canonical membership specifications (`*.Spec`) and similar
   definitional normal forms; avoid promoting algebraic laws (e.g. commutativity/associativity)
   to global simp rules unless there is a strong, local justification.
-
-## `F⟮x⟯` / `FunctionValue` unification timeouts
-
-This documents a `maxHeartbeats` timeout that can arise from the automatic
-function-application notation. The live example is `Set/Ch3/S6_Equivalence.lean`
-(theorem 3Q, uniqueness branch), which uses the recommended fix below, so the code
-there no longer shows the failure — this note preserves the reasoning.
-
-### Setup
-
-`F⟮x⟯` is notation that expands to
-`FunctionValue F x ⟨by function_eval_auto, by function_eval_auto⟩`. Two facts about
-this expansion drive the problem:
-
-- Each written occurrence carries its own `by function_eval_auto` tactic blocks, so
-  it independently *re-runs* the search that proves the side conditions
-  `IsFunction F` and `x ∈ dom F`. The notation has no cache; nothing is shared
-  between occurrences.
-- `FunctionValue` is defined as `FunctionValue F x h := Classical.choose (h.1.2 x h.2)`,
-  i.e. its value is extracted from the side-condition proof `h` via `Classical.choose`
-  (this is also why it is `noncomputable`).
-
-### What goes wrong
-
-When two independently-written `F⟮x⟯` occurrences must be reconciled — e.g. one is
-fed to a lemma like `function_value_unique` whose argument type forces it to match
-another — the searches typically produce *different* proof terms `h₁` and `h₂`, and
-the unifier is left having to check `FunctionValue F x h₁ = FunctionValue F x h₂`.
-
-For reference, the lemma's signature is:
-
-```lean
-lemma function_value_unique (F x y z : Set) (hF : IsFunction F) :
-    ⟪x, y⟫ ∈ F → ⟪x, z⟫ ∈ F → y = z
-```
-
-The reconciliation happens because the final argument has type `⟪x, z⟫ ∈ F`: when
-you pass a hypothesis whose value already contains one `F⟮x⟯` term, `z` must unify
-with it, so writing a *second* `F⟮x⟯` for `z` forces the comparison of two
-independently-built `FunctionValue` terms.
-
-That equation is *true*, and it is *decidable*: by proof irrelevance `h₁` and `h₂`
-are interchangeable, and `isDefEq` always terminates. The two terms are therefore
-**comparable, not incomparable** — the issue is purely that the cheap route is not
-taken, so it needs far more time than the heartbeat budget allows. Concretely the
-proof-irrelevance shortcut fails to fire because `FunctionValue F x h` unfolds to
-`Classical.choose (h.1.2 x h.2)`, which is:
-
-- **opaque** — `Classical.choose` is irreducible (there is no algorithm that
-  computes its value), so the two terms never reduce to a common normal form that
-  the unifier could compare directly; and
-- **embeds `h`** — once unfolded, the proof `h` is no longer a clean top-level
-  argument of `FunctionValue`; it lives *inside* the argument to `Classical.choose`
-  (as `h.1.2 x h.2`). The cheap "both arguments are proofs ⇒ equal by proof
-  irrelevance" rule applies only at a top-level argument position, so it no longer
-  fires; the unifier instead digs into the buried subterm and reduces the `dom F`
-  comprehension machinery appearing in the proofs' types.
-
-The unifier then delta-unfolds and grinds until it exceeds `maxHeartbeats`. (In
-principle a large enough `maxHeartbeats` would let it finish, confirming this is a
-budget overrun, not an impossibility.)
-
-### Where the error is reported
-
-`maxHeartbeats` is cumulative over a tactic block, so the timeout is frequently
-*blamed* on a later step — `subst`, `exact`, even a `rcases` in the next branch —
-than the term-building step that actually burned the budget. Do not trust the
-reported line; fix the occurrence that builds the heavy term.
-
-### Fixes
-
-1. **Keep both side-condition facts in context** (recommended). Add
-   `have hFfun : IsFunction F := ...` and `have hxDomF : x ∈ dom F := ...` before
-   the `F⟮x⟯` uses. Every `function_eval_auto` then closes by assumption and builds
-   the *same* proof term `⟨hFfun, hxDomF⟩`, so all `F⟮x⟯` occurrences become
-   syntactically identical and unify trivially. This keeps `F⟮x⟯` notation uniform
-   across the proof.
-2. **Pass the argument as `_`.** Instead of writing a second `F⟮x⟯`, pass `_` and
-   let Lean unify the metavariable with an `F⟮x⟯` term already present in a
-   hypothesis (e.g. the membership fact handed to `function_value_unique`). No
-   second term is built, so neither the re-search nor the opaque comparison happens.
-   Leaner, but breaks notation uniformity.
-
-Prefer (1) for readability and uniform notation; use (2) when minimizing extra
-`have`s matters.
 
 ## Implementation Preferences (Core Files)
 

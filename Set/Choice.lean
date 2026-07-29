@@ -70,7 +70,7 @@ Cardinal comparability (`C ≼ D ∨ D ≼ C`) is intentionally deferred.
 
 Reason: in this project, the cardinal-comparison notation and supporting
 injection/equinumerosity layer is planned for dedicated Chapter 6 cardinal
-files, not yet part of the current retained Lean subset.
+files, and is not yet formalized.
 -/
 
 /-- A chain in `𝒜` under subset ordering. -/

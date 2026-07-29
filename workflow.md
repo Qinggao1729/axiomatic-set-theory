@@ -1,115 +1,58 @@
 # Formalization Workflow (Per Section)
 
-This document defines the standard workflow for each textbook section in this repo.
+This is the required workflow for every new section.
 
-## 0) Scope and Goals
+## 1) Literal Transcription from Images
 
-- Goal: follow textbook logic order strictly, then formalize in Lean.
-- Coverage target per section: axioms, definitions, theorems, examples, and key proof ideas.
-- Synchronization rule: TODO section and corresponding `.lean` section must stay aligned at all times.
+1. Use section page images under `textbook-pages-by-sections/` as the source of truth.
+2. Create/update `docs/textbook-transcriptions/chX/chXsY.md`.
+3. Transcribe literally (word-by-word), including page markers.
+4. Do not transcribe from PDF text extraction.
 
-## 1) Read Textbook First
+Both directories are gitignored: the textbook is under copyright (Academic Press, 1977), so page images and literal transcriptions are working material that stays on your machine. Only the short attributed quotations in Lean doc-comments are published.
 
-For each new section:
+## 2) Extract What Must Be Formalized
 
-0. Use the textbook as the primary source:
-   - A **local** PDF (standard filename is gitignored) and/or the section transcription under `docs/textbook-transcriptions/`.
-   - Section page images under `textbook-pages-by-sections/` (e.g. Chapter 3 Section 6 is in `textbook-pages-by-sections/chapter_03_relations_and_functions/section_06_equivalence_relations/`).
-   - Extract statements/proof flow before writing Lean or TODO items.
-1. Read the textbook section fully before coding.
-2. Identify:
-   - Definitions
-   - Axioms
-   - Theorems/Lemmas/Corollaries
-   - Examples/exercises used in narrative
-3. Keep theorem order consistent with the textbook unless there is a hard Lean dependency issue.
-4. For Chapter 4 Section 3 specifically:
-   - Keep `Set/Ch4/S3_RecursionOnOmega.lean` focused on the recursion theorem chain and 4H.
-   - Place arithmetic-specific specializations (e.g. successor graph wrappers used by addition/multiplication) in `Set/Ch4/S4_Arithmetic.lean`.
+From the transcription, list all formalizable textbook items:
 
-## 2) Create a Section Extraction Draft
+- Definitions
+- Alternative definitions / equivalent formulations
+- Axioms
+- Theorems / lemmas / corollaries
 
-Before formalizing:
+Do not formalize exercises.  
+Examples and narrative are included only when they are needed for proof structure or later reuse (use judgment).
 
-1. Create/update a section transcription file under:
-   - `docs/textbook-transcriptions/`
-   - Example: `docs/textbook-transcriptions/ch2/ch2s3.md`
-   - Example: `docs/textbook-transcriptions/ch3/ch3s6.md`
-2. Record:
-   - Formal statements (set-theoretic)
-   - Human-written proof sketch from textbook
-   - Any diagrams or narrative proof steps rewritten as text
-3. Prefer preserving textbook proof flow, especially for multi-step equivalence proofs.
+## 3) Formalize Completely in Lean
 
-## 3) Update TODO First (Planning Contract)
+1. Ensure every required item from Step 2 has a corresponding Lean declaration.
+2. Keep declaration order close to textbook flow unless Lean dependencies force a change.
+3. For each textbook-facing declaration, follow `proof_style.md`:
+   - naming conventions (including numbered declaration style when applicable)
+   - doc-comment citation format
+   - proof readability/style conventions
+4. Required citation comment format:
+   - `/-- [Enderton ChN §M, p.PP] "literal textbook wording." -/`
+   - use `pp.PP-QQ` for page ranges.
 
-Add/update the corresponding section in `TODO.md` before proving.
+## 4) Completeness Audit Against Transcription
 
-Required format per item:
+Before considering a section translated:
 
-- Checkbox item:
-  - `- [ ]` pending, `- [x]` done
-- Two child lines:
-  - `- **Set theory:** ...`
-  - `- **Lean:** ...`
+1. Compare transcription item-by-item against Lean declarations.
+2. Confirm all required definitions/alternative definitions/axioms/theorems/lemmas/corollaries are present.
+3. Add a `Mapping to Lean` section in the transcription file.
 
-Rules:
+## 5) Update TODO (Unchecked)
 
-- Use concrete declaration names/signatures from the real `.lean` file.
-- Do not include decorators like `@[simp]` in TODO.
-- Every section must include primary Lean file reference(s).
+Update the section in `TODO.md` so it matches the current Lean declarations and mapping.
 
-## 4) Formalize in Lean
+- Add missing items and Lean names/signatures as needed.
+- Keep new/updated items unchecked (`[ ]`) until human verification.
 
-Implementation order:
+## 6) Verify
 
-1. Add core definitions and notation first.
-2. Add `*.Spec` lemmas.
-3. Add uniqueness theorems when applicable.
-4. Add derived theorems/examples following textbook order.
-
-When writing proofs, always consult:
-
-- `proof_style.md`
-- `.cursor/rules/Lean-proof-style-protocol.mdc`
-
-## 5) Proof Style Requirements (Operational)
-
-- Keep semantic steps explicit; use `simp` for routine logical plumbing.
-- Prefer theorem reuse before manual decomposition.
-- Use `exact` directly when goal matches hypothesis/projection.
-- Use `rw` when rewrite is simple and transparent.
-- For repeated spec rewrites, prefer:
-  - `simp only [set_spec_simps]`
-  - `simp_all only [set_spec_simps]`
-- In branch cases, prefer short visible steps (`apply` -> `rw` -> `exact`) over one complex term.
-- If stuck:
-  1. try `aesop?` as search only
-  2. rewrite final proof into explicit + simp style
-
-## 6) Tactics / Metaprogramming Support
-
-- Allowed and encouraged when they improve maintainability and readability.
-- For spec-heavy work, maintain/use custom simp set infrastructure (`Set/SimpAttrs.lean`).
-- Avoid introducing abstraction wrappers that add proof noise unless there is a clear meta-level benefit.
-
-## 7) Verification Loop
-
-After substantial edits:
-
-1. Typecheck target file/module.
-2. Run build for impacted module(s).
-3. Fix new errors immediately.
-4. Update TODO checkboxes to match actual proof status.
-5. Keep temporary transcription file updated when it aids proof maintenance.
-
-## 8) Definition of Done (Per Section)
-
-A section is done only when all conditions hold:
-
-- Textbook items are transcribed and mapped.
-- Lean file contains finalized definitions/theorems in intended order.
-- Proofs follow `proof_style.md`.
-- TODO section is fully synchronized with Lean content.
-- Build/typecheck passes for impacted modules.
+1. Typecheck/build impacted modules.
+2. Fix any new errors.
+3. Re-check that TODO, transcription mapping, and Lean declarations are synchronized.
 

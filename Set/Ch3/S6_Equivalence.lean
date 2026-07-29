@@ -451,7 +451,7 @@ theorem thm_3Q_compatible_exists_unique_quotient_map
     -- two `[F⟮x⟯]₍R₎` terms in the `function_value_unique` call for `hPClass` below
     -- pits two `Classical.choose`-based `FunctionValue` terms against each other and
     -- blows past `maxHeartbeats` — see the "`F⟮x⟯` / `FunctionValue` unification
-    -- timeouts" note in `proof_style.md`.
+    -- timeouts" note in `design_choices.md`.
     have hFfun : IsFunction F := hMap.1
     have hxDomF : x ∈ dom F := mapsInto_dom_mem hMap hxA
     have hQyG : ⟪[x]₍R₎, [F⟮x⟯]₍R₎⟫ ∈ G := hGSpec x hxA
